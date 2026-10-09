@@ -4,6 +4,7 @@ import dev.leo.sableplayerragdoll.block.RagdollPartBlock;
 import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity;
 import dev.leo.sableplayerragdoll.entity.RagdollDollEntity;
 import dev.leo.sableplayerragdoll.entity.RagdollSeatEntity;
+import dev.leo.sableplayerragdoll.neoforge.client.EntityCullingRagdollCompat;
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollCameraHelper;
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollDollEntityRenderer;
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollInputClient;
@@ -36,6 +37,7 @@ public final class SablePlayerRagdollNeoForgeClient {
       RagdollInputClient.init();
       RagdollGrabClient.init();
       RagdollBlockInteractClient.init();
+      EntityCullingRagdollCompat.init();
       modBus.addListener(SablePlayerRagdollNeoForgeClient::registerEntityRenderers);
       MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForgeClient::onRenderHighlight);
    }
