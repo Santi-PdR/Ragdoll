@@ -2,40 +2,32 @@ package dev.leo.sableplayerragdoll.mob.network;
 
 import dev.leo.sableplayerragdoll.SablePlayerRagdoll;
 import dev.leo.sableplayerragdoll.mob.MobRagdollAssembly;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.network.handling.IPayloadContext;
 
-public record MobRagdollDespawnPacket(int entityId) implements CustomPacketPayload {
+public record MobRagdollDespawnPacket(int entityId) {
     public static final Type<MobRagdollDespawnPacket> TYPE = new Type<>(
             new ResourceLocation(SablePlayerRagdoll.MOD_ID, "mob_ragdoll_despawn")
     );
-    public static final StreamCodec<RegistryFriendlyByteBuf, MobRagdollDespawnPacket> STREAM_CODEC = StreamCodec.of(
-            MobRagdollDespawnPacket::encode,
-            MobRagdollDespawnPacket::decode
-    );
-
-    @Override
+     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-    private static void encode(RegistryFriendlyByteBuf buffer, MobRagdollDespawnPacket packet) {
+    public static void encode(FriendlyByteBuf buffer, MobRagdollDespawnPacket packet) {
         buffer.writeVarInt(packet.entityId());
     }
 
-    private static MobRagdollDespawnPacket decode(RegistryFriendlyByteBuf buffer) {
+    public static MobRagdollDespawnPacket decode(FriendlyByteBuf buffer) {
         return new MobRagdollDespawnPacket(buffer.readVarInt());
     }
 
-    public static void handle(MobRagdollDespawnPacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            if (!(context.player() instanceof ServerPlayer player)) {
+    public static void handle(MobRagdollDespawnPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
+      net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
+        networkContext.enqueueWork(() -> {
+            if (!(networkContext.getSender() instanceof ServerPlayer player)) {
                 return;
             }
             Entity target = player.level().getEntity(packet.entityId());

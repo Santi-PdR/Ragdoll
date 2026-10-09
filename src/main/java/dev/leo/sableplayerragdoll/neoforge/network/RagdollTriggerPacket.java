@@ -5,41 +5,24 @@ import dev.leo.sableplayerragdoll.api.RagdollLimbOptions;
 import dev.leo.sableplayerragdoll.api.RagdollPoseSnapshot;
 import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity.BodyPart;
 import dev.leo.sableplayerragdoll.physics.RagdollRegistry;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.handling.IPayloadContext;
 
-public record RagdollTriggerPacket(RagdollLimbOptions pose, float bodyYaw) implements CustomPacketPayload {
-   public static final Type<RagdollTriggerPacket> TYPE = new Type<>(
-      new ResourceLocation("sable_player_ragdoll", "trigger_ragdoll")
-   );
-   public static final StreamCodec<RegistryFriendlyByteBuf, RagdollTriggerPacket> STREAM_CODEC = StreamCodec.of(
-      RagdollTriggerPacket::write,
-      RagdollTriggerPacket::read
-   );
-
+public record RagdollTriggerPacket(RagdollLimbOptions pose, float bodyYaw) {
    public RagdollTriggerPacket() {
-      this(RagdollLimbOptions.defaults(), Float.NaN);
-   }
-
-   @Override
-   public Type<? extends CustomPacketPayload> type() {
-      return TYPE;
-   }
-
-   public static void handle(RagdollTriggerPacket packet, IPayloadContext context) {
-      context.enqueueWork(() -> {
-         if (context.player() instanceof ServerPlayer player) {
+      this(RagdollLimbOptions.defaults(), Float.NaN);\n   }\n
+   public static void handle(RagdollTriggerPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
+      net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
+      networkContext.enqueueWork(() -> {
+         if (networkContext.getSender() instanceof ServerPlayer player) {
             RagdollRegistry.triggerManual(player, new RagdollPoseSnapshot(packet.pose(), packet.bodyYaw()));
          }
       });
+
+      networkContext.setPacketHandled(true);
    }
 
-   private static void write(RegistryFriendlyByteBuf buffer, RagdollTriggerPacket packet) {
+   private static void write(FriendlyByteBuf buffer, RagdollTriggerPacket packet) {
       buffer.writeFloat(packet.bodyYaw());
       for (BodyPart part : BodyPart.values()) {
          RagdollLimbConfig config = packet.pose().get(part);
@@ -55,7 +38,7 @@ public record RagdollTriggerPacket(RagdollLimbOptions pose, float bodyYaw) imple
       }
    }
 
-   private static RagdollTriggerPacket read(RegistryFriendlyByteBuf buffer) {
+   private static RagdollTriggerPacket read(FriendlyByteBuf buffer) {
       float bodyYaw = buffer.readFloat();
       RagdollLimbOptions.Builder builder = RagdollLimbOptions.builder();
       for (BodyPart part : BodyPart.values()) {

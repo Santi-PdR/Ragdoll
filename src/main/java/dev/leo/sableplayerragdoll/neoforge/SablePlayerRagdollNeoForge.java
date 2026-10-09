@@ -112,10 +112,10 @@ public final class SablePlayerRagdollNeoForge {
       modBus.addListener(RagdollConfig::onLoad);
       modBus.addListener(RagdollConfig::onReload);
       RagdollConfig.register(modContainer);
-      modBus.addListener(RagdollNetworking::register);
+      RagdollNetworking.register();
       MobRagdollBlocks.register(modBus);
       MobRagdollItems.register(modBus);
-      modBus.addListener(MobRagdollNetworking::register);
+      MobRagdollNetworking.register();
       modBus.addListener(SablePlayerRagdollNeoForge::onCommonSetup);
       modBus.addListener(SablePlayerRagdollNeoForge::registerAttributes);
       MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onLevelTick);

@@ -7,33 +7,18 @@ import dev.leo.sableplayerragdoll.mob.block.entity.MobRagdollPartBlockEntity;
 import dev.leo.sableplayerragdoll.physics.RagdollRegistry;
 import dev.leo.sableplayerragdoll.physics.RagdollSessionManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.network.handling.IPayloadContext;
 
-public record RagdollGrabPacket(BlockPos pos, boolean release) implements CustomPacketPayload {
-   public static final Type<RagdollGrabPacket> TYPE = new Type<>(
-      new ResourceLocation("sable_player_ragdoll", "grab")
-   );
-   public static final StreamCodec<RegistryFriendlyByteBuf, RagdollGrabPacket> STREAM_CODEC = StreamCodec.composite(
-      BlockPos.STREAM_CODEC, RagdollGrabPacket::pos,
-      ByteBufCodecs.BOOL, RagdollGrabPacket::release,
-      RagdollGrabPacket::new
-   );
+public record RagdollGrabPacket(BlockPos pos, boolean release) {
+   public static void encode(FriendlyByteBuf b, RagdollGrabPacket p) { b.writeBlockPos(p.pos()); b.writeBoolean(p.release()); }
+   public static RagdollGrabPacket decode(FriendlyByteBuf b) { return new RagdollGrabPacket(b.readBlockPos(), b.readBoolean()); }
 
-   @Override
-   public Type<? extends CustomPacketPayload> type() {
-      return TYPE;
-   }
-
-   public static void handle(RagdollGrabPacket packet, IPayloadContext context) {
-      context.enqueueWork(() -> {
-         if (!(context.player() instanceof ServerPlayer player)) return;
+   public static void handle(RagdollGrabPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
+      net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
+      networkContext.enqueueWork(() -> {
+         if (!(networkContext.getSender() instanceof ServerPlayer player)) return;
          BlockEntity blockEntity = player.level().getBlockEntity(packet.pos());
          if (blockEntity instanceof RagdollPartBlockEntity ragdollPart) {
             if (packet.release()) {
@@ -59,5 +44,7 @@ public record RagdollGrabPacket(BlockPos pos, boolean release) implements Custom
             }
          }
       });
+
+      networkContext.setPacketHandled(true);
    }
 }

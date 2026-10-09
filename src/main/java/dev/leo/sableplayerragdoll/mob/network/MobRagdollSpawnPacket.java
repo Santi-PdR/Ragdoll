@@ -6,30 +6,21 @@ import dev.leo.sableplayerragdoll.mob.block.MobPartRole;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.network.handling.IPayloadContext;
 
-public record MobRagdollSpawnPacket(int entityId, String entityType, float bodyYaw, List<Part> parts) implements CustomPacketPayload {
+public record MobRagdollSpawnPacket(int entityId, String entityType, float bodyYaw, List<Part> parts) {
     public static final Type<MobRagdollSpawnPacket> TYPE = new Type<>(
             new ResourceLocation(SablePlayerRagdoll.MOD_ID, "mob_ragdoll_spawn")
     );
-    public static final StreamCodec<RegistryFriendlyByteBuf, MobRagdollSpawnPacket> STREAM_CODEC = StreamCodec.of(
-            MobRagdollSpawnPacket::encode,
-            MobRagdollSpawnPacket::decode
-    );
-
-    @Override
+     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-    private static void encode(RegistryFriendlyByteBuf buffer, MobRagdollSpawnPacket packet) {
+    public static void encode(FriendlyByteBuf buffer, MobRagdollSpawnPacket packet) {
         buffer.writeVarInt(packet.entityId());
         buffer.writeUtf(packet.entityType(), 256);
         buffer.writeFloat(packet.bodyYaw());
@@ -82,7 +73,7 @@ public record MobRagdollSpawnPacket(int entityId, String entityType, float bodyY
         }
     }
 
-    private static MobRagdollSpawnPacket decode(RegistryFriendlyByteBuf buffer) {
+    public static MobRagdollSpawnPacket decode(FriendlyByteBuf buffer) {
         int entityId = buffer.readVarInt();
         String entityType = buffer.readUtf(256);
         float bodyYaw = buffer.readFloat();
@@ -162,9 +153,10 @@ public record MobRagdollSpawnPacket(int entityId, String entityType, float bodyY
         return new MobRagdollSpawnPacket(entityId, entityType, bodyYaw, List.copyOf(parts));
     }
 
-    public static void handle(MobRagdollSpawnPacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            if (!(context.player() instanceof ServerPlayer player)) {
+    public static void handle(MobRagdollSpawnPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
+      net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
+        networkContext.enqueueWork(() -> {
+            if (!(networkContext.getSender() instanceof ServerPlayer player)) {
                 return;
             }
             Entity target = player.level().getEntity(packet.entityId());

@@ -1,35 +1,21 @@
 package dev.leo.sableplayerragdoll.neoforge.network;
 
 import dev.leo.sableplayerragdoll.physics.RagdollControlHelper;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.handling.IPayloadContext;
 
-public record RagdollInputPacket(float strafe, float forward) implements CustomPacketPayload {
-   public static final Type<RagdollInputPacket> TYPE = new Type<>(
-      new ResourceLocation("sable_player_ragdoll", "ragdoll_input")
-   );
-   public static final StreamCodec<RegistryFriendlyByteBuf, RagdollInputPacket> STREAM_CODEC = StreamCodec.composite(
-      ByteBufCodecs.FLOAT, RagdollInputPacket::strafe,
-      ByteBufCodecs.FLOAT, RagdollInputPacket::forward,
-      RagdollInputPacket::new
-   );
+public record RagdollInputPacket(float strafe, float forward) {
+   public static void encode(FriendlyByteBuf b, RagdollInputPacket p) { b.writeFloat(p.strafe()); b.writeFloat(p.forward()); }
+   public static RagdollInputPacket decode(FriendlyByteBuf b) { return new RagdollInputPacket(b.readFloat(), b.readFloat()); }
 
-   @Override
-   public Type<? extends CustomPacketPayload> type() {
-      return TYPE;
-   }
-
-   public static void handle(RagdollInputPacket packet, IPayloadContext context) {
-      context.enqueueWork(() -> {
-         if (context.player() instanceof ServerPlayer player) {
+   public static void handle(RagdollInputPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
+      net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
+      networkContext.enqueueWork(() -> {
+         if (networkContext.getSender() instanceof ServerPlayer player) {
             RagdollControlHelper.updateInput(player, packet.strafe(), packet.forward());
          }
       });
+
+      networkContext.setPacketHandled(true);
    }
 }

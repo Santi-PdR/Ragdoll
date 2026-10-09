@@ -1,5 +1,7 @@
 package dev.leo.sableplayerragdoll.neoforge.client;
 
+import dev.leo.sableplayerragdoll.neoforge.network.RagdollNetworking;
+
 import dev.leo.sableplayerragdoll.RagdollCollisionRules;
 import dev.leo.sableplayerragdoll.config.RagdollSettings;
 import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity;
@@ -9,7 +11,6 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
@@ -17,7 +18,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.client.event.ClientTickEvent.Post;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.network.PacketDistributor;
 
 public final class RagdollGrabClient {
    private static final int COLLISION_GRACE_TICKS = 20;
@@ -65,7 +65,7 @@ public final class RagdollGrabClient {
       if (partPos == null) return;
 
       activePos = partPos;
-      PacketDistributor.sendToServer(new RagdollGrabPacket(partPos, false), new CustomPacketPayload[0]);
+      RagdollNetworking.CHANNEL.sendToServer(new RagdollGrabPacket(partPos, false));
       player.swing(InteractionHand.MAIN_HAND);
    }
 
@@ -75,7 +75,7 @@ public final class RagdollGrabClient {
 
    private static void stopGrab() {
       if (activePos != null) {
-         PacketDistributor.sendToServer(new RagdollGrabPacket(activePos, true), new CustomPacketPayload[0]);
+         RagdollNetworking.CHANNEL.sendToServer(new RagdollGrabPacket(activePos, true));
          activePos = null;
          collisionGraceTicks = COLLISION_GRACE_TICKS;
       }

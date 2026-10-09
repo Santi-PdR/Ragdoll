@@ -1,5 +1,7 @@
 package dev.leo.sableplayerragdoll.mob.client;
 
+import dev.leo.sableplayerragdoll.neoforge.network.RagdollNetworking;
+
 import dev.leo.sableplayerragdoll.mob.block.MobPartRole;
 import dev.leo.sableplayerragdoll.mob.model.ExtractedMobModel;
 import dev.leo.sableplayerragdoll.mob.model.ExtractedMobModel.PartRole;
@@ -19,7 +21,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.network.PacketDistributor;
 
 public final class MobRagdollClientExtractor {
     private MobRagdollClientExtractor() {
@@ -82,7 +83,7 @@ public final class MobRagdollClientExtractor {
                         baby))
                 .toList();
         if (!parts.isEmpty()) {
-            PacketDistributor.sendToServer(new MobRagdollSpawnPacket(
+            RagdollNetworking.CHANNEL.sendToServer(new MobRagdollSpawnPacket(
                     livingEntity.getId(),
                     livingEntity.getType().builtInRegistryHolder().key().location().toString(),
                     bodyYaw,

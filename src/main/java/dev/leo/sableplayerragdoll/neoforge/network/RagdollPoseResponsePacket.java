@@ -5,37 +5,22 @@ import dev.leo.sableplayerragdoll.api.RagdollLimbConfig;
 import dev.leo.sableplayerragdoll.api.RagdollLimbOptions;
 import dev.leo.sableplayerragdoll.api.RagdollPoseSnapshot;
 import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity.BodyPart;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.handling.IPayloadContext;
 
-public record RagdollPoseResponsePacket(long requestId, RagdollLimbOptions pose, float bodyYaw) implements CustomPacketPayload {
-   public static final Type<RagdollPoseResponsePacket> TYPE = new Type<>(
-      new ResourceLocation("sable_player_ragdoll", "pose_response")
-   );
-   public static final StreamCodec<RegistryFriendlyByteBuf, RagdollPoseResponsePacket> STREAM_CODEC = StreamCodec.of(
-      RagdollPoseResponsePacket::write,
-      RagdollPoseResponsePacket::read
-   );
-
-   @Override
-   public Type<? extends CustomPacketPayload> type() {
-      return TYPE;
-   }
-
-   public static void handle(RagdollPoseResponsePacket packet, IPayloadContext context) {
-      context.enqueueWork(() -> {
-         if (context.player() instanceof ServerPlayer player) {
+public record RagdollPoseResponsePacket(long requestId, RagdollLimbOptions pose, float bodyYaw) {
+   public static void handle(RagdollPoseResponsePacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
+      net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
+      networkContext.enqueueWork(() -> {
+         if (networkContext.getSender() instanceof ServerPlayer player) {
             RagdollAsyncPoseRequests.resolve(player, packet.requestId(), new RagdollPoseSnapshot(packet.pose(), packet.bodyYaw()));
          }
       });
+
+      networkContext.setPacketHandled(true);
    }
 
-   private static void write(RegistryFriendlyByteBuf buffer, RagdollPoseResponsePacket packet) {
+   private static void write(FriendlyByteBuf buffer, RagdollPoseResponsePacket packet) {
       buffer.writeLong(packet.requestId());
       buffer.writeFloat(packet.bodyYaw());
       for (BodyPart part : BodyPart.values()) {
@@ -52,7 +37,7 @@ public record RagdollPoseResponsePacket(long requestId, RagdollLimbOptions pose,
       }
    }
 
-   private static RagdollPoseResponsePacket read(RegistryFriendlyByteBuf buffer) {
+   private static RagdollPoseResponsePacket read(FriendlyByteBuf buffer) {
       long requestId = buffer.readLong();
       float bodyYaw = buffer.readFloat();
       RagdollLimbOptions.Builder builder = RagdollLimbOptions.builder();

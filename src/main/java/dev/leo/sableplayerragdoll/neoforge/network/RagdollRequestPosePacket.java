@@ -2,30 +2,16 @@ package dev.leo.sableplayerragdoll.neoforge.network;
 
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollClientPoseCapture;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.handling.IPayloadContext;
 
-public record RagdollRequestPosePacket(long requestId) implements CustomPacketPayload {
-   public static final Type<RagdollRequestPosePacket> TYPE = new Type<>(
-      new ResourceLocation("sable_player_ragdoll", "request_pose")
-   );
-   public static final StreamCodec<RegistryFriendlyByteBuf, RagdollRequestPosePacket> STREAM_CODEC = StreamCodec.of(
-      (buffer, packet) -> buffer.writeLong(packet.requestId()),
-      buffer -> new RagdollRequestPosePacket(buffer.readLong())
-   );
+public record RagdollRequestPosePacket(long requestId) {
+   public static void encode(FriendlyByteBuf b, RagdollRequestPosePacket p) { b.writeLong(p.requestId()); }
+   public static RagdollRequestPosePacket decode(FriendlyByteBuf b) { return new RagdollRequestPosePacket(b.readLong()); }
 
-   @Override
-   public Type<? extends CustomPacketPayload> type() {
-      return TYPE;
-   }
-
-   public static void handle(RagdollRequestPosePacket packet, IPayloadContext context) {
-      context.enqueueWork(() -> {
+   public static void handle(RagdollRequestPosePacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
+      net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
+      networkContext.enqueueWork(() -> {
          if (Minecraft.getInstance().player == null) return;
          PacketDistributor.sendToServer(new RagdollPoseResponsePacket(
             packet.requestId(),
@@ -33,5 +19,7 @@ public record RagdollRequestPosePacket(long requestId) implements CustomPacketPa
             Minecraft.getInstance().player.yBodyRot
          ));
       });
+
+      networkContext.setPacketHandled(true);
    }
 }

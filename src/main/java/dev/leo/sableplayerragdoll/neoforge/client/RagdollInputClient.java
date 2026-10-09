@@ -1,12 +1,12 @@
 package dev.leo.sableplayerragdoll.neoforge.client;
 
+import dev.leo.sableplayerragdoll.neoforge.network.RagdollNetworking;
+
 import dev.leo.sableplayerragdoll.neoforge.network.RagdollInputPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraftforge.client.event.ClientTickEvent.Post;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.network.PacketDistributor;
 
 public final class RagdollInputClient {
    private static float lastStrafe;
@@ -39,7 +39,7 @@ public final class RagdollInputClient {
       keepAliveTicks = 0;
       lastStrafe = strafe;
       lastForward = forward;
-      PacketDistributor.sendToServer(new RagdollInputPacket(strafe, forward), new CustomPacketPayload[0]);
+      RagdollNetworking.CHANNEL.sendToServer(new RagdollInputPacket(strafe, forward));
    }
 
    private static float axis(boolean negative, boolean positive) {

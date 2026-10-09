@@ -1,15 +1,15 @@
 package dev.leo.sableplayerragdoll.neoforge.client;
 
+import dev.leo.sableplayerragdoll.neoforge.network.RagdollNetworking;
+
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.leo.sableplayerragdoll.neoforge.network.RagdollTriggerPacket;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.client.event.ClientTickEvent.Post;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 public final class RagdollKeybinds {
@@ -35,9 +35,8 @@ public final class RagdollKeybinds {
    private static void onClientTick(Post event) {
       while (RAGDOLL_KEY.consumeClick()) {
          if (Minecraft.getInstance().player != null) {
-            PacketDistributor.sendToServer(
-               new RagdollTriggerPacket(RagdollClientPoseCapture.capture(), Minecraft.getInstance().player.yBodyRot),
-               new CustomPacketPayload[0]
+            RagdollNetworking.CHANNEL.sendToServer(
+               new RagdollTriggerPacket(RagdollClientPoseCapture.capture(), Minecraft.getInstance().player.yBodyRot)
             );
          }
       }

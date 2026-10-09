@@ -42,7 +42,7 @@ public final class RagdollReactionsNeoForge {
    public RagdollReactionsNeoForge(IEventBus modBus, ModContainer modContainer) {
       modBus.addListener(ReactionConfig::onLoad);
       modBus.addListener(ReactionConfig::onReload);
-      modBus.addListener(ReactionNetworking::register);
+      ReactionNetworking.register();
       ReactionConfig.register(modContainer);
       ReactionSounds.register(modBus);
       modBus.addListener(RagdollReactionsNeoForge::onCommonSetup);

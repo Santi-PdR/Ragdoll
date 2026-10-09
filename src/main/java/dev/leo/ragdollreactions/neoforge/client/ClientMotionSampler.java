@@ -1,14 +1,14 @@
 package dev.leo.ragdollreactions.neoforge.client;
 
+import dev.leo.ragdollreactions.neoforge.network.ReactionNetworking;
+
 import dev.leo.ragdollreactions.neoforge.network.ClientMotionPacket;
 import java.util.ArrayDeque;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ClientTickEvent.Post;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.network.PacketDistributor;
 
 public final class ClientMotionSampler {
    private static final double BLOCKS_PER_TICK_TO_METERS_PER_SECOND = 20.0;
@@ -86,7 +86,7 @@ public final class ClientMotionSampler {
    }
 
    private static void send(float horizontalAccelMetersPerSecond, float horizontalSpeedMetersPerSecond) {
-      PacketDistributor.sendToServer(
+      ReactionNetworking.CHANNEL.sendToServer(
          new ClientMotionPacket(horizontalAccelMetersPerSecond, horizontalSpeedMetersPerSecond),
          new CustomPacketPayload[0]
       );

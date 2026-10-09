@@ -1,37 +1,23 @@
 package dev.leo.sableplayerragdoll.neoforge.network;
 
+import net.minecraft.network.FriendlyByteBuf;
+
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollGrabClient;
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollGrabState;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import java.util.UUID;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.handling.IPayloadContext;
 
-public record RagdollGrabSyncPacket(UUID playerId, boolean grabbing) implements CustomPacketPayload {
-   public static final Type<RagdollGrabSyncPacket> TYPE = new Type<>(
-      new ResourceLocation("sable_player_ragdoll", "grab_sync")
-   );
+public record RagdollGrabSyncPacket(UUID playerId, boolean grabbing) {
+   public static void encode(FriendlyByteBuf b, RagdollGrabSyncPacket p) { b.writeUUID(p.playerId()); b.writeBoolean(p.grabbing()); }
+   public static RagdollGrabSyncPacket decode(FriendlyByteBuf b) { return new RagdollGrabSyncPacket(b.readUUID(), b.readBoolean()); }
+
    private static final StreamCodec<ByteBuf, UUID> UUID_CODEC = StreamCodec.of(
       (buf, uuid) -> { buf.writeLong(uuid.getMostSignificantBits()); buf.writeLong(uuid.getLeastSignificantBits()); },
       buf -> new UUID(buf.readLong(), buf.readLong())
    );
-   public static final StreamCodec<ByteBuf, RagdollGrabSyncPacket> STREAM_CODEC = StreamCodec.composite(
-      UUID_CODEC, RagdollGrabSyncPacket::playerId,
-      ByteBufCodecs.BOOL, RagdollGrabSyncPacket::grabbing,
-      RagdollGrabSyncPacket::new
-   );
-
-   @Override
-   public Type<? extends CustomPacketPayload> type() {
-      return TYPE;
-   }
-
-   public static void handle(RagdollGrabSyncPacket packet, IPayloadContext context) {
-      context.enqueueWork(() -> {
+   public static void handle(RagdollGrabSyncPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
+      net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
+      networkContext.enqueueWork(() -> {
          if (packet.grabbing()) {
             RagdollGrabState.add(packet.playerId());
          } else {
@@ -41,5 +27,7 @@ public record RagdollGrabSyncPacket(UUID playerId, boolean grabbing) implements 
             }
          }
       });
+
+      networkContext.setPacketHandled(true);
    }
 }

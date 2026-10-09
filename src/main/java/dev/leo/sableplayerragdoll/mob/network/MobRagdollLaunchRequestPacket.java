@@ -2,35 +2,27 @@ package dev.leo.sableplayerragdoll.mob.network;
 
 import dev.leo.sableplayerragdoll.SablePlayerRagdoll;
 import dev.leo.sableplayerragdoll.mob.client.MobRagdollClientExtractor;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.handling.IPayloadContext;
+import net.minecraft.network.FriendlyByteBuf;
 
-public record MobRagdollLaunchRequestPacket(int entityId) implements CustomPacketPayload {
+public record MobRagdollLaunchRequestPacket(int entityId) {
     public static final Type<MobRagdollLaunchRequestPacket> TYPE = new Type<>(
             new ResourceLocation(SablePlayerRagdoll.MOD_ID, "mob_ragdoll_launch_request")
     );
-    public static final StreamCodec<RegistryFriendlyByteBuf, MobRagdollLaunchRequestPacket> STREAM_CODEC = StreamCodec.of(
-            MobRagdollLaunchRequestPacket::encode,
-            MobRagdollLaunchRequestPacket::decode
-    );
-
-    @Override
+     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-    private static void encode(RegistryFriendlyByteBuf buffer, MobRagdollLaunchRequestPacket packet) {
+    public static void encode(FriendlyByteBuf buffer, MobRagdollLaunchRequestPacket packet) {
         buffer.writeVarInt(packet.entityId());
     }
 
-    private static MobRagdollLaunchRequestPacket decode(RegistryFriendlyByteBuf buffer) {
+    public static MobRagdollLaunchRequestPacket decode(FriendlyByteBuf buffer) {
         return new MobRagdollLaunchRequestPacket(buffer.readVarInt());
     }
 
-    public static void handle(MobRagdollLaunchRequestPacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> MobRagdollClientExtractor.extractAndSend(packet.entityId()));
+    public static void handle(MobRagdollLaunchRequestPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
+      net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
+        networkContext.enqueueWork(() -> MobRagdollClientExtractor.extractAndSend(packet.entityId()));
     }
 }
