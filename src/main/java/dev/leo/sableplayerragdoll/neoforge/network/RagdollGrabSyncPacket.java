@@ -1,5 +1,7 @@
 package dev.leo.sableplayerragdoll.neoforge.network;
 
+import net.minecraft.network.FriendlyByteBuf;
+
 
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollGrabClient;
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollGrabState;

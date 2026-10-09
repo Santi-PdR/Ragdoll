@@ -1,5 +1,7 @@
 package dev.leo.ragdollreactions.neoforge.client;
 
+import net.minecraft.network.FriendlyByteBuf;
+
 import dev.leo.ragdollreactions.neoforge.network.ReactionNetworking;
 
 import dev.leo.ragdollreactions.neoforge.network.ClientMotionPacket;
@@ -89,7 +91,6 @@ public final class ClientMotionSampler {
    private static void send(float horizontalAccelMetersPerSecond, float horizontalSpeedMetersPerSecond) {
       ReactionNetworking.CHANNEL.sendToServer(
          new ClientMotionPacket(horizontalAccelMetersPerSecond, horizontalSpeedMetersPerSecond),
-         new CustomPacketPayload[0]
       );
    }
 }

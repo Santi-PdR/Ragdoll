@@ -1,5 +1,7 @@
 package dev.leo.sableplayerragdoll.mob.network;
 
+import net.minecraft.network.FriendlyByteBuf;
+
 import java.util.function.Supplier;
 
 import net.minecraftforge.network.NetworkEvent;
