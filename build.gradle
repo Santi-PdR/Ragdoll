@@ -50,3 +50,9 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.release = 17
 }
+
+
+tasks.named('jar') {
+    manifest { attributes(['MixinConfigs': 'sable_player_ragdoll.mixins.json,sable_player_ragdoll.neoforge.mixins.json']) }
+    finalizedBy 'reobfJar'
+}

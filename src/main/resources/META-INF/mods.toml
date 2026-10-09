@@ -1,6 +1,6 @@
 modLoader="javafml"
 loaderVersion="[47.4.0,)"
-license="Apache-2.0"
+license="All Rights Reserved. Do not redistribute."
 
 [[mods]]
 modId="sable_player_ragdoll"
@@ -78,3 +78,9 @@ mandatory=true
 versionRange="[1.0.0,1.1.0)"
 ordering="AFTER"
 side="BOTH"
+
+[[mixins]]
+config="sable_player_ragdoll.mixins.json"
+
+[[mixins]]
+config="sable_player_ragdoll.neoforge.mixins.json"
