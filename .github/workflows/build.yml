@@ -7,6 +7,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,4 +43,27 @@ jobs:
         with:
           name: ragdoll-forge-1.20.1
           path: build/libs/*.jar
+          if-no-files-found: error
+
+  sable-dependency:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: NotAsher999/sable-1.20.1
+          ref: e4d2ab3724a9f5820e758646447d3a571761db11
+          path: sable-source
+      - uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: "17"
+      - name: Build pinned Sable Forge dependency
+        shell: cmd
+        working-directory: sable-source
+        run: build.cmd release
+      - name: Upload pinned Sable Forge JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: sable-forge-1.20.1-2.0.5-port.1
+          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.1.jar
           if-no-files-found: error
