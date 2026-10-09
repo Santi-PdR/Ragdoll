@@ -79,6 +79,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
@@ -108,7 +111,10 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
 @Mod("sable_player_ragdoll")
 public final class SablePlayerRagdollNeoForge {
-   public SablePlayerRagdollNeoForge(IEventBus modBus, ModContainer modContainer) {
+   public SablePlayerRagdollNeoForge() {
+      IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+      ModContainer modContainer = net.minecraftforge.fml.ModList.get().getModContainerById("sable_player_ragdoll").orElseThrow();
+      DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> new SablePlayerRagdollNeoForgeClient(modContainer, modBus));
       RagdollBlockRegistration.register(modBus);
       modBus.addListener(RagdollConfig::onLoad);
       modBus.addListener(RagdollConfig::onReload);

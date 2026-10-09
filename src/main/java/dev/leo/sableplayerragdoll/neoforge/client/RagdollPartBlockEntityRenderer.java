@@ -24,7 +24,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -76,10 +75,9 @@ public final class RagdollPartBlockEntityRenderer implements BlockEntityRenderer
             && Minecraft.getInstance().player.getUUID().equals(blockEntity.skinProfile().getId())) {
          return;
       }
-      PlayerSkin skin = this.skin(blockEntity);
-      this.model = skin.model() == PlayerSkin.Model.SLIM ? this.slimModel : this.defaultModel;
-      this.currentTexture = skin.texture();
-      this.currentCapeTexture = skin.capeTexture();
+      this.model = isSlim(blockEntity) ? this.slimModel : this.defaultModel;
+      this.currentTexture = skinTexture(blockEntity);
+      this.currentCapeTexture = null;
       this.showOnly(bodyPart);
       this.renderEntity(blockEntity); // keep renderEntity up-to-date for elytra/cape
       LivingEntity entity = this.getRenderEntity(blockEntity);
@@ -117,7 +115,7 @@ public final class RagdollPartBlockEntityRenderer implements BlockEntityRenderer
       // Render all vanilla layers from the standard PlayerRenderer
       Minecraft minecraft = Minecraft.getInstance();
       boolean slim = this.model == this.slimModel;
-      var playerRenderer = minecraft.getEntityRenderDispatcher().getSkinMap().get(slim ? PlayerSkin.Model.SLIM : PlayerSkin.Model.WIDE);
+      var playerRenderer = minecraft.getEntityRenderDispatcher().getSkinMap().get(slim ? "slim" : "default");
 
       boolean accessoriesLoaded = ModList.get().isLoaded("accessories");
 
@@ -212,11 +210,15 @@ public final class RagdollPartBlockEntityRenderer implements BlockEntityRenderer
       return this.currentTexture;
    }
 
-   private PlayerSkin skin(RagdollPartBlockEntity blockEntity) {
-      if (Minecraft.getInstance().getSkinManager() == null) {
-         return DefaultPlayerSkin.get(blockEntity.skinProfile());
-      }
-      return Minecraft.getInstance().getSkinManager().getInsecureSkin(blockEntity.skinProfile());
+   private static ResourceLocation skinTexture(RagdollPartBlockEntity blockEntity) {
+      var profile = blockEntity.skinProfile();
+      return Minecraft.getInstance().getSkinManager() == null
+         ? DefaultPlayerSkin.getDefaultSkin(profile.getId())
+         : Minecraft.getInstance().getSkinManager().getInsecureSkin(profile);
+   }
+   private static boolean isSlim(RagdollPartBlockEntity blockEntity) {
+      var profile = blockEntity.skinProfile();
+      return profile.getId() != null && "slim".equals(DefaultPlayerSkin.getSkinModelName(profile.getId()));
    }
 
    private LivingEntity getRenderEntity(RagdollPartBlockEntity blockEntity) {

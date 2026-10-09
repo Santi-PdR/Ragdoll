@@ -14,7 +14,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
@@ -44,10 +43,10 @@ public final class RagdollCameraHelper {
       MinecraftForge.EVENT_BUS.addListener(RagdollCameraHelper::onClientTick);
       MinecraftForge.EVENT_BUS.addListener(RagdollCameraHelper::onRenderPlayer);
       MinecraftForge.EVENT_BUS.addListener(RagdollCameraHelper::onRenderHand);
-      MinecraftForge.EVENT_BUS.addListener(RagdollCameraHelper::onCalculateCameraDistance);
    }
 
-   private static void onClientTick(Post event) {
+   private static void onClientTick(TickEvent.ClientTickEvent event) {
+      if (event.phase != TickEvent.Phase.END) return;
       Minecraft minecraft = Minecraft.getInstance();
       LocalPlayer player = minecraft.player;
       boolean nowRidingRagdollSeat = player != null && player.getVehicle() instanceof RagdollSeatEntity;
@@ -97,13 +96,7 @@ public final class RagdollCameraHelper {
       }
    }
 
-   private static void onCalculateCameraDistance(CalculateDetachedCameraDistanceEvent event) {
-      Minecraft minecraft = Minecraft.getInstance();
-      if (minecraft.options.getCameraType() != SableCameraTypes.SUB_LEVEL_VIEW_UNLOCKED) return;
-      if (minecraft.player == null || event.getCamera().getEntity() != minecraft.player) return;
-      if (!(minecraft.player.getVehicle() instanceof RagdollSeatEntity)) return;
-      event.setDistance((float) RagdollClientConfig.subLevelCameraDistance());
-   }
+
 
    private static boolean tryActivateUnlockedContraptionCamera() {
       Minecraft minecraft = Minecraft.getInstance();

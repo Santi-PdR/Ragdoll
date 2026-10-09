@@ -33,7 +33,8 @@ public final class RagdollKeybinds {
       event.register(RAGDOLL_KEY);
    }
 
-   private static void onClientTick(Post event) {
+   private static void onClientTick(TickEvent.ClientTickEvent event) {
+      if (event.phase != TickEvent.Phase.END) return;
       while (RAGDOLL_KEY.consumeClick()) {
          if (Minecraft.getInstance().player != null) {
             RagdollNetworking.CHANNEL.sendToServer(

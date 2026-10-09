@@ -23,6 +23,9 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
@@ -40,7 +43,10 @@ import net.minecraft.world.level.Explosion;
 public final class RagdollReactionsNeoForge {
    private static final String CREATE_BIG_CANNONS_PACKAGE = "rbasamoyai.createbigcannons.";
 
-   public RagdollReactionsNeoForge(IEventBus modBus, ModContainer modContainer) {
+   public RagdollReactionsNeoForge() {
+      IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+      ModContainer modContainer = net.minecraftforge.fml.ModList.get().getModContainerById("ragdoll_reactions").orElseThrow();
+      DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> new RagdollReactionsNeoForgeClient(modContainer));
       modBus.addListener(ReactionConfig::onLoad);
       modBus.addListener(ReactionConfig::onReload);
       ReactionNetworking.register();

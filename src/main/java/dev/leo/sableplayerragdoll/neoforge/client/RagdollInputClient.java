@@ -21,7 +21,8 @@ public final class RagdollInputClient {
       MinecraftForge.EVENT_BUS.addListener(RagdollInputClient::onClientTick);
    }
 
-   private static void onClientTick(Post event) {
+   private static void onClientTick(TickEvent.ClientTickEvent event) {
+      if (event.phase != TickEvent.Phase.END) return;
       Minecraft minecraft = Minecraft.getInstance();
       LocalPlayer player = minecraft.player;
       if (player == null || !player.isPassenger()) {
