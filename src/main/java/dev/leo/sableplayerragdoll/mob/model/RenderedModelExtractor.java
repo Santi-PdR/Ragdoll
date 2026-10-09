@@ -483,7 +483,7 @@ public final class RenderedModelExtractor {
         @Override public VertexConsumer color(int red, int green, int blue, int alpha) { return this; }
         @Override public VertexConsumer uv(float u, float v) { this.u = u; this.v = v; return this; }
         @Override public VertexConsumer overlayCoords(int u, int v) { return this; }
-        @Override public VertexConsumer uv2(int packedLight) { return this; }
+        @Override public VertexConsumer uv2(int u, int v) { return this; }
         @Override public VertexConsumer normal(float x, float y, float z) { this.normalX = x; this.normalY = y; this.normalZ = z; return this; }
         @Override public void endVertex() { }
         @Override public void defaultColor(int red, int green, int blue, int alpha) { }

@@ -24,7 +24,8 @@ public record MobRagdollDespawnPacket(int entityId) {
     public static void handle(MobRagdollDespawnPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
       net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
         networkContext.enqueueWork(() -> {
-            if (!(networkContext.getSender() instanceof ServerPlayer player)) {
+            ServerPlayer player = networkContext.getSender();
+            if (player == null) {
                 return;
             }
             Entity target = player.level().getEntity(packet.entityId());
