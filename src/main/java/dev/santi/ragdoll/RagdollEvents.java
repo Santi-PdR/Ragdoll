@@ -1,8 +1,13 @@
 package dev.santi.ragdoll;
 
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
@@ -51,5 +56,21 @@ public final class RagdollEvents {
     @SubscribeEvent
     public void onDeath(LivingDeathEvent event) {
         RagdollManager.stop(event.getEntity());
+    }
+
+    @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        event.getDispatcher().register(Commands.literal("ragdoll")
+                .executes(context -> {
+                    Player player = context.getSource().getPlayerOrException();
+                    return RagdollAPI.launch(player, player.getDeltaMovement().add(0.0, 0.2, 0.0)) ? 1 : 0;
+                })
+                .then(Commands.argument("target", EntityArgument.entity())
+                        .requires(source -> source.hasPermission(2))
+                        .executes(context -> {
+                            Entity target = EntityArgument.getEntity(context, "target");
+                            return target instanceof LivingEntity living
+                                    && RagdollAPI.launch(living, new Vec3(0.0, 0.2, 0.0)) ? 1 : 0;
+                        })));
     }
 }

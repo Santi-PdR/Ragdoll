@@ -6,8 +6,13 @@ Forge-native reimplementation of the player and mob ragdoll reactions represente
 
 Requires JDK 17. Run `gradle build`; the distributable JAR is written to `build/libs/`.
 
-## Current port scope
+## Features
 
-This standalone Forge mod combines the core ragdoll trigger path and reaction triggers in one JAR. It uses vanilla entity movement and a client-side body roll, so it does not reproduce Sable's articulated sub-level physics, corpse parts, grabbing, or every original API. Reactions currently include hard hits, falls, sudden speed changes, explosions, and lightning. Server behavior is configurable in `config/ragdoll-server.toml`.
+- One JAR combines the core ragdoll and reactions systems.
+- Applies to players and mobs, with server config toggles.
+- Starts on hard hits, falls, sudden speed changes, explosions, and lightning.
+- Humanoid models tumble with animated arms and legs; player movement is locked until recovery.
+- `/ragdoll` ragdolls the command source; operators can use `/ragdoll <target>`.
+- Other Forge mods can use `RagdollAPI.launch(LivingEntity, Vec3)`.
 
-The original Sable Ragdolls and Ragdoll Reactions sources are separately licensed projects; this repository contains a Forge-native implementation and does not bundle Sable.
+The standalone physics uses vanilla entity movement and a client-side body roll. It does not reproduce Sable's articulated sub-level physics, persistent corpse parts, grabbing, or every original API. The original Sable Ragdolls and Ragdoll Reactions sources are separately licensed projects; this repository contains a Forge-native implementation and does not bundle Sable.
