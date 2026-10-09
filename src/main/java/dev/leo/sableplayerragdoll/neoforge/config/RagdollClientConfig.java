@@ -2,10 +2,10 @@ package dev.leo.sableplayerragdoll.neoforge.config;
 
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.config.ModConfig.Type;
-import net.minecraftforge.common.ModConfigSpec;
-import net.minecraftforge.common.ModConfigSpec.BooleanValue;
-import net.minecraftforge.common.ModConfigSpec.Builder;
-import net.minecraftforge.common.ModConfigSpec.DoubleValue;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
+import net.minecraftforge.common.ForgeConfigSpec.Builder;
+import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 
 public final class RagdollClientConfig {
    private static final Builder BUILDER = new Builder();
@@ -22,7 +22,7 @@ public final class RagdollClientConfig {
       )
       .defineInRange("subLevelCameraDistance", 4.0, 0.5, 16.0);
 
-   public static final ModConfigSpec SPEC = BUILDER.build();
+   public static final ForgeConfigSpec SPEC = BUILDER.build();
 
    private RagdollClientConfig() {
    }

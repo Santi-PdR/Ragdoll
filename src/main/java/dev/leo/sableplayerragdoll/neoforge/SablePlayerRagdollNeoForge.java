@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.authlib.yggdrasil.ProfileResult;
+
 import dev.leo.sableplayerragdoll.SablePlayerRagdoll;
 import dev.leo.sableplayerragdoll.RagdollItemTags;
 import dev.leo.sableplayerragdoll.RagdollGrabCallbacks;
@@ -736,9 +736,9 @@ public final class SablePlayerRagdollNeoForge {
       }
 
       try {
-         ProfileResult result = source.getServer().getSessionService().fetchProfile(profile.getId(), true);
-         if (result != null && !result.profile().getProperties().get("textures").isEmpty()) {
-            return result.profile();
+         GameProfile result = source.getServer().getSessionService().fetchProfile(profile.getId(), true);
+         if (result != null && !result.getProperties().get("textures").isEmpty()) {
+            return result;
          }
       } catch (Throwable error) {
          SablePlayerRagdoll.LOGGER.warn("[sable_player_ragdoll] failed to resolve skin for {}: {}", profile.getName(), error.toString());

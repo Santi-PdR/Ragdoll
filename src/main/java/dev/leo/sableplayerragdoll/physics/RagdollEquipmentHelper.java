@@ -26,9 +26,6 @@ final class RagdollEquipmentHelper {
       if (ModList.get().isLoaded("curios")) {
          RagdollCuriosEquipmentHelper.applyToPart(part, player);
       }
-      if (ModList.get().isLoaded("accessories")) {
-         RagdollAccessoriesEquipmentHelper.applyToPart(part, player);
-      }
    }
 
    static void applyFrom(ServerLevel level, UUID rootId, Player player) {
@@ -43,7 +40,6 @@ final class RagdollEquipmentHelper {
       RagdollEquipmentScope resolved = scope == null ? RagdollEquipmentScope.ALL : scope;
       Map<EquipmentSlot, ItemStack> vanillaItems = Map.of();
       Map<String, List<ItemStack>> curioItems = Map.of();
-      Map<String, List<ItemStack>> accessoriesItems = Map.of();
 
       if (resolved == RagdollEquipmentScope.ALL || resolved == RagdollEquipmentScope.VANILLA) {
          EnumMap<EquipmentSlot, ItemStack> vanilla = new EnumMap<>(EquipmentSlot.class);
@@ -57,12 +53,9 @@ final class RagdollEquipmentHelper {
          if (ModList.get().isLoaded("curios")) {
             curioItems = RagdollCuriosEquipmentHelper.capture(player);
          }
-         if (ModList.get().isLoaded("accessories")) {
-            accessoriesItems = RagdollAccessoriesEquipmentHelper.capture(player);
-         }
       }
 
-      return new RagdollEquipmentSnapshot(vanillaItems, curioItems, accessoriesItems);
+      return new RagdollEquipmentSnapshot(vanillaItems, curioItems, Map.of());
    }
 
    static void applySnapshot(ServerLevel level, UUID rootId, RagdollEquipmentSnapshot snapshot) {
@@ -73,12 +66,6 @@ final class RagdollEquipmentHelper {
          snapshot.curioItems().forEach(be::setCurioItems);
          snapshot.accessoriesItems().forEach(be::setAccessoriesItems);
       });
-      sendPartUpdates(level, rootId);
-   }
-
-   static void syncAccessoriesAndSend(ServerLevel level, UUID rootId, Player player) {
-      if (!ModList.get().isLoaded("accessories")) return;
-      RagdollAccessoriesEquipmentHelper.applyFrom(level, rootId, player);
       sendPartUpdates(level, rootId);
    }
 

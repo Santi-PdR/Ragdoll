@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 
 public final class RagdollDollEntityRenderer extends LivingEntityRenderer<RagdollDollEntity, PlayerModel<RagdollDollEntity>> {
@@ -24,7 +23,7 @@ public final class RagdollDollEntityRenderer extends LivingEntityRenderer<Ragdol
 
    @Override
    public void render(RagdollDollEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
-      this.model = this.skin(entity).model() == PlayerSkin.Model.SLIM ? this.slimModel : this.defaultModel;
+      this.model = isSlim(entity) ? this.slimModel : this.defaultModel;
       this.showOnly(entity.getBodyPart());
       this.model.crouching = false;
       super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
@@ -44,14 +43,20 @@ public final class RagdollDollEntityRenderer extends LivingEntityRenderer<Ragdol
 
    @Override
    public ResourceLocation getTextureLocation(RagdollDollEntity entity) {
-      return this.skin(entity).texture();
+      return skinTexture(entity);
    }
 
-   private PlayerSkin skin(RagdollDollEntity entity) {
-      if (Minecraft.getInstance().getSkinManager() == null) {
-         return DefaultPlayerSkin.get(entity.getSkinProfile());
+   private static ResourceLocation skinTexture(RagdollDollEntity entity) {
+      var profile = entity.getSkinProfile();
+      if (Minecraft.getInstance().getSkinManager() == null || profile.getId() == null) {
+         return DefaultPlayerSkin.getDefaultSkin(profile.getId());
       }
-      return Minecraft.getInstance().getSkinManager().getInsecureSkin(entity.getSkinProfile());
+      return Minecraft.getInstance().getSkinManager().getInsecureSkin(profile);
+   }
+
+   private static boolean isSlim(RagdollDollEntity entity) {
+      var profile = entity.getSkinProfile();
+      return profile.getId() != null && "slim".equals(DefaultPlayerSkin.getSkinModelName(profile.getId()));
    }
 
    @Override

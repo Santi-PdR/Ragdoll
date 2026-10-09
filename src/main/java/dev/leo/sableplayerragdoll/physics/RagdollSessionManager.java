@@ -80,7 +80,6 @@ public final class RagdollSessionManager {
       LAST_VELOCITIES.remove(subLevel.getUniqueId());
       NEXT_IMPACT_DAMAGE_TICKS.remove(subLevel.getUniqueId());
       RagdollMotorEffects.clear(subLevel.getUniqueId());
-      RagdollAccessoriesLiveSync.clear(subLevel.getUniqueId());
    }
 
    public static void setCustomDespawnConditions(ServerSubLevel subLevel, List<DespawnCondition> conditions) {
@@ -187,7 +186,6 @@ public final class RagdollSessionManager {
                      } else {
                         RagdollMotorEffects.tick(level, serverSubLevel);
                         applyImpactDamage(level, physicsSystem, serverContainer, serverSubLevel);
-                        pollAccessories(level, serverSubLevel);
                      }
                   }
                }
@@ -196,13 +194,6 @@ public final class RagdollSessionManager {
       }
    }
 
-   private static void pollAccessories(ServerLevel level, ServerSubLevel head) {
-      UUID playerId = getPlayerId(head);
-      if (playerId == null) return;
-      ServerPlayer player = level.getServer().getPlayerList().getPlayer(playerId);
-      if (player == null) return;
-      RagdollAccessoriesLiveSync.poll(level, head.getUniqueId(), player);
-   }
 
    static boolean shouldExpire(ServerLevel level, SubLevelPhysicsSystem physicsSystem, ServerSubLevel subLevel) {
       if (isExpiring(subLevel)) {

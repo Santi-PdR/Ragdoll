@@ -3,11 +3,12 @@ package dev.leo.sableplayerragdoll.api;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.ICancellableEvent;
+import net.minecraftforge.eventbus.api.Cancelable;
 
 // Fired on the NeoForge game event bus before a player ragdoll is assembled.
 // Cancel to prevent the launch. Modify velocity to redirect or rescale the launch.
-public class RagdollStartEvent extends Event implements ICancellableEvent {
+@Cancelable
+public class RagdollStartEvent extends Event {
    private final ServerPlayer player;
    private Vec3 velocity;
 

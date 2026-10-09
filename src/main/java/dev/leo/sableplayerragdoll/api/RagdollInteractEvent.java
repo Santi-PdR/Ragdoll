@@ -5,9 +5,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.ICancellableEvent;
+import net.minecraftforge.eventbus.api.Cancelable;
 
-public class RagdollInteractEvent extends Event implements ICancellableEvent {
+@Cancelable
+public class RagdollInteractEvent extends Event {
    private final ServerPlayer player;
    private final UUID rootId;
    private final UUID partId;

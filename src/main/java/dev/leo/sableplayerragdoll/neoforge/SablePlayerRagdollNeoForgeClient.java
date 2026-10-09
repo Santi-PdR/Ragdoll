@@ -25,8 +25,6 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.client.event.RenderHighlightEvent;
-import net.minecraftforge.client.gui.ConfigurationScreen;
-import net.minecraftforge.client.gui.IConfigScreenFactory;
 import net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -34,7 +32,6 @@ import net.minecraftforge.common.MinecraftForge;
 public final class SablePlayerRagdollNeoForgeClient {
    @SuppressWarnings("unchecked")
    public SablePlayerRagdollNeoForgeClient(ModContainer container, IEventBus modBus) {
-      container.registerExtensionPoint(IConfigScreenFactory.class, (IConfigScreenFactory) ConfigurationScreen::new);
       RagdollClientConfig.register(container);
       RagdollCameraHelper.init();
       RagdollKeybinds.init(modBus);
