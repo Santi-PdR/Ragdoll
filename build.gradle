@@ -37,7 +37,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
 
     // This pinned Forge build keeps the same Rapier-backed Sable sub-level physics.
-    minecraft fg.deobf('dev.ryanhcode.sable:sable-forge-1.20.1:2.0.5-port.1')
+    implementation fg.deobf('dev.ryanhcode.sable:sable-forge-1.20.1:2.0.5-port.1')
     compileOnly 'dev.ryanhcode.sable-companion:sable-companion-common-1.20.1:1.6.0'
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
