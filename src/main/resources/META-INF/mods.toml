@@ -33,7 +33,7 @@ side="BOTH"
 [[dependencies.sable_player_ragdoll]]
 modId="sable"
 mandatory=true
-versionRange="[2.0.5-port.1,)"
+versionRange="[2.0.5-port.2,)"
 ordering="AFTER"
 side="BOTH"
 
@@ -61,7 +61,7 @@ side="BOTH"
 [[dependencies.ragdoll_reactions]]
 modId="sable"
 mandatory=true
-versionRange="[2.0.5-port.1,)"
+versionRange="[2.0.5-port.2,)"
 ordering="AFTER"
 side="BOTH"
 

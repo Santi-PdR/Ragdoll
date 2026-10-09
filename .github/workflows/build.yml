@@ -20,6 +20,9 @@ jobs:
           repository: NotAsher999/sable-1.20.1
           ref: e4d2ab3724a9f5820e758646447d3a571761db11
           path: sable-source
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - uses: actions/setup-java@v4
         with:
           distribution: microsoft
@@ -27,18 +30,37 @@ jobs:
       - uses: actions/cache@v4
         id: sable-cache
         with:
-          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.1.jar
-          key: sable-forge-1.20.1-e4d2ab3724a9f5820e758646447d3a571761db11
-      - name: Build pinned Sable Forge dependency
+          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.2.jar
+          key: sable-forge-1.20.1-ghouls-compat-e4d2ab3724a9f5820e758646447d3a571761db11
+      - name: Adapt Sable for the Ghouls Create 0.5.1 stack
+        if: steps.sable-cache.outputs.cache-hit != 'true'
+        run: python scripts/patch_sable_ghouls_compat.py sable-source
+      - name: Build Ghouls-compatible Sable Forge dependency
         if: steps.sable-cache.outputs.cache-hit != 'true'
         shell: cmd
         working-directory: sable-source
         run: build.cmd release
-      - name: Upload pinned Sable Forge JAR
+      - name: Verify Sable compatibility patch
+        shell: pwsh
+        working-directory: sable-source
+        run: |
+          $jar = 'dist/sable-forge-1.20.1-2.0.5-port.2.jar'
+          if (!(Test-Path $jar)) { throw "Missing $jar" }
+          $out = 'sable-verify'
+          New-Item -ItemType Directory -Force $out | Out-Null
+          Push-Location $out
+          & jar xf "../$jar" META-INF/mods.toml sable-create.mixins.json
+          if ($LASTEXITCODE -ne 0) { throw "Could not inspect built Sable jar" }
+          $toml = Get-Content 'META-INF/mods.toml' -Raw
+          if ($toml -notmatch 'versionRange = "\[0,\)"') { throw 'Sable does not accept the installed Create version range' }
+          $mixins = Get-Content 'sable-create.mixins.json' -Raw | ConvertFrom-Json
+          if ($mixins.mixins.Count -ne 0 -or $mixins.client.Count -ne 0) { throw 'Create/Flywheel integration mixins are still active' }
+          Pop-Location
+      - name: Upload Ghouls-compatible Sable JAR
         uses: actions/upload-artifact@v4
         with:
-          name: sable-forge-1.20.1-2.0.5-port.1
-          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.1.jar
+          name: sable-forge-1.20.1-2.0.5-port.2
+          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.2.jar
           if-no-files-found: error
 
   build:
@@ -55,11 +77,11 @@ jobs:
           gradle-version: "8.8"
       - uses: actions/download-artifact@v4
         with:
-          name: sable-forge-1.20.1-2.0.5-port.1
+          name: sable-forge-1.20.1-2.0.5-port.2
           path: libs
       - name: Verify Sable dependency contains its companion API
         run: |
-          jar tf libs/sable-forge-1.20.1-2.0.5-port.1.jar | grep -q 'dev/ryanhcode/sable/companion/math/BoundingBox3i.class'
+          jar tf libs/sable-forge-1.20.1-2.0.5-port.2.jar | grep -q 'dev/ryanhcode/sable/companion/math/BoundingBox3i.class'
       - run: gradle jar --no-daemon
       - name: Verify combined JAR contents
         shell: bash
@@ -74,6 +96,7 @@ jobs:
               mod_text = archive.read("META-INF/mods.toml").decode()
               for mod_id in ("sable_player_ragdoll", "ragdoll_reactions"):
                   assert f'modId="{mod_id}"' in mod_text, f"{mod_id} metadata missing"
+              assert "[2.0.5-port.2,)" in mod_text, "Ghouls-compatible Sable dependency missing"
               classes = [name for name in names if name.endswith(".class")]
               assert len(classes) >= 120, f"expected both original ragdoll systems, found {len(classes)} classes"
               for resource in (
