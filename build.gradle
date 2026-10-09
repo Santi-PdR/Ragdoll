@@ -17,7 +17,10 @@ minecraft {
         configureEach {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
-            mods { ragdoll { source sourceSets.main } }
+            mods {
+                sable_player_ragdoll { source sourceSets.main }
+                ragdoll_reactions { source sourceSets.main }
+            }
         }
         client {}
         server { args '--nogui' }
@@ -27,14 +30,20 @@ minecraft {
 repositories {
     mavenCentral()
     maven { url = 'https://maven.ryanhcode.dev/releases' }
+    flatDir { dirs 'libs' }
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
 
-    // The pinned Forge port supplies the exact Rapier-backed sub-level physics API.
-    modImplementation fg.deobf(files('libs/sable-forge-1.20.1-2.0.5-port.1.jar'))
+    // This pinned Forge build keeps the same Rapier-backed Sable sub-level physics.
+    minecraft fg.deobf('dev.ryanhcode.sable:sable-forge-1.20.1:2.0.5-port.1')
     compileOnly 'dev.ryanhcode.sable-companion:sable-companion-common-1.20.1:1.6.0'
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    compileOnly 'org.spongepowered:mixin:0.8.5'
+    compileOnly 'io.github.llamalad7:mixinextras-common:0.4.1'
+    annotationProcessor 'io.github.llamalad7:mixinextras-common:0.4.1'
 }
 
 tasks.withType(JavaCompile).configureEach {

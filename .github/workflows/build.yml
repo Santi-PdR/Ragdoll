@@ -51,7 +51,7 @@ jobs:
           name: sable-forge-1.20.1-2.0.5-port.1
           path: libs
       - run: gradle build --no-daemon
-      - name: Verify JAR contents
+      - name: Verify combined JAR contents
         shell: bash
         run: |
           mapfile -t jars < <(find build/libs -maxdepth 1 -name '*.jar')
@@ -60,13 +60,20 @@ jobs:
           import sys, zipfile
           jar = sys.argv[1]
           with zipfile.ZipFile(jar) as archive:
-              names = archive.namelist()
+              names = set(archive.namelist())
               mod_text = archive.read("META-INF/mods.toml").decode()
-              assert "META-INF/mods.toml" in names, "mods.toml missing"
-              assert 'modId="ragdoll"' in mod_text, "ragdoll mod id missing"
+              for mod_id in ("sable_player_ragdoll", "ragdoll_reactions"):
+                  assert f'modId="{mod_id}"' in mod_text, f"{mod_id} metadata missing"
               classes = [name for name in names if name.endswith(".class")]
-              assert classes, "no compiled classes in JAR"
-              print(f"Verified {jar}: {len(classes)} classes and Forge metadata")
+              assert len(classes) >= 150, f"expected original ragdoll systems, found only {len(classes)} classes"
+              for resource in (
+                  "sable_player_ragdoll.mixins.json",
+                  "sable_player_ragdoll.neoforge.mixins.json",
+                  "assets/ragdoll_reactions/sounds/punch.ogg",
+                  "assets/sable_player_ragdoll/sounds/impact.ogg",
+              ):
+                  assert resource in names, f"{resource} missing"
+              print(f"Verified {jar}: {len(classes)} classes, both mod IDs, mixins, and sounds")
           PY
       - uses: actions/upload-artifact@v4
         with:

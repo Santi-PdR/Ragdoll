@@ -3,34 +3,76 @@ loaderVersion="[47.4.0,)"
 license="Apache-2.0"
 
 [[mods]]
-modId="ragdoll"
-version="1.0.0"
-displayName="Ragdoll Physics"
-authors="Santi-PdR"
-description='''Forge 1.20.1 combined player and mob ragdoll port powered by Sable.'''
+modId="sable_player_ragdoll"
+version="0.7.2-forge.1"
+displayName="Sable Ragdolls"
+authors="Leonardoinc22"
+description='''Player and mob ragdolls using Sable physics for Forge 1.20.1.'''
 
-[[dependencies.ragdoll]]
+[[mods]]
+modId="ragdoll_reactions"
+version="0.7.0-forge.1"
+displayName="Ragdoll Reactions"
+authors="Leonardoinc22"
+description='''Players and mobs ragdoll in reaction to impacts, falls, explosions, and lightning.'''
+
+[[dependencies.sable_player_ragdoll]]
 modId="forge"
 mandatory=true
 versionRange="[47.4.0,)"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.ragdoll]]
+[[dependencies.sable_player_ragdoll]]
 modId="minecraft"
 mandatory=true
 versionRange="[1.20.1,1.20.2)"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.ragdoll]]
+[[dependencies.sable_player_ragdoll]]
 modId="sable"
 mandatory=true
 versionRange="[2.0.5-port.1,)"
 ordering="AFTER"
 side="BOTH"
 
-[[dependencies.ragdoll]]
+[[dependencies.sable_player_ragdoll]]
+modId="veil"
+mandatory=true
+versionRange="[1.0.0,1.1.0)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.ragdoll_reactions]]
+modId="forge"
+mandatory=true
+versionRange="[47.4.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.ragdoll_reactions]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.20.2)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.ragdoll_reactions]]
+modId="sable"
+mandatory=true
+versionRange="[2.0.5-port.1,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.ragdoll_reactions]]
+modId="sable_player_ragdoll"
+mandatory=true
+versionRange="[0.7.2-forge.1,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.ragdoll_reactions]]
 modId="veil"
 mandatory=true
 versionRange="[1.0.0,1.1.0)"
