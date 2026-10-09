@@ -9,7 +9,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.handling.IPayloadContext;
 
 public record ClientMotionPacket(float horizontalAccelMetersPerSecond, float horizontalSpeedMetersPerSecond) implements CustomPacketPayload {
    public static final Type<ClientMotionPacket> TYPE = new Type<>(

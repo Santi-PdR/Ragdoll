@@ -18,7 +18,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.neoforge.entity.IEntityWithComplexSpawn;
+import net.minecraftforge.entity.IEntityWithComplexSpawn;
 
 public final class RagdollDollEntity extends LivingEntity implements IEntityWithComplexSpawn {
    private static final EntityDataAccessor<Optional<UUID>> DATA_SKIN_UUID = SynchedEntityData.defineId(

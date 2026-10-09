@@ -1,8 +1,8 @@
 package dev.leo.sableplayerragdoll.mob.network;
 
 import dev.leo.sableplayerragdoll.SablePlayerRagdoll;
-import net.minecraftforge.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.minecraftforge.neoforge.network.registration.PayloadRegistrar;
+import net.minecraftforge.network.event.RegisterPayloadHandlersEvent;
+import net.minecraftforge.network.registration.PayloadRegistrar;
 
 public final class MobRagdollNetworking {
     private MobRagdollNetworking() {

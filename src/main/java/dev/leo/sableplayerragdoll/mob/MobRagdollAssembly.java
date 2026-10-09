@@ -50,8 +50,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.neoforge.common.NeoForge;
-import net.minecraftforge.neoforge.network.PacketDistributor;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.network.PacketDistributor;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
 
@@ -162,7 +162,7 @@ public final class MobRagdollAssembly {
             return false;
         }
         MobRagdollStartEvent startEvent = new MobRagdollStartEvent(entity, linear);
-        NeoForge.EVENT_BUS.post(startEvent);
+        MinecraftForge.EVENT_BUS.post(startEvent);
         if (startEvent.isCanceled()) {
             return false;
         }
@@ -230,7 +230,7 @@ public final class MobRagdollAssembly {
         RESTORED_UUIDS.remove(uuid);
         RESTORED_HANDLES.remove(uuid);
         Vec3 exitVelocity = state == null ? Vec3.ZERO : rootVelocity(state);
-        NeoForge.EVENT_BUS.post(new MobRagdollEndEvent(entity, exitVelocity, reason));
+        MinecraftForge.EVENT_BUS.post(new MobRagdollEndEvent(entity, exitVelocity, reason));
         entity.stopRiding();
         entity.setInvisible(false);
         entity.noPhysics = false;
@@ -778,7 +778,7 @@ public final class MobRagdollAssembly {
         LivingEntity endTarget = level.getEntity(uuid) instanceof LivingEntity loadedTarget ? loadedTarget : restoredEntity;
         if (endTarget != null) {
             Vec3 exitVelocity = state == null ? Vec3.ZERO : rootVelocity(state);
-            NeoForge.EVENT_BUS.post(new MobRagdollEndEvent(endTarget, exitVelocity, MobRagdollEndEvent.Reason.EXPIRED));
+            MinecraftForge.EVENT_BUS.post(new MobRagdollEndEvent(endTarget, exitVelocity, MobRagdollEndEvent.Reason.EXPIRED));
         }
         if (level.getEntity(uuid) instanceof LivingEntity loaded) {
             if (loaded.isPassenger()) {

@@ -7,9 +7,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraftforge.neoforge.network.PacketDistributor;
-import net.minecraftforge.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.minecraftforge.neoforge.network.registration.PayloadRegistrar;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.event.RegisterPayloadHandlersEvent;
+import net.minecraftforge.network.registration.PayloadRegistrar;
 
 public final class RagdollNetworking {
    private static final ResourceLocation GRAB_SLOWDOWN_ID = new ResourceLocation("sable_player_ragdoll", "grab_slowdown");

@@ -77,29 +77,29 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.bus.api.IEventBus;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.neoforge.common.NeoForge;
-import net.minecraftforge.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.neoforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.neoforge.event.entity.EntityMountEvent;
-import net.minecraftforge.neoforge.event.entity.ProjectileImpactEvent;
-import net.minecraftforge.neoforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.neoforge.event.entity.living.LivingEquipmentChangeEvent;
-import net.minecraftforge.neoforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.neoforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.neoforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.neoforge.event.level.BlockEvent;
-import net.minecraftforge.neoforge.event.RegisterCommandsEvent;
-import net.minecraftforge.neoforge.event.AddReloadListenerEvent;
-import net.minecraftforge.neoforge.event.server.ServerStartedEvent;
-import net.minecraftforge.neoforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityMountEvent;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.neoforge.event.tick.LevelTickEvent.Post;
+import net.minecraftforge.event.tick.LevelTickEvent.Post;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -118,26 +118,26 @@ public final class SablePlayerRagdollNeoForge {
       modBus.addListener(MobRagdollNetworking::register);
       modBus.addListener(SablePlayerRagdollNeoForge::onCommonSetup);
       modBus.addListener(SablePlayerRagdollNeoForge::registerAttributes);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onLevelTick);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onServerTick);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onEntityMount);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onEntityJoinLevel);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onBlockPlaced);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onBlockBreak);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onLeftClickBlock);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onRightClickBlock);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onRightClickItem);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onEntityInteract);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onEntityInteractSpecific);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onAttackEntity);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onEquipmentChange);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onPlayerDeath);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onPlayerLogout);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onRegisterCommands);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onServerStarted);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onServerStopped);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onAddReloadListeners);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onProjectileImpact);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onLevelTick);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onServerTick);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onEntityMount);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onEntityJoinLevel);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onBlockPlaced);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onBlockBreak);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onLeftClickBlock);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onRightClickBlock);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onRightClickItem);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onEntityInteract);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onEntityInteractSpecific);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onAttackEntity);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onEquipmentChange);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onPlayerDeath);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onPlayerLogout);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onRegisterCommands);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onServerStarted);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onServerStopped);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onAddReloadListeners);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onProjectileImpact);
    }
 
    private static void onLevelTick(Post event) {
@@ -151,7 +151,7 @@ public final class SablePlayerRagdollNeoForge {
       }
    }
 
-   private static void onServerTick(net.minecraftforge.neoforge.event.tick.ServerTickEvent.Post event) {
+   private static void onServerTick(net.minecraftforge.event.tick.ServerTickEvent.Post event) {
       RagdollAsyncPoseRequests.tick(uuid -> event.getServer().getPlayerList().getPlayer(uuid));
    }
 
@@ -264,7 +264,7 @@ public final class SablePlayerRagdollNeoForge {
             UUID rootId = RagdollAssemblyHelper.linkedRoot(subLevel.getUniqueId());
             if (rootId != null) {
                RagdollInteractEvent interactEvent = new RagdollInteractEvent(player, rootId, subLevel.getUniqueId(), ragdollPos, level);
-               if (NeoForge.EVENT_BUS.post(interactEvent).isCanceled()) {
+               if (MinecraftForge.EVENT_BUS.post(interactEvent).isCanceled()) {
                   event.setCancellationResult(InteractionResult.SUCCESS);
                   event.setCanceled(true);
                   return;

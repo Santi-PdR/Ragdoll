@@ -14,8 +14,8 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.neoforge.common.util.FakePlayer;
-import net.minecraftforge.neoforge.entity.IEntityWithComplexSpawn;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.entity.IEntityWithComplexSpawn;
 
 public final class RagdollSeatEntity extends Entity implements IEntityWithComplexSpawn {
    private static final String ANCHOR_X_KEY = "AnchorX";

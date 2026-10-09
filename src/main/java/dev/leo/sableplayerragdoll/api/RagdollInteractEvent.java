@@ -4,8 +4,8 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.bus.api.Event;
-import net.minecraftforge.bus.api.ICancellableEvent;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.ICancellableEvent;
 
 public class RagdollInteractEvent extends Event implements ICancellableEvent {
    private final ServerPlayer player;

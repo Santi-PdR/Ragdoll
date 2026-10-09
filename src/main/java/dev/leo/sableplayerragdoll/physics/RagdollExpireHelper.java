@@ -17,7 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.neoforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
@@ -90,7 +90,7 @@ public final class RagdollExpireHelper {
             if (livingEntity instanceof ServerPlayer player) {
                RagdollRegistry.suppressAfterRelease(player.getUUID(), level.getGameTime());
                RagdollSeatCallbacks.notifyReleased(player);
-               NeoForge.EVENT_BUS.post(new RagdollEndEvent(player, exitVelocity, endReason(subLevel)));
+               MinecraftForge.EVENT_BUS.post(new RagdollEndEvent(player, exitVelocity, endReason(subLevel)));
             }
          }
       }

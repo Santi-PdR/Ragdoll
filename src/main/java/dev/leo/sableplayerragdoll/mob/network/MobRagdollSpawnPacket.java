@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.neoforge.network.handling.IPayloadContext;
+import net.minecraftforge.network.handling.IPayloadContext;
 
 public record MobRagdollSpawnPacket(int entityId, String entityType, float bodyYaw, List<Part> parts) implements CustomPacketPayload {
     public static final Type<MobRagdollSpawnPacket> TYPE = new Type<>(

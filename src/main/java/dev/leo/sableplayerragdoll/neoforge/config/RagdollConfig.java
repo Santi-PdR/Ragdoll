@@ -5,11 +5,11 @@ import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.event.config.ModConfigEvent.Loading;
 import net.minecraftforge.fml.event.config.ModConfigEvent.Reloading;
-import net.minecraftforge.neoforge.common.ModConfigSpec;
-import net.minecraftforge.neoforge.common.ModConfigSpec.BooleanValue;
-import net.minecraftforge.neoforge.common.ModConfigSpec.Builder;
-import net.minecraftforge.neoforge.common.ModConfigSpec.DoubleValue;
-import net.minecraftforge.neoforge.common.ModConfigSpec.IntValue;
+import net.minecraftforge.common.ModConfigSpec;
+import net.minecraftforge.common.ModConfigSpec.BooleanValue;
+import net.minecraftforge.common.ModConfigSpec.Builder;
+import net.minecraftforge.common.ModConfigSpec.DoubleValue;
+import net.minecraftforge.common.ModConfigSpec.IntValue;
 
 public final class RagdollConfig {
    private static final Builder BUILDER = new Builder();

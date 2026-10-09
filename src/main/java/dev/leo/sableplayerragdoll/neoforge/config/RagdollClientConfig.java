@@ -2,10 +2,10 @@ package dev.leo.sableplayerragdoll.neoforge.config;
 
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.config.ModConfig.Type;
-import net.minecraftforge.neoforge.common.ModConfigSpec;
-import net.minecraftforge.neoforge.common.ModConfigSpec.BooleanValue;
-import net.minecraftforge.neoforge.common.ModConfigSpec.Builder;
-import net.minecraftforge.neoforge.common.ModConfigSpec.DoubleValue;
+import net.minecraftforge.common.ModConfigSpec;
+import net.minecraftforge.common.ModConfigSpec.BooleanValue;
+import net.minecraftforge.common.ModConfigSpec.Builder;
+import net.minecraftforge.common.ModConfigSpec.DoubleValue;
 
 public final class RagdollClientConfig {
    private static final Builder BUILDER = new Builder();

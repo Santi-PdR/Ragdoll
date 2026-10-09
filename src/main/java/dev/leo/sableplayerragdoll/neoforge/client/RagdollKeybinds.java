@@ -5,11 +5,11 @@ import dev.leo.sableplayerragdoll.neoforge.network.RagdollTriggerPacket;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraftforge.bus.api.IEventBus;
-import net.minecraftforge.neoforge.client.event.ClientTickEvent.Post;
-import net.minecraftforge.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.neoforge.common.NeoForge;
-import net.minecraftforge.neoforge.network.PacketDistributor;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.client.event.ClientTickEvent.Post;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 public final class RagdollKeybinds {
@@ -25,7 +25,7 @@ public final class RagdollKeybinds {
 
    public static void init(IEventBus modBus) {
       modBus.addListener(RagdollKeybinds::registerKeyMappings);
-      NeoForge.EVENT_BUS.addListener(RagdollKeybinds::onClientTick);
+      MinecraftForge.EVENT_BUS.addListener(RagdollKeybinds::onClientTick);
    }
 
    private static void registerKeyMappings(RegisterKeyMappingsEvent event) {

@@ -1,8 +1,8 @@
 package dev.leo.ragdollreactions.neoforge.network;
 
 import dev.leo.ragdollreactions.RagdollReactions;
-import net.minecraftforge.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.minecraftforge.neoforge.network.registration.PayloadRegistrar;
+import net.minecraftforge.network.event.RegisterPayloadHandlersEvent;
+import net.minecraftforge.network.registration.PayloadRegistrar;
 
 public final class ReactionNetworking {
    private ReactionNetworking() {

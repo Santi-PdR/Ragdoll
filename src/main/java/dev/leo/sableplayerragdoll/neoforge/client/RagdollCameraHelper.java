@@ -14,11 +14,11 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
-import net.minecraftforge.neoforge.client.event.ClientTickEvent.Post;
-import net.minecraftforge.neoforge.client.event.RenderHandEvent;
-import net.minecraftforge.neoforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.neoforge.common.NeoForge;
+import net.minecraftforge.client.event.CalculateDetachedCameraDistanceEvent;
+import net.minecraftforge.client.event.ClientTickEvent.Post;
+import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.common.MinecraftForge;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
 
@@ -40,10 +40,10 @@ public final class RagdollCameraHelper {
    }
 
    public static void init() {
-      NeoForge.EVENT_BUS.addListener(RagdollCameraHelper::onClientTick);
-      NeoForge.EVENT_BUS.addListener(RagdollCameraHelper::onRenderPlayer);
-      NeoForge.EVENT_BUS.addListener(RagdollCameraHelper::onRenderHand);
-      NeoForge.EVENT_BUS.addListener(RagdollCameraHelper::onCalculateCameraDistance);
+      MinecraftForge.EVENT_BUS.addListener(RagdollCameraHelper::onClientTick);
+      MinecraftForge.EVENT_BUS.addListener(RagdollCameraHelper::onRenderPlayer);
+      MinecraftForge.EVENT_BUS.addListener(RagdollCameraHelper::onRenderHand);
+      MinecraftForge.EVENT_BUS.addListener(RagdollCameraHelper::onCalculateCameraDistance);
    }
 
    private static void onClientTick(Post event) {

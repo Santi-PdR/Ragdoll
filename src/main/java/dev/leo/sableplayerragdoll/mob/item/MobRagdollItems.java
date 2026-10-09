@@ -2,9 +2,9 @@ package dev.leo.sableplayerragdoll.mob.item;
 
 import dev.leo.sableplayerragdoll.SablePlayerRagdoll;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.bus.api.IEventBus;
-import net.minecraftforge.neoforge.registries.DeferredItem;
-import net.minecraftforge.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredItem;
+import net.minecraftforge.registries.DeferredRegister;
 
 public final class MobRagdollItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(SablePlayerRagdoll.MOD_ID);

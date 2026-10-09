@@ -19,7 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.neoforge.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 
 public final class MobRagdollClientExtractor {
     private MobRagdollClientExtractor() {

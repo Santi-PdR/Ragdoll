@@ -32,7 +32,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.neoforge.common.NeoForge;
+import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
@@ -84,7 +84,7 @@ public final class RagdollRegistry {
       }
 
       RagdollStartEvent event = new RagdollStartEvent(player, new Vec3(linear.x, linear.y, linear.z));
-      if (NeoForge.EVENT_BUS.post(event).isCanceled()) {
+      if (MinecraftForge.EVENT_BUS.post(event).isCanceled()) {
          return null;
       }
       linear = new Vector3d(event.velocity().x, event.velocity().y, event.velocity().z);

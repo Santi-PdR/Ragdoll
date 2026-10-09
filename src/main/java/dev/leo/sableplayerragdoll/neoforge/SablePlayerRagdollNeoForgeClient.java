@@ -21,14 +21,14 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.bus.api.IEventBus;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.neoforge.client.event.RenderHighlightEvent;
-import net.minecraftforge.neoforge.client.gui.ConfigurationScreen;
-import net.minecraftforge.neoforge.client.gui.IConfigScreenFactory;
-import net.minecraftforge.neoforge.client.event.EntityRenderersEvent.RegisterRenderers;
-import net.minecraftforge.neoforge.common.NeoForge;
+import net.minecraftforge.client.event.RenderHighlightEvent;
+import net.minecraftforge.client.gui.ConfigurationScreen;
+import net.minecraftforge.client.gui.IConfigScreenFactory;
+import net.minecraftforge.client.event.EntityRenderersEvent.RegisterRenderers;
+import net.minecraftforge.common.MinecraftForge;
 
 @Mod(value = "sable_player_ragdoll", dist = {Dist.CLIENT})
 public final class SablePlayerRagdollNeoForgeClient {
@@ -42,7 +42,7 @@ public final class SablePlayerRagdollNeoForgeClient {
       RagdollGrabClient.init();
       RagdollBlockInteractClient.init();
       modBus.addListener(SablePlayerRagdollNeoForgeClient::registerEntityRenderers);
-      NeoForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForgeClient::onRenderHighlight);
+      MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForgeClient::onRenderHighlight);
    }
 
    private static void onRenderHighlight(RenderHighlightEvent.Block event) {

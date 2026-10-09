@@ -4,9 +4,9 @@ import dev.leo.sableplayerragdoll.neoforge.network.RagdollInputPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraftforge.neoforge.client.event.ClientTickEvent.Post;
-import net.minecraftforge.neoforge.common.NeoForge;
-import net.minecraftforge.neoforge.network.PacketDistributor;
+import net.minecraftforge.client.event.ClientTickEvent.Post;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.network.PacketDistributor;
 
 public final class RagdollInputClient {
    private static float lastStrafe;
@@ -17,7 +17,7 @@ public final class RagdollInputClient {
    }
 
    public static void init() {
-      NeoForge.EVENT_BUS.addListener(RagdollInputClient::onClientTick);
+      MinecraftForge.EVENT_BUS.addListener(RagdollInputClient::onClientTick);
    }
 
    private static void onClientTick(Post event) {
