@@ -7,7 +7,8 @@ import java.util.ArrayDeque;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.ClientTickEvent.Post;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 public final class ClientMotionSampler {

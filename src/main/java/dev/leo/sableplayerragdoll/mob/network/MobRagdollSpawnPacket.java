@@ -1,5 +1,9 @@
 package dev.leo.sableplayerragdoll.mob.network;
 
+import java.util.function.Supplier;
+
+import net.minecraftforge.network.NetworkEvent;
+
 import dev.leo.sableplayerragdoll.SablePlayerRagdoll;
 import dev.leo.sableplayerragdoll.mob.MobRagdollAssembly;
 import dev.leo.sableplayerragdoll.mob.block.MobPartRole;

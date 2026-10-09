@@ -6,7 +6,7 @@ import com.mojang.authlib.properties.Property;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -18,9 +18,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.entity.IEntityWithComplexSpawn;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 
-public final class RagdollDollEntity extends LivingEntity implements IEntityWithComplexSpawn {
+public final class RagdollDollEntity extends LivingEntity implements IEntityAdditionalSpawnData {
    private static final EntityDataAccessor<Optional<UUID>> DATA_SKIN_UUID = SynchedEntityData.defineId(
       RagdollDollEntity.class, EntityDataSerializers.OPTIONAL_UUID
    );
@@ -136,11 +136,11 @@ public final class RagdollDollEntity extends LivingEntity implements IEntityWith
    }
 
    @Override
-   public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
+   public void writeSpawnData(FriendlyByteBuf buffer) {
    }
 
    @Override
-   public void readSpawnData(RegistryFriendlyByteBuf additionalData) {
+   public void readSpawnData(FriendlyByteBuf additionalData) {
    }
 
    public enum BodyPart {

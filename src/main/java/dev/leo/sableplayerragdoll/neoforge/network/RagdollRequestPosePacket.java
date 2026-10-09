@@ -2,7 +2,6 @@ package dev.leo.sableplayerragdoll.neoforge.network;
 
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollClientPoseCapture;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.network.PacketDistributor;
 
 public record RagdollRequestPosePacket(long requestId) {
    public static void encode(FriendlyByteBuf b, RagdollRequestPosePacket p) { b.writeLong(p.requestId()); }

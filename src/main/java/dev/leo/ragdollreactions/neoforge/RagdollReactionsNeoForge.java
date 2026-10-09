@@ -19,7 +19,7 @@ import dev.leo.ragdollreactions.sound.ReactionSounds;
 import dev.leo.sableplayerragdoll.api.RagdollEndEvent;
 import dev.leo.sableplayerragdoll.mob.api.MobRagdollEndEvent;
 import net.minecraft.world.entity.Mob;
-import net.minecraftforge.event.tick.EntityTickEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
@@ -28,6 +28,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
@@ -89,20 +90,20 @@ public final class RagdollReactionsNeoForge {
       MobExplosionReactionHandler.onExplosion(level, explosion.center(), explosion.radius());
    }
 
-   private static void onLivingDamagePre(LivingDamageEvent.Pre event) {
+   private static void onLivingDamagePre(LivingHurtEvent event) {
       if (event.getEntity() instanceof ServerPlayer player) {
-         CrashReactionHandler.onPlayerDamaged(player, event.getSource(), event.getOriginalDamage(), event.getNewDamage());
-         FallReactionHandler.onPlayerDamaged(player, event.getSource(), event.getNewDamage());
+         CrashReactionHandler.onPlayerDamaged(player, event.getSource(), event.getAmount(), event.getAmount());
+         FallReactionHandler.onPlayerDamaged(player, event.getSource(), event.getAmount());
       } else if (event.getEntity() instanceof Mob mob) {
-         MobFallReactionHandler.onMobDamaged(mob, event.getSource(), event.getNewDamage());
+         MobFallReactionHandler.onMobDamaged(mob, event.getSource(), event.getAmount());
       }
    }
 
-   private static void onLivingDamagePost(LivingDamageEvent.Post event) {
+   private static void onLivingDamagePost(LivingDamageEvent event) {
       if (event.getEntity() instanceof ServerPlayer player) {
-         HitReactionHandler.onPlayerDamaged(player, event.getSource(), event.getNewDamage());
+         HitReactionHandler.onPlayerDamaged(player, event.getSource(), event.getAmount());
       } else if (event.getEntity() instanceof Mob mob) {
-         MobDamageReactionHandler.onMobDamaged(mob, event.getSource(), event.getNewDamage());
+         MobDamageReactionHandler.onMobDamaged(mob, event.getSource(), event.getAmount());
       }
    }
 
@@ -152,7 +153,7 @@ public final class RagdollReactionsNeoForge {
       return explosion.radius();
    }
 
-   private static void onEntityTickPost(EntityTickEvent.Post event) {
+   private static void onEntityTickPost(LivingTickEvent event) {
       if (event.getEntity() instanceof Mob mob) {
          MobImpactReactionHandler.onMobTick(mob);
       }

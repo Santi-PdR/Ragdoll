@@ -4,7 +4,7 @@ import dev.leo.sableplayerragdoll.block.RagdollPartBlock;
 import dev.leo.sableplayerragdoll.block.RagdollSeatBlock;
 import java.util.Optional;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.SynchedEntityData.Builder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -15,9 +15,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.entity.IEntityWithComplexSpawn;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 
-public final class RagdollSeatEntity extends Entity implements IEntityWithComplexSpawn {
+public final class RagdollSeatEntity extends Entity implements IEntityAdditionalSpawnData {
    private static final String ANCHOR_X_KEY = "AnchorX";
    private static final String ANCHOR_Y_KEY = "AnchorY";
    private static final String ANCHOR_Z_KEY = "AnchorZ";
@@ -109,9 +109,9 @@ public final class RagdollSeatEntity extends Entity implements IEntityWithComple
       });
    }
 
-   public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
+   public void writeSpawnData(FriendlyByteBuf buffer) {
    }
 
-   public void readSpawnData(RegistryFriendlyByteBuf additionalData) {
+   public void readSpawnData(FriendlyByteBuf additionalData) {
    }
 }

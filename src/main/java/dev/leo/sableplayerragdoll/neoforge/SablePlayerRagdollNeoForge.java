@@ -49,7 +49,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -99,7 +98,9 @@ import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.event.tick.LevelTickEvent.Post;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.TickEvent.LevelTickEvent;
+import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -140,8 +141,9 @@ public final class SablePlayerRagdollNeoForge {
       MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForge::onProjectileImpact);
    }
 
-   private static void onLevelTick(Post event) {
-      if (event.getLevel() instanceof ServerLevel serverLevel) {
+   private static void onLevelTick(LevelTickEvent event) {
+      if (event.phase != TickEvent.Phase.END) return;
+      if (event.level instanceof ServerLevel serverLevel) {
          RagdollSessionManager.tickActiveRagdolls(serverLevel);
          MobRagdollAssembly.tickActiveRagdolls(serverLevel);
          SubLevelPhysicsSystem physicsSystem = SubLevelPhysicsSystem.get(serverLevel);
@@ -151,7 +153,8 @@ public final class SablePlayerRagdollNeoForge {
       }
    }
 
-   private static void onServerTick(net.minecraftforge.event.tick.ServerTickEvent.Post event) {
+   private static void onServerTick(ServerTickEvent event) {
+      if (event.phase != TickEvent.Phase.END) return;
       RagdollAsyncPoseRequests.tick(uuid -> event.getServer().getPlayerList().getPlayer(uuid));
    }
 
@@ -759,7 +762,7 @@ public final class SablePlayerRagdollNeoForge {
       ServerPlayer player = source.getPlayerOrException();
       ItemStack stack = new ItemStack(Items.STICK);
       RagdollItemTags.markTestItem(stack);
-      stack.set(DataComponents.CUSTOM_NAME, Component.literal("Ragdoll Test Stick"));
+      stack.setHoverName(Component.literal("Ragdoll Test Stick"));
 
       if (!player.getInventory().add(stack)) {
          player.drop(stack, false);

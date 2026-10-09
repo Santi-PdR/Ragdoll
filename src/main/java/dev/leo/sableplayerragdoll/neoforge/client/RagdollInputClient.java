@@ -5,7 +5,8 @@ import dev.leo.sableplayerragdoll.neoforge.network.RagdollNetworking;
 import dev.leo.sableplayerragdoll.neoforge.network.RagdollInputPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraftforge.client.event.ClientTickEvent.Post;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 public final class RagdollInputClient {
