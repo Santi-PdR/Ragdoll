@@ -3,21 +3,21 @@ package dev.leo.sableplayerragdoll.mob;
 import dev.leo.sableplayerragdoll.SablePlayerRagdoll;
 import dev.leo.sableplayerragdoll.mob.block.MobRagdollPartBlock;
 import dev.leo.sableplayerragdoll.mob.block.entity.MobRagdollPartBlockEntity;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredBlock;
-import net.minecraftforge.registries.DeferredHolder;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 public final class MobRagdollBlocks {
-    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(SablePlayerRagdoll.MOD_ID);
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, SablePlayerRagdoll.MOD_ID);
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, SablePlayerRagdoll.MOD_ID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, SablePlayerRagdoll.MOD_ID);
 
-    public static final DeferredBlock<MobRagdollPartBlock> MOB_RAGDOLL_PART = BLOCKS.register(
+    public static final RegistryObject<MobRagdollPartBlock> MOB_RAGDOLL_PART = BLOCKS.register(
             "mob_ragdoll_part",
             () -> new MobRagdollPartBlock(BlockBehaviour.Properties.of()
                     .mapColor(MapColor.COLOR_LIGHT_BLUE)
@@ -25,9 +25,9 @@ public final class MobRagdollBlocks {
                     .sound(SoundType.EMPTY)
                     .noOcclusion()
                     .noLootTable()
-                    .noTerrainParticles())
+                    )
     );
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MobRagdollPartBlockEntity>> MOB_RAGDOLL_PART_ENTITY = BLOCK_ENTITY_TYPES.register(
+    public static final RegistryObject<BlockEntityType<MobRagdollPartBlockEntity>> MOB_RAGDOLL_PART_ENTITY = BLOCK_ENTITY_TYPES.register(
             "mob_ragdoll_part",
             () -> BlockEntityType.Builder.of(MobRagdollPartBlockEntity::new, MOB_RAGDOLL_PART.get()).build(null)
     );
