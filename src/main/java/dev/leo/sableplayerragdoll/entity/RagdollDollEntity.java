@@ -81,13 +81,13 @@ public final class RagdollDollEntity extends LivingEntity implements IEntityAddi
    }
 
    @Override
-   protected void defineSynchedData(SynchedEntityData.Builder builder) {
-      super.defineSynchedData(builder);
-      builder.define(DATA_SKIN_UUID, Optional.empty());
-      builder.define(DATA_SKIN_NAME, "");
-      builder.define(DATA_SKIN_TEXTURES, "");
-      builder.define(DATA_SKIN_TEXTURES_SIGNATURE, "");
-      builder.define(DATA_BODY_PART, BodyPart.TORSO.id);
+   protected void defineSynchedData() {
+      super.defineSynchedData();
+      this.entityData.define(DATA_SKIN_UUID, Optional.empty());
+      this.entityData.define(DATA_SKIN_NAME, "");
+      this.entityData.define(DATA_SKIN_TEXTURES, "");
+      this.entityData.define(DATA_SKIN_TEXTURES_SIGNATURE, "");
+      this.entityData.define(DATA_BODY_PART, BodyPart.TORSO.id);
    }
 
    @Override

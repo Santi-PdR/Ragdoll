@@ -3,8 +3,6 @@ name: Forge 1.20.1 build
 on:
   push:
     branches: [main, "codex/**"]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:

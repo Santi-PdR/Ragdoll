@@ -5,7 +5,6 @@ import dev.leo.sableplayerragdoll.block.RagdollSeatBlock;
 import java.util.Optional;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.syncher.SynchedEntityData.Builder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -92,7 +91,8 @@ public final class RagdollSeatEntity extends Entity implements IEntityAdditional
       return super.getDismountLocationForPassenger(passenger).add(0.0, 0.5, 0.0);
    }
 
-   protected void defineSynchedData(Builder builder) {
+   protected void defineSynchedData() {
+      super.defineSynchedData();
    }
 
    protected void readAdditionalSaveData(CompoundTag tag) {

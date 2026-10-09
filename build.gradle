@@ -1,8 +1,19 @@
+buildscript {
+    repositories {
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+    dependencies {
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
+}
+
 plugins {
     id 'eclipse'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
+
+apply plugin: 'org.spongepowered.mixin'
 
 group = 'dev.santi.ragdoll'
 version = '1.0.0'
@@ -29,6 +40,13 @@ minecraft {
 
 repositories {
     mavenCentral()
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+}
+
+mixin {
+    add sourceSets.main, 'sable_player_ragdoll.refmap.json'
+    config 'sable_player_ragdoll.mixins.json'
+    config 'sable_player_ragdoll.neoforge.mixins.json'
 }
 
 dependencies {
