@@ -7,7 +7,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.entity.projectile.windcharge.WindCharge;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3d;
@@ -42,14 +41,8 @@ public final class ExplosionReactionHandler {
          return;
       }
 
-      boolean isWindCharge = explosion.getDirectSourceEntity() instanceof WindCharge;
-      if (isWindCharge && ReactionSettings.suppressions().windCharge().suppressAll()) {
-         return;
-      }
-
       double effectiveRadius = power * 2.0 + vanillaExplosions.radiusPadding();
-      ServerPlayer suppressedSelfWindChargeOwner = suppressedSelfWindChargeOwner(level, explosion);
-      triggerExplosion(level, explosion.center(), power, effectiveRadius, vanillaExplosions.launchMultiplier(), "vanilla", suppressedSelfWindChargeOwner);
+      triggerExplosion(level, explosion.center(), power, effectiveRadius, vanillaExplosions.launchMultiplier(), "vanilla");
    }
 
    private static void triggerExplosion(ServerLevel level, Vec3 center, double power, double effectiveRadius, double launchMultiplier, String kind) {
@@ -115,20 +108,6 @@ public final class ExplosionReactionHandler {
             );
          }
       }
-   }
-
-   private static ServerPlayer suppressedSelfWindChargeOwner(ServerLevel level, Explosion explosion) {
-      ReactionSettings.WindCharge windCharge = ReactionSettings.suppressions().windCharge();
-      if (!windCharge.suppressSelf()) {
-         return null;
-      }
-
-      Entity directSource = explosion.getDirectSourceEntity();
-      LivingEntity indirectSource = explosion.getIndirectSourceEntity();
-      if (directSource instanceof WindCharge && indirectSource instanceof ServerPlayer player && player.level() == level) {
-         return player;
-      }
-      return null;
    }
 
    private static boolean isBlockingWithShield(ServerPlayer player) {

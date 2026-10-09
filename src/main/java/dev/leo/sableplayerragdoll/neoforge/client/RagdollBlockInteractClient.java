@@ -19,7 +19,7 @@ public final class RagdollBlockInteractClient {
 
    private static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
       if (event.getLevel().isClientSide() && (isRagdollPart(event) || isLocalPlayerRagdolled())) {
-         event.setUseItem(TriState.FALSE);
+         event.setUseItem(net.minecraftforge.eventbus.api.Event.Result.DENY);
       }
    }
 

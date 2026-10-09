@@ -9,7 +9,6 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -18,15 +17,14 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 public final class RagdollSavedData extends SavedData {
    private static final String FILE_ID = SablePlayerRagdoll.MOD_ID;
-   private static final SavedData.Factory<RagdollSavedData> FACTORY = new SavedData.Factory<>(RagdollSavedData::new, RagdollSavedData::load);
-   private final Map<UUID, Map<BodyPart, UUID>> ragdolls = new HashMap<>();
+      private final Map<UUID, Map<BodyPart, UUID>> ragdolls = new HashMap<>();
    private final Map<UUID, RagdollLimbOptions> ragdollLimbs = new HashMap<>();
 
    public static RagdollSavedData get(ServerLevel level) {
-      return level.getDataStorage().computeIfAbsent(FACTORY, FILE_ID);
+      return level.getDataStorage().computeIfAbsent(RagdollSavedData::load, RagdollSavedData::new, FILE_ID);
    }
 
-   public static RagdollSavedData load(CompoundTag tag, HolderLookup.Provider registries) {
+   public static RagdollSavedData load(CompoundTag tag) {
       RagdollSavedData data = new RagdollSavedData();
       ListTag ragdollList = tag.getList("Ragdolls", Tag.TAG_COMPOUND);
       for (int i = 0; i < ragdollList.size(); i++) {
@@ -112,7 +110,7 @@ public final class RagdollSavedData extends SavedData {
    }
 
    @Override
-   public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+   public CompoundTag save(CompoundTag tag) {
       ListTag ragdollList = new ListTag();
       this.ragdolls.forEach((rootId, parts) -> {
          CompoundTag ragdollTag = new CompoundTag();
