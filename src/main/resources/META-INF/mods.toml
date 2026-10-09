@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[47.4.0,)"
+loaderVersion="[47,)"
 license="All Rights Reserved. Do not redistribute."
 
 [[mods]]
@@ -19,7 +19,7 @@ description='''Players and mobs ragdoll in reaction to impacts, falls, explosion
 [[dependencies.sable_player_ragdoll]]
 modId="forge"
 mandatory=true
-versionRange="[47.4.0,)"
+versionRange="[47,)"
 ordering="NONE"
 side="BOTH"
 
@@ -47,7 +47,7 @@ side="BOTH"
 [[dependencies.ragdoll_reactions]]
 modId="forge"
 mandatory=true
-versionRange="[47.4.0,)"
+versionRange="[47,)"
 ordering="NONE"
 side="BOTH"
 

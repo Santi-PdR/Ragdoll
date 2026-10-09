@@ -3,7 +3,7 @@ Forge 1.20.1 port of **Sable Player Ragdoll 0.7.2** and **Ragdoll Reactions 0.7.
 ## Requirements
 
 - Minecraft 1.20.1
-- Forge 47.4.0 or newer in the 1.20.1 line
+- Forge 47.x for Minecraft 1.20.1
 - Java 17
 - Sable for Forge 1.20.1, version 2.0.5-port.1
 - Veil 1.0.0 for the Sable renderer
