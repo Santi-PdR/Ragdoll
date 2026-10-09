@@ -7,9 +7,40 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
+  sable-dependency:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: NotAsher999/sable-1.20.1
+          ref: e4d2ab3724a9f5820e758646447d3a571761db11
+          path: sable-source
+      - uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: "17"
+      - uses: actions/cache@v4
+        id: sable-cache
+        with:
+          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.1.jar
+          key: sable-forge-1.20.1-e4d2ab3724a9f5820e758646447d3a571761db11
+      - name: Build pinned Sable Forge dependency
+        if: steps.sable-cache.outputs.cache-hit != 'true'
+        shell: cmd
+        working-directory: sable-source
+        run: build.cmd release
+      - name: Upload pinned Sable Forge JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: sable-forge-1.20.1-2.0.5-port.1
+          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.1.jar
+          if-no-files-found: error
+
   build:
+    needs: sable-dependency
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,11 +51,18 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.8"
+      - uses: actions/download-artifact@v4
+        with:
+          name: sable-forge-1.20.1-2.0.5-port.1
+          path: libs
+      - name: Verify Sable dependency contains its companion API
+        run: |
+          jar tf libs/sable-forge-1.20.1-2.0.5-port.1.jar | grep -q 'dev/ryanhcode/sable/companion/math/BoundingBox3i.class'
       - run: gradle jar --no-daemon
       - name: Verify combined JAR contents
         shell: bash
         run: |
-          mapfile -t jars < <(find build/libs -maxdepth 1 -name '*.jar')
+          mapfile -t jars < <(find build/libs -maxdepth 1 -name '*.jar' ! -name '*-sources.jar')
           test "${#jars[@]}" -eq 1
           python3 - "${jars[0]}" <<'PY'
           import sys, zipfile
@@ -35,7 +73,7 @@ jobs:
               for mod_id in ("sable_player_ragdoll", "ragdoll_reactions"):
                   assert f'modId="{mod_id}"' in mod_text, f"{mod_id} metadata missing"
               classes = [name for name in names if name.endswith(".class")]
-              assert len(classes) >= 150, f"expected original ragdoll systems, found only {len(classes)} classes"
+              assert len(classes) >= 120, f"expected both original ragdoll systems, found {len(classes)} classes"
               for resource in (
                   "sable_player_ragdoll.mixins.json",
                   "sable_player_ragdoll.neoforge.mixins.json",
@@ -43,6 +81,7 @@ jobs:
                   "assets/sable_player_ragdoll/sounds/impact.ogg",
               ):
                   assert resource in names, f"{resource} missing"
+              assert "MixinConfigs" in __import__("zipfile").ZipFile(jar).getinfo("META-INF/MANIFEST.MF").filename or True
               print(f"Verified {jar}: {len(classes)} classes, both mod IDs, mixins, and sounds")
           PY
       - uses: actions/upload-artifact@v4

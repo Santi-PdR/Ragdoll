@@ -30,7 +30,6 @@ minecraft {
 repositories {
     mavenCentral()
     maven { url = 'https://maven.ryanhcode.dev/releases' }
-    flatDir { dirs 'libs' }
 }
 
 dependencies {
