@@ -51,7 +51,7 @@ public final class RagdollPartBlockEntityRenderer implements BlockEntityRenderer
    private final ModelPart slimCloak;
    private final ElytraLayer<RagdollDollEntity, PlayerModel<RagdollDollEntity>> elytraLayer;
    private RagdollDollEntity renderEntity;
-   private ResourceLocation currentTexture = DefaultPlayerSkin.getDefaultTexture();
+   private ResourceLocation currentTexture = DefaultPlayerSkin.getDefaultSkin(new UUID(0L, 0L));
    private ResourceLocation currentCapeTexture = null;
 
    public RagdollPartBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -110,7 +110,7 @@ public final class RagdollPartBlockEntityRenderer implements BlockEntityRenderer
           ? OverlayTexture.pack(0, 3)  // u=0 (full flash), v=3 (red hurt row)
           : OverlayTexture.NO_OVERLAY;
       VertexConsumer vertices = buffer.getBuffer(RenderType.entityTranslucent(this.currentTexture));
-      this.model.renderToBuffer(poseStack, vertices, packedLight, baseOverlay);
+      this.model.renderToBuffer(poseStack, vertices, packedLight, baseOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
 
       // Render all vanilla layers from the standard PlayerRenderer
       Minecraft minecraft = Minecraft.getInstance();
@@ -128,7 +128,7 @@ public final class RagdollPartBlockEntityRenderer implements BlockEntityRenderer
          for (EquipmentSlot slot : EquipmentSlot.values()) {
             oldItems[slot.ordinal()] = entity.getItemBySlot(slot);
             ItemStack candidate = blockEntity.itemBySlot(slot);
-            if (accessoriesLoaded && slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR && blockEntity.hasAccessoriesItems()) {
+            if (accessoriesLoaded && isArmorEquipmentSlot(slot) && blockEntity.hasAccessoriesItems()) {
                ItemStack cosmetic = AccessoriesRenderHelper.storedCosmeticArmorOverride(blockEntity, slot);
                if (cosmetic != null) candidate = cosmetic;
             }
@@ -211,11 +211,24 @@ public final class RagdollPartBlockEntityRenderer implements BlockEntityRenderer
    }
 
    private static ResourceLocation skinTexture(RagdollPartBlockEntity blockEntity) {
-      var profile = blockEntity.skinProfile();
-      return Minecraft.getInstance().getSkinManager() == null
-         ? DefaultPlayerSkin.getDefaultSkin(profile.getId())
-         : Minecraft.getInstance().getSkinManager().getInsecureSkin(profile);
+      return liveSkinTexture(blockEntity.skinProfile().getId());
    }
+
+   private static ResourceLocation liveSkinTexture(UUID uuid) {
+      if (uuid != null && Minecraft.getInstance().level != null) {
+         var player = Minecraft.getInstance().level.getPlayerByUUID(uuid);
+         if (player instanceof net.minecraft.client.player.AbstractClientPlayer clientPlayer) {
+            return clientPlayer.getSkinTextureLocation();
+         }
+      }
+      return DefaultPlayerSkin.getDefaultSkin(uuid == null ? new UUID(0L, 0L) : uuid);
+   }
+
+   private static boolean isArmorEquipmentSlot(EquipmentSlot slot) {
+      return slot == EquipmentSlot.HEAD || slot == EquipmentSlot.CHEST
+         || slot == EquipmentSlot.LEGS || slot == EquipmentSlot.FEET;
+   }
+
    private static boolean isSlim(RagdollPartBlockEntity blockEntity) {
       var profile = blockEntity.skinProfile();
       return profile.getId() != null && "slim".equals(DefaultPlayerSkin.getSkinModelName(profile.getId()));

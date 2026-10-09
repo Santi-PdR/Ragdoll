@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
 public abstract class EntityRagdollHiddenMixin {
-    private static final EntityDimensions RAGDOLL_SOURCE_DIMENSIONS = EntityDimensions.fixed(0.01F, 0.01F).withEyeHeight(0.0F);
+    private static final EntityDimensions RAGDOLL_SOURCE_DIMENSIONS = EntityDimensions.fixed(0.01F, 0.01F);
     private static final double RAGDOLL_SOURCE_BB_HALF_SIZE = 0.0005;
 
     private boolean isHiddenRagdollSource() {

@@ -48,15 +48,15 @@ public final class RagdollSeatBlock extends Block {
       }
    }
 
-   protected RenderShape getRenderShape(BlockState state) {
+   public RenderShape getRenderShape(BlockState state) {
       return RenderShape.INVISIBLE;
    }
 
-   protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+   public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
       return Shapes.empty();
    }
 
-   protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+   public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
       return RIDER_COLLISION;
    }
 
@@ -82,10 +82,10 @@ public final class RagdollSeatBlock extends Block {
             return InteractionResult.SUCCESS;
          } else {
             sitDown(level, pos, player);
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
          }
       } else {
-         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+         return InteractionResult.PASS;
       }
    }
 
@@ -105,7 +105,7 @@ public final class RagdollSeatBlock extends Block {
       }
    }
 
-   protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
+   public boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
       return false;
    }
 }

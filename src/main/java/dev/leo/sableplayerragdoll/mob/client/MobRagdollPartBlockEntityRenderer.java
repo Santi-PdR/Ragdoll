@@ -160,7 +160,7 @@ public final class MobRagdollPartBlockEntityRenderer implements BlockEntityRende
 
             VertexConsumer vertices = bufferSource.getBuffer(RenderType.entityCutoutNoCull(blockEntity.texture()));
             int overlay = LivingEntityRenderer.getOverlayCoords(livingEntity, whiteOverlayProgress(livingRenderer, livingEntity, partialTick));
-            model.renderToBuffer(poseStack, vertices, packedLight, overlay);
+            model.renderToBuffer(poseStack, vertices, packedLight, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
             for (RenderLayer layer : layers(livingRenderer)) {
                 setLayerModelsYoung(layer, young);
                 if (MobRagdollLayerRenderer.renderHeldItemLayer(layer, model, blockEntity, livingEntity, poseStack, bufferSource, packedLight)) {

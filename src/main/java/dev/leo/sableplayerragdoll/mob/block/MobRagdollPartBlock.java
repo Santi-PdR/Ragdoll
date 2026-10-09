@@ -42,7 +42,7 @@ public final class MobRagdollPartBlock extends Block implements EntityBlock, Blo
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.INVISIBLE;
     }
 
@@ -53,7 +53,7 @@ public final class MobRagdollPartBlock extends Block implements EntityBlock, Blo
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if (level.getBlockEntity(pos) instanceof MobRagdollPartBlockEntity blockEntity) {
             return blockEntity.renderAnchor() ? blockEntity.visualShape() : Shapes.empty();
         }
@@ -61,7 +61,7 @@ public final class MobRagdollPartBlock extends Block implements EntityBlock, Blo
     }
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if (RagdollCollisionRules.suppressLocalCollision()) {
             return Shapes.empty();
         }
@@ -92,18 +92,7 @@ public final class MobRagdollPartBlock extends Block implements EntityBlock, Blo
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
-                                               Player player, BlockHitResult hitResult) {
-        if (level instanceof ServerLevel serverLevel) {
-            return level.getBlockEntity(pos) instanceof MobRagdollPartBlockEntity part
-                    ? MobRagdollAssembly.interactWithPart(serverLevel, part, player, InteractionHand.MAIN_HAND)
-                    : MobRagdollAssembly.interactWithPart(serverLevel, pos, player, InteractionHand.MAIN_HAND);
-        }
-        return InteractionResult.PASS;
-    }
-
-    @Override
-    protected void attack(BlockState state, Level level, BlockPos pos, Player player) {
+    public void attack(BlockState state, Level level, BlockPos pos, Player player) {
         if (!level.isClientSide()) {
             if (level instanceof ServerLevel serverLevel) {
                 if (level.getBlockEntity(pos) instanceof MobRagdollPartBlockEntity part) {

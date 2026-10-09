@@ -186,7 +186,6 @@ public final class RagdollSessionManager {
                      } else {
                         RagdollMotorEffects.tick(level, serverSubLevel);
                         applyImpactDamage(level, physicsSystem, serverContainer, serverSubLevel);
-                        pollAccessories(level, serverSubLevel);
                      }
                   }
                }

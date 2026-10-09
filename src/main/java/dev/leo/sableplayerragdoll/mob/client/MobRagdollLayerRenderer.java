@@ -121,7 +121,7 @@ final class MobRagdollLayerRenderer {
                 }
 
                 VertexConsumer vertices = bufferSource.getBuffer(RenderType.entityCutoutNoCull(layerModel.texture()));
-                layerModel.model().renderToBuffer(poseStack, vertices, packedLight, OverlayTexture.NO_OVERLAY);
+                layerModel.model().renderToBuffer(poseStack, vertices, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
                 rendered = true;
             } catch (Throwable ignored) {
                 return false;

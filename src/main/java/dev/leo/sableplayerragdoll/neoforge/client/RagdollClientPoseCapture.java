@@ -19,11 +19,12 @@ public final class RagdollClientPoseCapture {
 
    public static RagdollLimbOptions capture() {
       Minecraft minecraft = Minecraft.getInstance();
-      if (!(minecraft.player instanceof AbstractClientPlayer player)) {
+      if (minecraft.player == null) {
          return RagdollLimbOptions.defaults();
       }
+      AbstractClientPlayer player = minecraft.player;
 
-      EntityRenderer<? extends Player> renderer = minecraft.getEntityRenderDispatcher().getSkinMap().get(player.getSkin().model());
+      EntityRenderer<? extends Player> renderer = minecraft.getEntityRenderDispatcher().getSkinMap().get(player.getModelName());
       if (!(renderer instanceof PlayerRenderer playerRenderer)) {
          return RagdollLimbOptions.defaults();
       }

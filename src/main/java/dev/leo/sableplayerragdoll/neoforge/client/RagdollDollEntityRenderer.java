@@ -9,6 +9,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.client.player.AbstractClientPlayer;
+import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
 
 public final class RagdollDollEntityRenderer extends LivingEntityRenderer<RagdollDollEntity, PlayerModel<RagdollDollEntity>> {
@@ -49,9 +51,13 @@ public final class RagdollDollEntityRenderer extends LivingEntityRenderer<Ragdol
    private static ResourceLocation skinTexture(RagdollDollEntity entity) {
       var profile = entity.getSkinProfile();
       if (Minecraft.getInstance().getSkinManager() == null || profile.getId() == null) {
-         return DefaultPlayerSkin.getDefaultSkin(profile.getId());
+         return DefaultPlayerSkin.getDefaultSkin(profile.getId() == null ? new UUID(0L, 0L) : profile.getId());
       }
-      return Minecraft.getInstance().getSkinManager().getInsecureSkin(profile);
+      if (Minecraft.getInstance().level != null && profile.getId() != null) {
+         var player = Minecraft.getInstance().level.getPlayerByUUID(profile.getId());
+         if (player instanceof AbstractClientPlayer clientPlayer) return clientPlayer.getSkinTextureLocation();
+      }
+      return DefaultPlayerSkin.getDefaultSkin(profile.getId());
    }
 
    private static boolean isSlim(RagdollDollEntity entity) {

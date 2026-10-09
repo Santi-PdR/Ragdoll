@@ -93,7 +93,9 @@ final class CuriosRenderHelper {
         int packedLight,
         float partialTick
     ) {
-        var handler = entity.getCapability(CuriosCapability.INVENTORY);
+        var capability = entity.getCapability(CuriosCapability.INVENTORY);
+        if (!capability.isPresent()) return;
+        var handler = capability.orElse(null);
         if (handler == null) return;
 
         for (Map.Entry<String, ICurioStacksHandler> entry : handler.getCurios().entrySet()) {

@@ -28,7 +28,7 @@ public final class RagdollClientConfig {
    }
 
    public static void register(ModContainer container) {
-      container.registerConfig(Type.CLIENT, SPEC);
+      net.minecraftforge.fml.ModLoadingContext.get().registerConfig(Type.CLIENT, SPEC);
    }
 
    public static boolean useFirstPersonCamera() {

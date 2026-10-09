@@ -224,8 +224,8 @@ public final class MobRagdollPartBlockEntity extends BlockEntity implements Bloc
             return;
         }
         if (this.role == MobPartRole.TORSO
-                && subLevel.getLevel() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
-            if (MobRagdollAssembly.restoreFromSave(serverLevel, subLevel.getUniqueId())) {
+                && subLevel.getLevel() != null) {
+            if (MobRagdollAssembly.restoreFromSave(subLevel.getLevel(), subLevel.getUniqueId())) {
                 this.restoreTriggered = true;
             }
         }
@@ -362,8 +362,8 @@ public final class MobRagdollPartBlockEntity extends BlockEntity implements Bloc
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag) {
-        super.loadAdditional(tag);
+    public void load(CompoundTag tag) {
+        super.load(tag);
         ResourceLocation parsed = ResourceLocation.tryParse(tag.getString("Texture"));
         this.texture = parsed == null ? ResourceLocation.withDefaultNamespace("textures/block/light_blue_stained_glass.png") : parsed;
         this.entityType = tag.contains("EntityType", Tag.TAG_STRING) ? ResourceLocation.tryParse(tag.getString("EntityType")) : null;

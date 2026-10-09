@@ -79,7 +79,7 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
       this.skinName = profile.getName() == null || profile.getName().isBlank() ? "Player" : profile.getName();
       Property textures = profile.getProperties().get("textures").stream().findFirst().orElse(null);
       this.skinTextures = textures == null ? "" : textures.getValue();
-      this.skinTexturesSignature = textures == null || textures.getSignature() == null ? "" : textures.signature();
+      this.skinTexturesSignature = textures == null || textures.getSignature() == null ? "" : textures.getSignature();
       this.setChanged();
    }
 
@@ -119,7 +119,7 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
    @Override
    public void sable$physicsTick(ServerSubLevel subLevel, RigidBodyHandle handle, double timeStep) {
       if (this.bodyPart == BodyPart.TORSO && subLevel.getLevel() instanceof net.minecraft.server.level.ServerLevel) {
-         RagdollRegistry.tryRestoreOnLoad(serverLevel, subLevel);
+         RagdollRegistry.tryRestoreOnLoad(subLevel.getLevel(), subLevel);
       }
       this.checkGrabbers();
 
@@ -275,8 +275,8 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
    }
 
    @Override
-   protected void loadAdditional(CompoundTag tag) {
-      super.loadAdditional(tag);
+   public void load(CompoundTag tag) {
+      super.load(tag);
       this.bodyPart = BodyPart.byName(tag.getString("BodyPart"));
       this.maxHealth = tag.contains("MaxHealth") ? tag.getFloat("MaxHealth") : 20f;
       this.skinUuid = tag.hasUUID("SkinUuid") ? tag.getUUID("SkinUuid") : null;

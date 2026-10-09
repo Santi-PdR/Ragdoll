@@ -52,7 +52,7 @@ public final class RagdollDollEntity extends LivingEntity implements IEntityAddi
       this.entityData.set(DATA_SKIN_NAME, profile.getName() == null ? "" : profile.getName());
       Property textures = profile.getProperties().get("textures").stream().findFirst().orElse(null);
       this.entityData.set(DATA_SKIN_TEXTURES, textures == null ? "" : textures.getValue());
-      this.entityData.set(DATA_SKIN_TEXTURES_SIGNATURE, textures == null || textures.getSignature() == null ? "" : textures.signature());
+      this.entityData.set(DATA_SKIN_TEXTURES_SIGNATURE, textures == null || textures.getSignature() == null ? "" : textures.getSignature());
    }
 
    public GameProfile getSkinProfile() {

@@ -44,17 +44,17 @@ public final class RagdollPartBlock extends Block implements EntityBlock, BlockS
    }
 
    @Override
-   protected RenderShape getRenderShape(BlockState state) {
+   public RenderShape getRenderShape(BlockState state) {
       return RenderShape.INVISIBLE;
    }
 
    @Override
-   protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+   public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
       return outlineShape(state);
    }
 
    @Override
-   protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+   public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
       if (RagdollCollisionRules.suppressLocalCollision()) {
          return Shapes.empty();
       }
@@ -67,7 +67,7 @@ public final class RagdollPartBlock extends Block implements EntityBlock, BlockS
    }
 
    @Override
-   protected VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+   public VoxelShape getVisualShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
       return Shapes.empty();
    }
 

@@ -35,12 +35,13 @@ final class MobRagdollQuadRenderer {
                 float x = 0.5F - (vertex.x() - centerX) / 16.0F;
                 float y = 0.5F - (vertex.y() - centerY) / 16.0F;
                 float z = 0.5F + (vertex.z() - centerZ) / 16.0F;
-                vertices.addVertex(matrix, x, y, z)
-                        .setColor(-1)
-                        .setUv(vertex.u(), vertex.v())
-                        .setOverlay(OverlayTexture.NO_OVERLAY)
-                        .setLight(packedLight)
-                        .setNormal(quad.normalX(), -quad.normalY(), quad.normalZ());
+                vertices.vertex(matrix, x, y, z)
+                        .color(255, 255, 255, 255)
+                        .uv(vertex.u(), vertex.v())
+                        .overlayCoords(OverlayTexture.NO_OVERLAY)
+                        .uv2(packedLight)
+                        .normal(quad.normalX(), -quad.normalY(), quad.normalZ())
+                        .endVertex();
             }
         }
         poseStack.popPose();

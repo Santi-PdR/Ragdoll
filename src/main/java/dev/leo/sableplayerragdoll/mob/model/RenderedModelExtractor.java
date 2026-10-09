@@ -471,8 +471,8 @@ public final class RenderedModelExtractor {
         private float normalZ;
 
         @Override
-        public VertexConsumer addVertex(float x, float y, float z) {
-            this.vertices.add(new Vertex(x * 16.0F, y * 16.0F, z * 16.0F, this.u, this.v));
+        public VertexConsumer vertex(double x, double y, double z) {
+            this.vertices.add(new Vertex((float) (x * 16.0), (float) (y * 16.0), (float) (z * 16.0), this.u, this.v));
             if (this.vertices.size() == 4) {
                 this.quads.add(new TexturedQuad(List.copyOf(this.vertices), this.normalX, this.normalY, this.normalZ));
                 this.vertices.clear();
@@ -480,38 +480,16 @@ public final class RenderedModelExtractor {
             return this;
         }
 
-        @Override
-        public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv(float u, float v) {
-            this.u = u;
-            this.v = v;
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv1(int u, int v) {
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setUv2(int u, int v) {
-            return this;
-        }
-
-        @Override
-        public VertexConsumer setNormal(float x, float y, float z) {
-            this.normalX = x;
-            this.normalY = y;
-            this.normalZ = z;
-            return this;
-        }
+        @Override public VertexConsumer color(int red, int green, int blue, int alpha) { return this; }
+        @Override public VertexConsumer uv(float u, float v) { this.u = u; this.v = v; return this; }
+        @Override public VertexConsumer overlayCoords(int u, int v) { return this; }
+        @Override public VertexConsumer uv2(int packedLight) { return this; }
+        @Override public VertexConsumer normal(float x, float y, float z) { this.normalX = x; this.normalY = y; this.normalZ = z; return this; }
+        @Override public void endVertex() { }
+        @Override public void defaultColor(int red, int green, int blue, int alpha) { }
+        @Override public void unsetDefaultColor() { }
 
         private List<TexturedQuad> quads() {
             return List.copyOf(this.quads);
         }
-    }
 }
