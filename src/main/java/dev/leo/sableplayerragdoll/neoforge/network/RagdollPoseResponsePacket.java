@@ -12,7 +12,8 @@ public record RagdollPoseResponsePacket(long requestId, RagdollLimbOptions pose,
    public static void handle(RagdollPoseResponsePacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
       net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
       networkContext.enqueueWork(() -> {
-         if (networkContext.getSender() instanceof ServerPlayer player) {
+         ServerPlayer player = networkContext.getSender();
+         if (player != null) {
             RagdollAsyncPoseRequests.resolve(player, packet.requestId(), new RagdollPoseSnapshot(packet.pose(), packet.bodyYaw()));
          }
       });
@@ -20,7 +21,7 @@ public record RagdollPoseResponsePacket(long requestId, RagdollLimbOptions pose,
       networkContext.setPacketHandled(true);
    }
 
-   private static void write(FriendlyByteBuf buffer, RagdollPoseResponsePacket packet) {
+   public static void encode(FriendlyByteBuf buffer, RagdollPoseResponsePacket packet) {
       buffer.writeLong(packet.requestId());
       buffer.writeFloat(packet.bodyYaw());
       for (BodyPart part : BodyPart.values()) {
@@ -37,7 +38,7 @@ public record RagdollPoseResponsePacket(long requestId, RagdollLimbOptions pose,
       }
    }
 
-   private static RagdollPoseResponsePacket read(FriendlyByteBuf buffer) {
+   public static RagdollPoseResponsePacket decode(FriendlyByteBuf buffer) {
       long requestId = buffer.readLong();
       float bodyYaw = buffer.readFloat();
       RagdollLimbOptions.Builder builder = RagdollLimbOptions.builder();

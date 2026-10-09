@@ -11,7 +11,8 @@ public record RagdollInputPacket(float strafe, float forward) {
    public static void handle(RagdollInputPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
       net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
       networkContext.enqueueWork(() -> {
-         if (networkContext.getSender() instanceof ServerPlayer player) {
+         ServerPlayer player = networkContext.getSender();
+         if (player != null) {
             RagdollControlHelper.updateInput(player, packet.strafe(), packet.forward());
          }
       });

@@ -16,7 +16,9 @@ final class RagdollCuriosEquipmentHelper {
     private RagdollCuriosEquipmentHelper() {}
 
     static void applyToPart(RagdollPartBlockEntity part, Player player) {
-        var handler = player.getCapability(CuriosCapability.INVENTORY);
+        var capability = player.getCapability(CuriosCapability.INVENTORY);
+        if (!capability.isPresent()) return;
+        var handler = capability.orElse(null);
         if (handler == null) return;
         for (Map.Entry<String, ICurioStacksHandler> entry : handler.getCurios().entrySet()) {
             var stacks = entry.getValue().getStacks();
@@ -43,7 +45,9 @@ final class RagdollCuriosEquipmentHelper {
     }
 
     static Map<String, List<ItemStack>> capture(Player player) {
-        var handler = player.getCapability(CuriosCapability.INVENTORY);
+        var capability = player.getCapability(CuriosCapability.INVENTORY);
+        if (!capability.isPresent()) return Map.of();
+        var handler = capability.orElse(null);
         if (handler == null) return Map.of();
 
         Map<String, List<ItemStack>> curioItems = new LinkedHashMap<>();

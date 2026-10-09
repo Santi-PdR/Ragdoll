@@ -46,7 +46,7 @@ public final class RagdollSeatEntity extends Entity implements IEntityAdditional
 
    protected void positionRider(Entity passenger, MoveFunction callback) {
       if (this.hasPassenger(passenger)) {
-         double heightOffset = this.getPassengerRidingPosition(passenger).y - passenger.getVehicleAttachmentPoint(this).y;
+         double heightOffset = this.getY() + this.getBbHeight() * 0.75;
          callback.accept(passenger, this.getX(), heightOffset, this.getZ());
       }
    }
@@ -92,7 +92,6 @@ public final class RagdollSeatEntity extends Entity implements IEntityAdditional
    }
 
    protected void defineSynchedData() {
-      super.defineSynchedData();
    }
 
    protected void readAdditionalSaveData(CompoundTag tag) {

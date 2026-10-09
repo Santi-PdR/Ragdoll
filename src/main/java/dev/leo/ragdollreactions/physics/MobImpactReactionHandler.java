@@ -97,7 +97,7 @@ public final class MobImpactReactionHandler {
       try {
          Method getHurtSound = LivingEntity.class.getDeclaredMethod("getHurtSound", DamageSource.class);
          getHurtSound.setAccessible(true);
-         mob.makeSound((net.minecraft.sounds.SoundEvent) getHurtSound.invoke(mob, level.damageSources().generic()));
+         mob.playSound((net.minecraft.sounds.SoundEvent) getHurtSound.invoke(mob, level.damageSources().generic()), volume, pitch);
       } catch (ReflectiveOperationException ignored) {
       }
 

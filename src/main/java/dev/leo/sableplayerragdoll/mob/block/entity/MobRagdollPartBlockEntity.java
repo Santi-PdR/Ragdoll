@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -310,8 +309,8 @@ public final class MobRagdollPartBlockEntity extends BlockEntity implements Bloc
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putString("Texture", this.texture.toString());
         if (this.entityType != null) {
             tag.putString("EntityType", this.entityType.toString());
@@ -363,8 +362,8 @@ public final class MobRagdollPartBlockEntity extends BlockEntity implements Bloc
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(CompoundTag tag) {
+        super.loadAdditional(tag);
         ResourceLocation parsed = ResourceLocation.tryParse(tag.getString("Texture"));
         this.texture = parsed == null ? ResourceLocation.withDefaultNamespace("textures/block/light_blue_stained_glass.png") : parsed;
         this.entityType = tag.contains("EntityType", Tag.TAG_STRING) ? ResourceLocation.tryParse(tag.getString("EntityType")) : null;
@@ -422,8 +421,8 @@ public final class MobRagdollPartBlockEntity extends BlockEntity implements Bloc
     }
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        return this.saveCustomOnly(registries);
+    public CompoundTag getUpdateTag() {
+        return this.saveWithoutMetadata();
     }
 
     public record Quad(List<Vertex> vertices, float normalX, float normalY, float normalZ) {
@@ -471,7 +470,7 @@ public final class MobRagdollPartBlockEntity extends BlockEntity implements Bloc
 
             Vector3d constraintGoal = JOMLConversion.toJOML(player.getEyePosition().add(0, GRAB_ANCHOR_Y_OFFSET, 0).add(player.getLookAngle().scale(GRAB_HOLD_DISTANCE)));
             Vector3d constraintPosition = MobRagdollPartBlockEntity.this.grabCenter();
-            double validRange = player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).getValue() + 2.0;
+            double validRange = 4.5 + 2.0;
             double currentDistance = Sable.HELPER.distanceSquaredWithSubLevels(MobRagdollPartBlockEntity.this.level, constraintGoal, constraintPosition);
             if (currentDistance > validRange * validRange) {
                 return;

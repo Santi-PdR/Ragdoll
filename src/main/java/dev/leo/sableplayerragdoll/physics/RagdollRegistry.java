@@ -84,7 +84,7 @@ public final class RagdollRegistry {
       }
 
       RagdollStartEvent event = new RagdollStartEvent(player, new Vec3(linear.x, linear.y, linear.z));
-      if (MinecraftForge.EVENT_BUS.post(event).isCanceled()) {
+      if (MinecraftForge.EVENT_BUS.post(event)) {
          return null;
       }
       linear = new Vector3d(event.velocity().x, event.velocity().y, event.velocity().z);

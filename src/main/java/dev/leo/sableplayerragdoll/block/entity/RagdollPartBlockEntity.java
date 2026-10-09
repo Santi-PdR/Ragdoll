@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -79,8 +78,8 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
       this.skinUuid = profile.getId();
       this.skinName = profile.getName() == null || profile.getName().isBlank() ? "Player" : profile.getName();
       Property textures = profile.getProperties().get("textures").stream().findFirst().orElse(null);
-      this.skinTextures = textures == null ? "" : textures.value();
-      this.skinTexturesSignature = textures == null || textures.signature() == null ? "" : textures.signature();
+      this.skinTextures = textures == null ? "" : textures.getValue();
+      this.skinTexturesSignature = textures == null || textures.getSignature() == null ? "" : textures.signature();
       this.setChanged();
    }
 
@@ -119,7 +118,7 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
 
    @Override
    public void sable$physicsTick(ServerSubLevel subLevel, RigidBodyHandle handle, double timeStep) {
-      if (this.bodyPart == BodyPart.TORSO && subLevel.getLevel() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+      if (this.bodyPart == BodyPart.TORSO && subLevel.getLevel() instanceof net.minecraft.server.level.ServerLevel) {
          RagdollRegistry.tryRestoreOnLoad(serverLevel, subLevel);
       }
       this.checkGrabbers();
@@ -254,8 +253,8 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
    }
 
    @Override
-   protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-      super.saveAdditional(tag, registries);
+   protected void saveAdditional(CompoundTag tag) {
+      super.saveAdditional(tag);
       tag.putString("BodyPart", this.bodyPart.name());
       if (this.skinUuid != null) {
          tag.putUUID("SkinUuid", this.skinUuid);
@@ -265,33 +264,33 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
       tag.putString("SkinName", this.skinName);
       tag.putString("SkinTextures", this.skinTextures);
       tag.putString("SkinTexturesSignature", this.skinTexturesSignature);
-      saveItem(tag, registries, "MainHandItem", this.mainHandItem);
-      saveItem(tag, registries, "OffHandItem", this.offHandItem);
-      saveItem(tag, registries, "HeadItem", this.headItem);
-      saveItem(tag, registries, "ChestItem", this.chestItem);
-      saveItem(tag, registries, "LegsItem", this.legsItem);
-      saveItem(tag, registries, "FeetItem", this.feetItem);
-      if (!this.curiosItems.isEmpty()) tag.put("CurioItems", saveSlotMap(this.curiosItems, registries));
-      if (!this.accessoriesItems.isEmpty()) tag.put("AccessoriesItems", saveSlotMap(this.accessoriesItems, registries));
+      saveItem(tag, "MainHandItem", this.mainHandItem);
+      saveItem(tag, "OffHandItem", this.offHandItem);
+      saveItem(tag, "HeadItem", this.headItem);
+      saveItem(tag, "ChestItem", this.chestItem);
+      saveItem(tag, "LegsItem", this.legsItem);
+      saveItem(tag, "FeetItem", this.feetItem);
+      if (!this.curiosItems.isEmpty()) tag.put("CurioItems", saveSlotMap(this.curiosItems));
+      if (!this.accessoriesItems.isEmpty()) tag.put("AccessoriesItems", saveSlotMap(this.accessoriesItems));
    }
 
    @Override
-   protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-      super.loadAdditional(tag, registries);
+   protected void loadAdditional(CompoundTag tag) {
+      super.loadAdditional(tag);
       this.bodyPart = BodyPart.byName(tag.getString("BodyPart"));
       this.maxHealth = tag.contains("MaxHealth") ? tag.getFloat("MaxHealth") : 20f;
       this.skinUuid = tag.hasUUID("SkinUuid") ? tag.getUUID("SkinUuid") : null;
       this.skinName = tag.getString("SkinName").isBlank() ? "Player" : tag.getString("SkinName");
       this.skinTextures = tag.getString("SkinTextures");
       this.skinTexturesSignature = tag.getString("SkinTexturesSignature");
-      this.mainHandItem = loadItem(tag, registries, "MainHandItem");
-      this.offHandItem = loadItem(tag, registries, "OffHandItem");
-      this.headItem = loadItem(tag, registries, "HeadItem");
-      this.chestItem = loadItem(tag, registries, "ChestItem");
-      this.legsItem = loadItem(tag, registries, "LegsItem");
-      this.feetItem = loadItem(tag, registries, "FeetItem");
-      loadSlotMap(tag, registries, "CurioItems", this.curiosItems);
-      loadSlotMap(tag, registries, "AccessoriesItems", this.accessoriesItems);
+      this.mainHandItem = loadItem(tag, "MainHandItem");
+      this.offHandItem = loadItem(tag, "OffHandItem");
+      this.headItem = loadItem(tag, "HeadItem");
+      this.chestItem = loadItem(tag, "ChestItem");
+      this.legsItem = loadItem(tag, "LegsItem");
+      this.feetItem = loadItem(tag, "FeetItem");
+      loadSlotMap(tag, "CurioItems", this.curiosItems);
+      loadSlotMap(tag, "AccessoriesItems", this.accessoriesItems);
    }
 
    @Override
@@ -300,21 +299,21 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
    }
 
    @Override
-   public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-      return this.saveCustomOnly(registries);
+   public CompoundTag getUpdateTag() {
+      return this.saveWithoutMetadata();
    }
 
-   private static void saveItem(CompoundTag tag, HolderLookup.Provider registries, String key, ItemStack stack) {
+   private static void saveItem(CompoundTag tag, String key, ItemStack stack) {
       if (!stack.isEmpty()) {
-         tag.put(key, stack.save(registries));
+         tag.put(key, stack.save(new CompoundTag()));
       }
    }
 
-   private static ItemStack loadItem(CompoundTag tag, HolderLookup.Provider registries, String key) {
-      return tag.contains(key) ? ItemStack.parse(registries, tag.getCompound(key)).orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
+   private static ItemStack loadItem(CompoundTag tag, String key) {
+      return tag.contains(key) ? ItemStack.of(tag.getCompound(key)) : ItemStack.EMPTY;
    }
 
-   private static ListTag saveSlotMap(Map<String, List<ItemStack>> slotMap, HolderLookup.Provider registries) {
+   private static ListTag saveSlotMap(Map<String, List<ItemStack>> slotMap) {
       ListTag list = new ListTag();
       slotMap.forEach((slotId, stacks) -> {
          CompoundTag slotTag = new CompoundTag();
@@ -322,7 +321,7 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
          ListTag itemList = new ListTag();
          for (ItemStack stack : stacks) {
             CompoundTag itemTag = new CompoundTag();
-            if (!stack.isEmpty()) itemTag.put("Item", stack.save(registries));
+            if (!stack.isEmpty()) itemTag.put("Item", stack.save(new CompoundTag()));
             itemList.add(itemTag);
          }
          slotTag.put("Stacks", itemList);
@@ -331,7 +330,7 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
       return list;
    }
 
-   private static void loadSlotMap(CompoundTag tag, HolderLookup.Provider registries, String key, Map<String, List<ItemStack>> out) {
+   private static void loadSlotMap(CompoundTag tag, String key, Map<String, List<ItemStack>> out) {
       out.clear();
       if (!tag.contains(key, Tag.TAG_LIST)) return;
       ListTag list = tag.getList(key, Tag.TAG_COMPOUND);
@@ -345,7 +344,7 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
             CompoundTag itemTag = itemList.getCompound(j);
             Tag itemNbt = itemTag.get("Item");
             if (itemNbt != null) {
-               ItemStack stack = ItemStack.parse(registries, itemNbt).orElse(ItemStack.EMPTY);
+               ItemStack stack = itemNbt instanceof CompoundTag itemCompound ? ItemStack.of(itemCompound) : ItemStack.EMPTY;
                stacks.add(stack);
                if (!stack.isEmpty()) hasItem = true;
             } else {
@@ -383,7 +382,7 @@ public final class RagdollPartBlockEntity extends BlockEntity implements BlockEn
 
          Vector3d constraintGoal = JOMLConversion.toJOML(player.getEyePosition().add(0, GRAB_ANCHOR_Y_OFFSET, 0).add(player.getLookAngle().scale(GRAB_HOLD_DISTANCE)));
          Vector3d constraintPosition = RagdollPartBlockEntity.this.grabCenter();
-         double validRange = player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).getValue() + 2.0;
+         double validRange = 4.5 + 2.0;
          double currentDistance = Sable.HELPER.distanceSquaredWithSubLevels(RagdollPartBlockEntity.this.level, constraintGoal, constraintPosition);
          if (currentDistance > validRange * validRange) {
             return;

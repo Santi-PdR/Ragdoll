@@ -101,7 +101,7 @@ public record RagdollEquipmentSnapshot(
    private static boolean consumeExact(List<ItemStack> available, ItemStack target) {
       for (int i = 0; i < available.size(); i++) {
          ItemStack item = available.get(i);
-         if (ItemStack.isSameItemSameComponents(item, target)) {
+         if (ItemStack.isSameItemSameTags(item, target)) {
             consumeOne(available, i, item);
             return true;
          }

@@ -36,13 +36,13 @@ public final class ExplosionReactionHandler {
       if (!ReactionSettings.enabled() || !vanillaExplosions.enabled()) {
          return;
       }
-      double power = explosion.radius();
+      double power = dev.leo.ragdollreactions.neoforge.RagdollReactionsNeoForge.explosionPower(explosion);
       if (power < vanillaExplosions.minPower()) {
          return;
       }
 
       double effectiveRadius = power * 2.0 + vanillaExplosions.radiusPadding();
-      triggerExplosion(level, explosion.center(), power, effectiveRadius, vanillaExplosions.launchMultiplier(), "vanilla");
+      triggerExplosion(level, explosion.getPosition(), power, effectiveRadius, vanillaExplosions.launchMultiplier(), "vanilla");
    }
 
    private static void triggerExplosion(ServerLevel level, Vec3 center, double power, double effectiveRadius, double launchMultiplier, String kind) {

@@ -13,11 +13,12 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 import java.util.Optional;
+import java.util.UUID;
 
 public final class RagdollNetworking {
    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation("sable_player_ragdoll", "main"), () -> "1", "1"::equals, "1"::equals);
    private static boolean registered;
-   private static final ResourceLocation GRAB_SLOWDOWN_ID = new ResourceLocation("sable_player_ragdoll", "grab_slowdown");
+   private static final UUID GRAB_SLOWDOWN_ID = UUID.nameUUIDFromBytes("sable_player_ragdoll:grab_slowdown".getBytes(java.nio.charset.StandardCharsets.UTF_8));
    private RagdollNetworking() {}
    public static synchronized void register() {
       if (registered) return;
@@ -38,7 +39,7 @@ public final class RagdollNetworking {
    public static void notifyGrabEnded(ServerPlayer player) { removeSlowdown(player); CHANNEL.send(PacketDistributor.ALL.noArg(),new RagdollGrabSyncPacket(player.getUUID(),false)); }
    private static void applySlowdown(ServerPlayer player) {
       AttributeInstance attr=player.getAttribute(Attributes.MOVEMENT_SPEED); if(attr==null)return;
-      attr.removeModifier(GRAB_SLOWDOWN_ID); attr.addTransientModifier(new AttributeModifier(GRAB_SLOWDOWN_ID,-0.5,AttributeModifier.Operation.MULTIPLY_TOTAL));
+      attr.removeModifier(GRAB_SLOWDOWN_ID); attr.addTransientModifier(new AttributeModifier(GRAB_SLOWDOWN_ID,"grab_slowdown",-0.5,AttributeModifier.Operation.MULTIPLY_TOTAL));
    }
    private static void removeSlowdown(ServerPlayer player) { AttributeInstance attr=player.getAttribute(Attributes.MOVEMENT_SPEED); if(attr!=null)attr.removeModifier(GRAB_SLOWDOWN_ID); }
 }

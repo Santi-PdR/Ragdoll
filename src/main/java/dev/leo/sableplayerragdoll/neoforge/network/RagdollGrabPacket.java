@@ -18,7 +18,8 @@ public record RagdollGrabPacket(BlockPos pos, boolean release) {
    public static void handle(RagdollGrabPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
       net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
       networkContext.enqueueWork(() -> {
-         if (!(networkContext.getSender() instanceof ServerPlayer player)) return;
+         ServerPlayer player = networkContext.getSender();
+         if (player == null) return;
          BlockEntity blockEntity = player.level().getBlockEntity(packet.pos());
          if (blockEntity instanceof RagdollPartBlockEntity ragdollPart) {
             if (packet.release()) {

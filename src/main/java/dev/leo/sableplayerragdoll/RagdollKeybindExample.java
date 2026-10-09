@@ -25,7 +25,7 @@ public final class RagdollKeybindExample {
 
    @Nullable
    public static RagdollSession launch(ServerPlayer player, RagdollPoseSnapshot initialPose) {
-      Vec3 velocity = player.getKnownMovement().scale(TICKS_TO_METRES_PER_SECOND);
+      Vec3 velocity = player.getDeltaMovement().scale(TICKS_TO_METRES_PER_SECOND);
       return RagdollAPI.launch(player, velocity, RagdollLaunchOptions.builder().limbs(onFootPose()).build(), initialPose);
    }
 

@@ -12,7 +12,8 @@ public record ClientMotionPacket(float horizontalAccelMetersPerSecond, float hor
    public static void handle(ClientMotionPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
       net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
       networkContext.enqueueWork(() -> {
-         if (networkContext.getSender() instanceof ServerPlayer player) {
+         ServerPlayer player = networkContext.getSender();
+         if (player != null) {
             ClientMotionTelemetry.update(player, packet.horizontalAccelMetersPerSecond(), packet.horizontalSpeedMetersPerSecond());
          }
       });

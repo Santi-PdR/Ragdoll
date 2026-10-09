@@ -44,15 +44,15 @@ public final class RagdollDollEntity extends LivingEntity implements IEntityAddi
       return LivingEntity.createLivingAttributes()
          .add(Attributes.MAX_HEALTH, 20.0)
          .add(Attributes.MOVEMENT_SPEED, 0.0)
-         .add(Attributes.STEP_HEIGHT, 0.0);
+         .add(net.minecraftforge.common.ForgeMod.STEP_HEIGHT_ADDITION.get(), 0.0);
    }
 
    public void setSkinProfile(GameProfile profile) {
       this.entityData.set(DATA_SKIN_UUID, Optional.ofNullable(profile.getId()));
       this.entityData.set(DATA_SKIN_NAME, profile.getName() == null ? "" : profile.getName());
       Property textures = profile.getProperties().get("textures").stream().findFirst().orElse(null);
-      this.entityData.set(DATA_SKIN_TEXTURES, textures == null ? "" : textures.value());
-      this.entityData.set(DATA_SKIN_TEXTURES_SIGNATURE, textures == null || textures.signature() == null ? "" : textures.signature());
+      this.entityData.set(DATA_SKIN_TEXTURES, textures == null ? "" : textures.getValue());
+      this.entityData.set(DATA_SKIN_TEXTURES_SIGNATURE, textures == null || textures.getSignature() == null ? "" : textures.signature());
    }
 
    public GameProfile getSkinProfile() {

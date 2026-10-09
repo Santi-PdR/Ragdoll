@@ -82,9 +82,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
@@ -276,7 +273,7 @@ public final class SablePlayerRagdollNeoForge {
             UUID rootId = RagdollAssemblyHelper.linkedRoot(subLevel.getUniqueId());
             if (rootId != null) {
                RagdollInteractEvent interactEvent = new RagdollInteractEvent(player, rootId, subLevel.getUniqueId(), ragdollPos, level);
-               if (MinecraftForge.EVENT_BUS.post(interactEvent).isCanceled()) {
+               if (MinecraftForge.EVENT_BUS.post(interactEvent)) {
                   event.setCancellationResult(InteractionResult.SUCCESS);
                   event.setCanceled(true);
                   return;
@@ -745,7 +742,7 @@ public final class SablePlayerRagdollNeoForge {
       }
 
       try {
-         GameProfile result = source.getServer().getSessionService().fetchProfile(profile.getId(), true);
+         GameProfile result = source.getServer().getSessionService().fillProfileProperties(profile, true);
          if (result != null && !result.getProperties().get("textures").isEmpty()) {
             return result;
          }

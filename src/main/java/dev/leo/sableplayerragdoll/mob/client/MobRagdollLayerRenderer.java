@@ -213,7 +213,7 @@ final class MobRagdollLayerRenderer {
             return List.of();
         }
 
-        ResourceLocation texture = textures.getFirst();
+        ResourceLocation texture = textures.get(0);
         List<LayerModel> layerModels = new ArrayList<>();
         for (EntityModel<?> model : models) {
             layerModels.add(new LayerModel(model, texture, MobRagdollModelParts.collectNamedParts(model)));

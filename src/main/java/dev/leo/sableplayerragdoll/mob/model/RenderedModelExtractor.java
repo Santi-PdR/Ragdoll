@@ -326,7 +326,7 @@ public final class RenderedModelExtractor {
             return true;
         }
         if (boxes.size() == 1) {
-            Box box = boxes.getFirst();
+            Box box = boxes.get(0);
             float volume = Math.abs(box.width() * box.height() * box.depth());
             return volume > 0.0F && volume <= 12.0F;
         }

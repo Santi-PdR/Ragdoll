@@ -10,7 +10,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -80,7 +79,7 @@ public final class RagdollSeatBlock extends Block {
                return InteractionResult.sidedSuccess(level.isClientSide);
             }
          } else if (level.isClientSide) {
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
          } else {
             sitDown(level, pos, player);
             return ItemInteractionResult.SUCCESS;

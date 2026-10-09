@@ -1019,7 +1019,7 @@ public final class MobRagdollAssembly {
                 .max(Comparator.comparingDouble(part -> part.part().volume()))
                 .orElseGet(() -> parts.stream()
                         .max(Comparator.comparingDouble(part -> part.part().volume()))
-                        .orElse(parts.getFirst()));
+                        .orElse(parts.get(0)));
     }
 
     private static SpawnedPart selectParent(SpawnedPart child, List<SpawnedPart> parts, SpawnedPart root) {

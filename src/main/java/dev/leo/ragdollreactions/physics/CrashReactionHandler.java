@@ -32,7 +32,7 @@ public final class CrashReactionHandler {
          return;
       }
 
-      Vec3 motion = player.getKnownMovement();
+      Vec3 motion = player.getDeltaMovement();
       Vector3d direction = new Vector3d(motion.x, motion.y, motion.z);
       if (direction.lengthSquared() < MIN_DIRECTION_LENGTH_SQR) {
          Vec3 look = player.getLookAngle();

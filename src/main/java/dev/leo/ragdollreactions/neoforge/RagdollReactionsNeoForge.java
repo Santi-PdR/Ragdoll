@@ -26,9 +26,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
@@ -92,11 +89,11 @@ public final class RagdollReactionsNeoForge {
 
       Explosion explosion = event.getExplosion();
       if (isCreateBigCannonsExplosion(explosion)) {
-         ExplosionReactionHandler.onCannonExplosion(level, explosion.center(), explosion.radius(), entityRadius(explosion));
+         ExplosionReactionHandler.onCannonExplosion(level, explosion.getPosition(), explosion.getRadius(), entityRadius(explosion));
       } else {
          ExplosionReactionHandler.onVanillaExplosion(level, explosion);
       }
-      MobExplosionReactionHandler.onExplosion(level, explosion.center(), explosion.radius());
+      MobExplosionReactionHandler.onExplosion(level, explosion.getPosition(), explosionPower(explosion));
    }
 
    private static void onLivingDamagePre(LivingHurtEvent event) {
@@ -151,6 +148,16 @@ public final class RagdollReactionsNeoForge {
       return explosion.getClass().getName().startsWith(CREATE_BIG_CANNONS_PACKAGE);
    }
 
+   public static double explosionPower(Explosion explosion) {
+      try {
+         java.lang.reflect.Field field = Explosion.class.getDeclaredField("radius");
+         field.setAccessible(true);
+         return ((Number) field.get(explosion)).doubleValue();
+      } catch (ReflectiveOperationException ignored) {
+         return 4.0;
+      }
+   }
+
    private static double entityRadius(Explosion explosion) {
       try {
          Object value = explosion.getClass().getMethod("getEntityRadius").invoke(explosion);
@@ -159,7 +166,7 @@ public final class RagdollReactionsNeoForge {
          }
       } catch (ReflectiveOperationException ignored) {
       }
-      return explosion.radius();
+      return explosionPower(explosion);
    }
 
    private static void onEntityTickPost(LivingTickEvent event) {

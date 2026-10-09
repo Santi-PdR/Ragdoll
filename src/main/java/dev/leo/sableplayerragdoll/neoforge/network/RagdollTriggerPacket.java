@@ -16,7 +16,8 @@ public record RagdollTriggerPacket(RagdollLimbOptions pose, float bodyYaw) {
    public static void handle(RagdollTriggerPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
       net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
       networkContext.enqueueWork(() -> {
-         if (networkContext.getSender() instanceof ServerPlayer player) {
+         ServerPlayer player = networkContext.getSender();
+         if (player != null) {
             RagdollRegistry.triggerManual(player, new RagdollPoseSnapshot(packet.pose(), packet.bodyYaw()));
          }
       });
@@ -24,7 +25,7 @@ public record RagdollTriggerPacket(RagdollLimbOptions pose, float bodyYaw) {
       networkContext.setPacketHandled(true);
    }
 
-   private static void write(FriendlyByteBuf buffer, RagdollTriggerPacket packet) {
+   public static void encode(FriendlyByteBuf buffer, RagdollTriggerPacket packet) {
       buffer.writeFloat(packet.bodyYaw());
       for (BodyPart part : BodyPart.values()) {
          RagdollLimbConfig config = packet.pose().get(part);
@@ -40,7 +41,7 @@ public record RagdollTriggerPacket(RagdollLimbOptions pose, float bodyYaw) {
       }
    }
 
-   private static RagdollTriggerPacket read(FriendlyByteBuf buffer) {
+   public static RagdollTriggerPacket decode(FriendlyByteBuf buffer) {
       float bodyYaw = buffer.readFloat();
       RagdollLimbOptions.Builder builder = RagdollLimbOptions.builder();
       for (BodyPart part : BodyPart.values()) {

@@ -342,7 +342,7 @@ public final class ReactionConfig {
    }
 
    public static void register(ModContainer container) {
-      container.registerConfig(Type.SERVER, SPEC);
+      net.minecraftforge.fml.ModLoadingContext.get().registerConfig(Type.SERVER, SPEC);
    }
 
    public static void onLoad(Loading event) {
