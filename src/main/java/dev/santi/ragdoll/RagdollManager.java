@@ -10,6 +10,7 @@ import java.util.WeakHashMap;
 public final class RagdollManager {
     private static final Map<LivingEntity, State> ACTIVE = new WeakHashMap<>();
     private static final Map<LivingEntity, Integer> COOLDOWNS = new WeakHashMap<>();
+    private static final Map<LivingEntity, Vec3> LAST_MOTION = new WeakHashMap<>();
 
     private RagdollManager() {}
 
@@ -37,6 +38,20 @@ public final class RagdollManager {
         prior.ticksLeft = RagdollConfig.DURATION_TICKS.get();
         RagdollNetwork.sync(entity, prior.angle, prior.ticksLeft, true);
         return true;
+    }
+
+    public static void sampleCrash(LivingEntity entity) {
+        if (entity.level().isClientSide) return;
+        Vec3 current = entity.getDeltaMovement();
+        Vec3 previous = LAST_MOTION.put(entity, current);
+        if (previous == null || ACTIVE.containsKey(entity)) return;
+        double oldSpeed = Math.sqrt(previous.horizontalDistanceSqr());
+        double change = Math.sqrt(previous.subtract(current).horizontalDistanceSqr());
+        if (oldSpeed < RagdollConfig.CRASH_MIN_SPEED.get()
+                || change < RagdollConfig.CRASH_SPEED_CHANGE.get()) return;
+        Vec3 knockdown = previous.normalize().scale(-Math.min(1.4, oldSpeed * 0.8))
+                .add(0.0, 0.20, 0.0);
+        start(entity, knockdown);
     }
 
     public static void tick(LivingEntity entity) {

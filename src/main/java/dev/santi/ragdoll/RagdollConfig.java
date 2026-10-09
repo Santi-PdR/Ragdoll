@@ -10,6 +10,8 @@ public final class RagdollConfig {
     public static final ForgeConfigSpec.BooleanValue AFFECT_MOBS;
     public static final ForgeConfigSpec.DoubleValue MIN_HIT_DAMAGE;
     public static final ForgeConfigSpec.DoubleValue MIN_FALL_DISTANCE;
+    public static final ForgeConfigSpec.DoubleValue CRASH_MIN_SPEED;
+    public static final ForgeConfigSpec.DoubleValue CRASH_SPEED_CHANGE;
     public static final ForgeConfigSpec.DoubleValue IMPULSE_SCALE;
     public static final ForgeConfigSpec.IntValue DURATION_TICKS;
     public static final ForgeConfigSpec.IntValue COOLDOWN_TICKS;
@@ -22,6 +24,8 @@ public final class RagdollConfig {
         AFFECT_MOBS = BUILDER.define("affectMobs", true);
         MIN_HIT_DAMAGE = BUILDER.defineInRange("minimumHitDamage", 5.0, 0.0, 1000.0);
         MIN_FALL_DISTANCE = BUILDER.defineInRange("minimumFallDistance", 5.0, 0.0, 256.0);
+        CRASH_MIN_SPEED = BUILDER.defineInRange("crashMinimumSpeed", 0.9, 0.0, 8.0);
+        CRASH_SPEED_CHANGE = BUILDER.defineInRange("crashSpeedChange", 0.65, 0.0, 8.0);
         IMPULSE_SCALE = BUILDER.defineInRange("impulseScale", 0.8, 0.0, 8.0);
         DURATION_TICKS = BUILDER.defineInRange("durationTicks", 80, 10, 1200);
         COOLDOWN_TICKS = BUILDER.defineInRange("cooldownTicks", 40, 0, 1200);

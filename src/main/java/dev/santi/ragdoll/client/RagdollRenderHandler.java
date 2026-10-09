@@ -1,7 +1,7 @@
 package dev.santi.ragdoll.client;
 
+import com.mojang.math.Axis;
 import dev.santi.ragdoll.RagdollMod;
-import net.minecraft.core.Axis;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

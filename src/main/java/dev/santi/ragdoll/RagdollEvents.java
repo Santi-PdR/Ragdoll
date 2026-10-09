@@ -33,7 +33,7 @@ public final class RagdollEvents {
     @SubscribeEvent
     public void onDamage(LivingDamageEvent event) {
         LivingEntity entity = event.getEntity();
-        if (entity.level().isClientSide || entity.getDeltaMovement().horizontalDistanceSqr() < 0.20) return;
+        if (entity.level().isClientSide) return;
         if (event.getSource().is(DamageTypes.EXPLOSION)
                 || event.getSource().is(DamageTypes.PLAYER_EXPLOSION)
                 || event.getSource().is(DamageTypes.LIGHTNING_BOLT)) {
@@ -44,6 +44,7 @@ public final class RagdollEvents {
 
     @SubscribeEvent
     public void onTick(LivingEvent.LivingTickEvent event) {
+        RagdollManager.sampleCrash(event.getEntity());
         RagdollManager.tick(event.getEntity());
     }
 
