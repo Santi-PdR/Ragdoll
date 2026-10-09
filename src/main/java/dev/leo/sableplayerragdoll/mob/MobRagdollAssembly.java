@@ -51,7 +51,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.network.PacketDistributor;
 import org.joml.Quaterniond;
 import org.joml.Vector3d;
 
@@ -168,7 +167,7 @@ public final class MobRagdollAssembly {
         }
         MobRagdollLaunchOptions resolved = options == null ? MobRagdollLaunchOptions.defaults() : options;
         PENDING_LAUNCHES.put(uuid, new PendingLaunch(startEvent.velocity(), angular, resolved, level.getGameTime()));
-        PacketDistributor.sendToPlayersTrackingEntity(entity, new MobRagdollLaunchRequestPacket(entity.getId()));
+        dev.leo.sableplayerragdoll.neoforge.network.RagdollNetworking.CHANNEL.send(net.minecraftforge.network.PacketDistributor.TRACKING_ENTITY.with(() -> entity), new MobRagdollLaunchRequestPacket(entity.getId()));
         return true;
     }
 

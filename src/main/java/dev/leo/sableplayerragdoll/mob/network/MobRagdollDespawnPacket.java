@@ -2,21 +2,12 @@ package dev.leo.sableplayerragdoll.mob.network;
 
 import dev.leo.sableplayerragdoll.SablePlayerRagdoll;
 import dev.leo.sableplayerragdoll.mob.MobRagdollAssembly;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
 public record MobRagdollDespawnPacket(int entityId) {
-    public static final Type<MobRagdollDespawnPacket> TYPE = new Type<>(
-            new ResourceLocation(SablePlayerRagdoll.MOD_ID, "mob_ragdoll_despawn")
-    );
-     @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
-    public static void encode(FriendlyByteBuf buffer, MobRagdollDespawnPacket packet) {
+         public static void encode(FriendlyByteBuf buffer, MobRagdollDespawnPacket packet) {
         buffer.writeVarInt(packet.entityId());
     }
 
@@ -36,5 +27,6 @@ public record MobRagdollDespawnPacket(int entityId) {
             }
             MobRagdollAssembly.despawn(player.serverLevel(), livingEntity);
         });
+      networkContext.setPacketHandled(true);
     }
 }

@@ -1,6 +1,5 @@
 package dev.leo.sableplayerragdoll.neoforge.network;
 
-import net.minecraft.network.FriendlyByteBuf;
 
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollGrabClient;
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollGrabState;
@@ -11,10 +10,6 @@ public record RagdollGrabSyncPacket(UUID playerId, boolean grabbing) {
    public static void encode(FriendlyByteBuf b, RagdollGrabSyncPacket p) { b.writeUUID(p.playerId()); b.writeBoolean(p.grabbing()); }
    public static RagdollGrabSyncPacket decode(FriendlyByteBuf b) { return new RagdollGrabSyncPacket(b.readUUID(), b.readBoolean()); }
 
-   private static final StreamCodec<ByteBuf, UUID> UUID_CODEC = StreamCodec.of(
-      (buf, uuid) -> { buf.writeLong(uuid.getMostSignificantBits()); buf.writeLong(uuid.getLeastSignificantBits()); },
-      buf -> new UUID(buf.readLong(), buf.readLong())
-   );
    public static void handle(RagdollGrabSyncPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
       net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
       networkContext.enqueueWork(() -> {
@@ -27,6 +22,7 @@ public record RagdollGrabSyncPacket(UUID playerId, boolean grabbing) {
             }
          }
       });
+      networkContext.setPacketHandled(true);
 
       networkContext.setPacketHandled(true);
    }

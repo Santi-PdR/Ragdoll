@@ -2,7 +2,6 @@ package dev.leo.sableplayerragdoll.neoforge.network;
 
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollClientPoseCapture;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.PacketDistributor;
 
 public record RagdollRequestPosePacket(long requestId) {
@@ -13,12 +12,13 @@ public record RagdollRequestPosePacket(long requestId) {
       net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
       networkContext.enqueueWork(() -> {
          if (Minecraft.getInstance().player == null) return;
-         PacketDistributor.sendToServer(new RagdollPoseResponsePacket(
+         dev.leo.sableplayerragdoll.neoforge.network.RagdollNetworking.CHANNEL.sendToServer(new RagdollPoseResponsePacket(
             packet.requestId(),
             RagdollClientPoseCapture.capture(),
             Minecraft.getInstance().player.yBodyRot
          ));
       });
+      networkContext.setPacketHandled(true);
 
       networkContext.setPacketHandled(true);
    }

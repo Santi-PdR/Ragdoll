@@ -6,21 +6,12 @@ import dev.leo.sableplayerragdoll.mob.block.MobPartRole;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
 public record MobRagdollSpawnPacket(int entityId, String entityType, float bodyYaw, List<Part> parts) {
-    public static final Type<MobRagdollSpawnPacket> TYPE = new Type<>(
-            new ResourceLocation(SablePlayerRagdoll.MOD_ID, "mob_ragdoll_spawn")
-    );
-     @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
-    public static void encode(FriendlyByteBuf buffer, MobRagdollSpawnPacket packet) {
+         public static void encode(FriendlyByteBuf buffer, MobRagdollSpawnPacket packet) {
         buffer.writeVarInt(packet.entityId());
         buffer.writeUtf(packet.entityType(), 256);
         buffer.writeFloat(packet.bodyYaw());
@@ -222,6 +213,7 @@ public record MobRagdollSpawnPacket(int entityId, String entityType, float bodyY
                     player.getLookAngle().scale(6.0),
                     new net.minecraft.world.phys.Vec3(0.0, player.getLookAngle().y() > 0 ? 4.0 : -4.0, 0.0));
         });
+      networkContext.setPacketHandled(true);
     }
 
     public record Part(
