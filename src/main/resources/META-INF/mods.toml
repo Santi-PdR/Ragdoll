@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="Apache-2.0"
+
+[[mods]]
+modId="ragdoll"
+version="1.0.0"
+displayName="Ragdoll Physics"
+authors="Santi-PdR"
+description='''Forge-native player and mob ragdoll reactions for Minecraft 1.20.1.'''
+
+[[dependencies.ragdoll]]
+modId="forge"
+mandatory=true
+versionRange="[47.3.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.ragdoll]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.20.2)"
+ordering="NONE"
+side="BOTH"
