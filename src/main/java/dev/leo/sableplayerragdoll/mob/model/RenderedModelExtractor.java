@@ -492,4 +492,5 @@ public final class RenderedModelExtractor {
         private List<TexturedQuad> quads() {
             return List.copyOf(this.quads);
         }
+    }
 }
