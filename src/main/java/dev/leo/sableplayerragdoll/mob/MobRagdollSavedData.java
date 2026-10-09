@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -16,14 +15,12 @@ import net.minecraft.world.phys.Vec3;
 
 public class MobRagdollSavedData extends SavedData {
     private static final String DATA_NAME = "sable_player_ragdoll_mob_ragdolls";
-    private static final SavedData.Factory<MobRagdollSavedData> FACTORY = new SavedData.Factory<>(
-            MobRagdollSavedData::new, MobRagdollSavedData::load, null
-    );
+    
 
     private final Map<UUID, Entry> entries = new HashMap<>();
 
     public static MobRagdollSavedData get(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(FACTORY, DATA_NAME);
+        return level.getDataStorage().computeIfAbsent(MobRagdollSavedData::load, MobRagdollSavedData::new, DATA_NAME);
     }
 
     public void addEntry(UUID entityId, long spawnedAtTick, Vec3 preRagdollPos,
@@ -54,7 +51,7 @@ public class MobRagdollSavedData extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+    public CompoundTag save(CompoundTag tag) {
         ListTag list = new ListTag();
         for (var entry : entries.entrySet()) {
             CompoundTag entryTag = new CompoundTag();
@@ -97,7 +94,7 @@ public class MobRagdollSavedData extends SavedData {
         return tag;
     }
 
-    private static MobRagdollSavedData load(CompoundTag tag, HolderLookup.Provider registries) {
+    private static MobRagdollSavedData load(CompoundTag tag) {
         MobRagdollSavedData data = new MobRagdollSavedData();
         ListTag list = tag.getList("Entries", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {

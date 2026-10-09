@@ -4,7 +4,7 @@ import dev.leo.sableplayerragdoll.entity.RagdollSeatEntity;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -50,10 +49,6 @@ public final class RagdollSeatBlock extends Block {
       }
    }
 
-   public PathType getBlockPathType(BlockState state, BlockGetter world, BlockPos pos, @Nullable Mob entity) {
-      return PathType.RAIL;
-   }
-
    protected RenderShape getRenderShape(BlockState state) {
       return RenderShape.INVISIBLE;
    }
@@ -66,23 +61,23 @@ public final class RagdollSeatBlock extends Block {
       return RIDER_COLLISION;
    }
 
-   protected ItemInteractionResult useItemOn(
-      ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult
+   public InteractionResult use(
+      BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult
    ) {
       if (!player.isShiftKeyDown() && !(player instanceof FakePlayer)) {
          List<RagdollSeatEntity> seats = level.getEntitiesOfClass(RagdollSeatEntity.class, new AABB(pos));
          if (!seats.isEmpty()) {
-            RagdollSeatEntity seatEntity = seats.getFirst();
+            RagdollSeatEntity seatEntity = seats.get(0);
             List<Entity> passengers = seatEntity.getPassengers();
-            if (!passengers.isEmpty() && passengers.getFirst() instanceof Player) {
-               return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            if (!passengers.isEmpty() && passengers.get(0) instanceof Player) {
+               return InteractionResult.PASS;
             } else {
                if (!level.isClientSide) {
                   seatEntity.ejectPassengers();
                   player.startRiding(seatEntity);
                }
 
-               return ItemInteractionResult.SUCCESS;
+               return InteractionResult.sidedSuccess(level.isClientSide);
             }
          } else if (level.isClientSide) {
             return ItemInteractionResult.SUCCESS;

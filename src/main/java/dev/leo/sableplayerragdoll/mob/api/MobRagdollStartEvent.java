@@ -3,9 +3,10 @@ package dev.leo.sableplayerragdoll.mob.api;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.ICancellableEvent;
+import net.minecraftforge.eventbus.api.Cancelable;
 
-public class MobRagdollStartEvent extends Event implements ICancellableEvent {
+@Cancelable
+public class MobRagdollStartEvent extends Event {
     private final LivingEntity entity;
     private Vec3 velocity;
 

@@ -39,7 +39,8 @@ public final class RagdollGrabClient {
       return activePos != null || collisionGraceTicks > 0;
    }
 
-   private static void onClientTick(Post event) {
+   private static void onClientTick(TickEvent.ClientTickEvent event) {
+      if (event.phase != TickEvent.Phase.END) return;
       if (activePos == null && collisionGraceTicks > 0) {
          collisionGraceTicks--;
       }
