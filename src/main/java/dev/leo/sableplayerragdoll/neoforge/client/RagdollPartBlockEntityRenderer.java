@@ -7,7 +7,6 @@ import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity;
 import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity.BodyPart;
 import dev.leo.sableplayerragdoll.entity.RagdollDollEntity;
 import dev.leo.sableplayerragdoll.entity.RagdollSeatEntity;
-import dev.leo.sableplayerragdoll.mob.client.EmfVanillaModelCompat;
 import net.minecraft.client.CameraType;
 import dev.leo.sableplayerragdoll.neoforge.mixin.LivingEntityRendererAccessor;
 import java.util.EnumSet;
@@ -79,24 +78,22 @@ public final class RagdollPartBlockEntityRenderer implements BlockEntityRenderer
       }
       PlayerSkin skin = this.skin(blockEntity);
       this.model = skin.model() == PlayerSkin.Model.SLIM ? this.slimModel : this.defaultModel;
-      try (EmfVanillaModelCompat.Session ignored = EmfVanillaModelCompat.enter(this.model)) {
-         this.currentTexture = skin.texture();
-         this.currentCapeTexture = skin.capeTexture();
-         this.showOnly(bodyPart);
-         this.renderEntity(blockEntity); // keep renderEntity up-to-date for elytra/cape
-         LivingEntity entity = this.getRenderEntity(blockEntity);
+      this.currentTexture = skin.texture();
+      this.currentCapeTexture = skin.capeTexture();
+      this.showOnly(bodyPart);
+      this.renderEntity(blockEntity); // keep renderEntity up-to-date for elytra/cape
+      LivingEntity entity = this.getRenderEntity(blockEntity);
 
-         activeModel = this.model;
-         activeBodyPart = bodyPart;
-         try {
-            poseStack.pushPose();
-            this.positionPart(bodyPart, poseStack);
-            this.renderLayers(blockEntity, bodyPart, entity, poseStack, buffer, packedLight, partialTick);
-            poseStack.popPose();
-         } finally {
-            activeModel = null;
-            activeBodyPart = null;
-         }
+      activeModel = this.model;
+      activeBodyPart = bodyPart;
+      try {
+         poseStack.pushPose();
+         this.positionPart(bodyPart, poseStack);
+         this.renderLayers(blockEntity, bodyPart, entity, poseStack, buffer, packedLight, partialTick);
+         poseStack.popPose();
+      } finally {
+         activeModel = null;
+         activeBodyPart = null;
       }
    }
 
@@ -111,7 +108,7 @@ public final class RagdollPartBlockEntityRenderer implements BlockEntityRenderer
    @SuppressWarnings({"unchecked", "rawtypes"})
    private void renderLayers(RagdollPartBlockEntity blockEntity, BodyPart bodyPart, LivingEntity entity, PoseStack poseStack, MultiBufferSource buffer, int packedLight, float partialTick) {
       // Render the base model — use hurt overlay when the real player is in their hurt window
-      int baseOverlay = !blockEntity.isCorpse() && entity.hurtTime > 0
+      int baseOverlay = entity.hurtTime > 0
           ? OverlayTexture.pack(0, 3)  // u=0 (full flash), v=3 (red hurt row)
           : OverlayTexture.NO_OVERLAY;
       VertexConsumer vertices = buffer.getBuffer(RenderType.entityTranslucent(this.currentTexture));
@@ -195,12 +192,12 @@ public final class RagdollPartBlockEntityRenderer implements BlockEntityRenderer
       
       if (ModList.get().isLoaded("accessories")) {
          if (blockEntity.hasAccessoriesItems()) {
-            AccessoriesRenderHelper.renderFromStored(bodyPart, blockEntity, entity, this, poseStack, buffer, packedLight, partialTick);
+            AccessoriesRenderHelper.renderFromStored(bodyPart, blockEntity.getAccessoriesItems(), entity, this, poseStack, buffer, packedLight, partialTick);
          }
       }
       if (ModList.get().isLoaded("curios")) {
          if (blockEntity.hasCurioItems()) {
-            CuriosRenderHelper.renderFromStored(bodyPart, blockEntity, entity, this, poseStack, buffer, packedLight, partialTick);
+            CuriosRenderHelper.renderFromStored(bodyPart, blockEntity.getCurioItems(), entity, this, poseStack, buffer, packedLight, partialTick);
          }
       }
    }
@@ -224,7 +221,7 @@ public final class RagdollPartBlockEntityRenderer implements BlockEntityRenderer
 
    private LivingEntity getRenderEntity(RagdollPartBlockEntity blockEntity) {
       Minecraft minecraft = Minecraft.getInstance();
-      if (!blockEntity.isCorpse() && minecraft.level != null) {
+      if (minecraft.level != null) {
          UUID uuid = blockEntity.skinProfile().getId();
          if (uuid != null) {
             Player player = minecraft.level.getPlayerByUUID(uuid);

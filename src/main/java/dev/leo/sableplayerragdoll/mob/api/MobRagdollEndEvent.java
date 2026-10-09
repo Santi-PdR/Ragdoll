@@ -2,7 +2,7 @@ package dev.leo.sableplayerragdoll.mob.api;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.bus.api.Event;
 
 public class MobRagdollEndEvent extends Event {
     private final LivingEntity entity;

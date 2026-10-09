@@ -1,13 +1,13 @@
 package dev.leo.sableplayerragdoll.neoforge.mixin;
 
 import dev.leo.sableplayerragdoll.mob.MobRagdollAssembly;
-import dev.leo.sableplayerragdoll.mob.client.MobRagdollClientState;
 import dev.leo.sableplayerragdoll.physics.RagdollSessionManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,16 +28,7 @@ public abstract class LivingEntityRagdollDamageMixin {
     @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
     private void splrmob$freezeRagdolledMovement(Vec3 travelVector, CallbackInfo callbackInfo) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        if (MobRagdollAssembly.isConverted(entity)) {
-            callbackInfo.cancel();
-        }
-    }
-
-    @Inject(method = "handleEntityEvent", at = @At("HEAD"), cancellable = true)
-    private void splrmob$suppressRagdollDeathPoof(byte id, CallbackInfo callbackInfo) {
-        LivingEntity entity = (LivingEntity) (Object) this;
-        if (id == 60 && entity.level().isClientSide()
-                && (MobRagdollAssembly.isConverted(entity) || MobRagdollClientState.isDeathPending(entity))) {
+        if (MobRagdollAssembly.isConverted(entity.getUUID())) {
             callbackInfo.cancel();
         }
     }
@@ -68,6 +59,7 @@ public abstract class LivingEntityRagdollDamageMixin {
         if (entity instanceof ServerPlayer serverPlayer && RagdollSessionManager.isPlayerCurrentlyRagdolled(serverPlayer)) {
             return true;
         }
-        return MobRagdollAssembly.isConverted(entity);
+        if (MobRagdollAssembly.isConverted(entity.getUUID())) return true;
+        return entity instanceof Mob mob && mob.isInvisible() && mob.isNoAi();
     }
 }

@@ -19,24 +19,19 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.neoforge.network.PacketDistributor;
 
 public final class MobRagdollClientExtractor {
     private MobRagdollClientExtractor() {
     }
 
     public static void extractAndSend(int entityId) {
-        extractAndSend(entityId, false);
-    }
-
-    public static void extractAndSend(int entityId, boolean suppressDeathEffects) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) {
             return;
         }
         Entity entity = minecraft.level.getEntity(entityId);
         if (entity instanceof LivingEntity livingEntity) {
-            if (suppressDeathEffects) MobRagdollClientState.setDeathPending(livingEntity);
             extractAndSend(livingEntity);
         }
     }
@@ -60,18 +55,12 @@ public final class MobRagdollClientExtractor {
         float headPitch = livingEntity.getXRot();
         EntityModel rawModel = model;
         rawModel.young = livingEntity.isBaby();
+        rawModel.prepareMobModel(livingEntity, limbSwing, limbSwingAmount, 0.0F);
+        rawModel.setupAnim(livingEntity, limbSwing, limbSwingAmount, (float) livingEntity.tickCount, headYaw, headPitch);
 
-        ExtractedMobModel extracted;
-        ExtractedMobModel animated;
-        try (EmfVanillaModelCompat.Session ignored = EmfVanillaModelCompat.enter(model)) {
-            rawModel.prepareMobModel(livingEntity, limbSwing, limbSwingAmount, 0.0F);
-            rawModel.setupAnim(livingEntity, limbSwing, limbSwingAmount, (float) livingEntity.tickCount, headYaw, headPitch);
+        ExtractedMobModel extracted = RenderedModelExtractor.extract(model);
 
-            extracted = RenderedModelExtractor.extract(model);
-            animated = RenderedModelExtractor.extractAnimated(model);
-        }
-
-        Map<String, ExtractedMobModel.ExtractedPart> animatedByName = animated
+        Map<String, ExtractedMobModel.ExtractedPart> animatedByName = RenderedModelExtractor.extractAnimated(model)
                 .parts().stream()
                 .collect(Collectors.toMap(ExtractedMobModel.ExtractedPart::name, p -> p));
 
@@ -112,9 +101,6 @@ public final class MobRagdollClientExtractor {
         tag.remove("Age");
         tag.remove("ForcedAge");
         tag.remove("InLove");
-        tag.remove("Health");
-        tag.remove("HurtTime");
-        tag.remove("DeathTime");
     }
 
     private static MobRagdollSpawnPacket.Part toPacketPart(

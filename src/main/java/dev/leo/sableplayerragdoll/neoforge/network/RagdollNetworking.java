@@ -7,9 +7,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.event.RegisterPayloadHandlersEvent;
-import net.minecraftforge.network.registration.PayloadRegistrar;
+import net.minecraftforge.neoforge.network.PacketDistributor;
+import net.minecraftforge.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.minecraftforge.neoforge.network.registration.PayloadRegistrar;
 
 public final class RagdollNetworking {
    private static final ResourceLocation GRAB_SLOWDOWN_ID = new ResourceLocation("sable_player_ragdoll", "grab_slowdown");
@@ -18,13 +18,12 @@ public final class RagdollNetworking {
    }
 
    public static void register(RegisterPayloadHandlersEvent event) {
-      PayloadRegistrar registrar = event.registrar("sable_player_ragdoll").optional();
+      PayloadRegistrar registrar = event.registrar("sable_player_ragdoll");
       registrar.playToClient(RagdollGrabSyncPacket.TYPE, RagdollGrabSyncPacket.STREAM_CODEC, RagdollGrabSyncPacket::handle);
       registrar.playToClient(RagdollRequestPosePacket.TYPE, RagdollRequestPosePacket.STREAM_CODEC, RagdollRequestPosePacket::handle);
       registrar.playToServer(RagdollTriggerPacket.TYPE, RagdollTriggerPacket.STREAM_CODEC, RagdollTriggerPacket::handle);
       registrar.playToServer(RagdollGrabPacket.TYPE, RagdollGrabPacket.STREAM_CODEC, RagdollGrabPacket::handle);
       registrar.playToServer(RagdollInputPacket.TYPE, RagdollInputPacket.STREAM_CODEC, RagdollInputPacket::handle);
-      registrar.playToServer(RagdollArmInputPacket.TYPE, RagdollArmInputPacket.STREAM_CODEC, RagdollArmInputPacket::handle);
       registrar.playToServer(RagdollPoseResponsePacket.TYPE, RagdollPoseResponsePacket.STREAM_CODEC, RagdollPoseResponsePacket::handle);
    }
 

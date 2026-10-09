@@ -2,7 +2,7 @@ package dev.leo.sableplayerragdoll.api;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.bus.api.Event;
 
 // Fired on the NeoForge game event bus after a player has been released from a ragdoll.
 // exitVelocity is the velocity inherited by the player at the moment of release.

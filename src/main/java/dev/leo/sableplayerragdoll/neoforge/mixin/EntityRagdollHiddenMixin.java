@@ -2,13 +2,13 @@ package dev.leo.sableplayerragdoll.neoforge.mixin;
 
 import dev.leo.sableplayerragdoll.entity.RagdollSeatEntity;
 import dev.leo.sableplayerragdoll.mob.MobRagdollAssembly;
-import dev.leo.sableplayerragdoll.mob.client.MobRagdollClientState;
 import dev.leo.sableplayerragdoll.physics.RagdollSessionManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
@@ -29,16 +29,15 @@ public abstract class EntityRagdollHiddenMixin {
 
     private static boolean isHiddenRagdollSource(Entity self) {
         if (self.level().isClientSide()) {
-            if (self instanceof Player && self.isInvisible() && self.getVehicle() instanceof RagdollSeatEntity) {
+            if (self.isInvisible() && self.getVehicle() instanceof RagdollSeatEntity) {
                 return true;
             }
-            return MobRagdollClientState.isHidden(self);
+            return self instanceof Mob mob && mob.isInvisible() && mob.isNoAi();
         }
         if (self instanceof ServerPlayer serverPlayer && RagdollSessionManager.isPlayerCurrentlyRagdolled(serverPlayer)) {
             return true;
         }
-        return self instanceof net.minecraft.world.entity.LivingEntity living
-                && dev.leo.sableplayerragdoll.mob.MobRagdollSourceRecovery.active(living);
+        return MobRagdollAssembly.isConverted(self.getUUID());
     }
 
     private static boolean ragdollPipeActive() {

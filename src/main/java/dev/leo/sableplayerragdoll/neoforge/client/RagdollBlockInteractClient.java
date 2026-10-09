@@ -4,17 +4,17 @@ import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity;
 import dev.leo.sableplayerragdoll.entity.RagdollSeatEntity;
 import dev.leo.sableplayerragdoll.mob.block.entity.MobRagdollPartBlockEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.TriState;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.neoforge.common.NeoForge;
+import net.minecraftforge.neoforge.common.util.TriState;
+import net.minecraftforge.neoforge.event.entity.player.PlayerInteractEvent;
 
 public final class RagdollBlockInteractClient {
    private RagdollBlockInteractClient() {
    }
 
    public static void init() {
-      MinecraftForge.EVENT_BUS.addListener(RagdollBlockInteractClient::onRightClickBlock);
-      MinecraftForge.EVENT_BUS.addListener(RagdollBlockInteractClient::onLeftClickBlock);
+      NeoForge.EVENT_BUS.addListener(RagdollBlockInteractClient::onRightClickBlock);
+      NeoForge.EVENT_BUS.addListener(RagdollBlockInteractClient::onLeftClickBlock);
    }
 
    private static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {

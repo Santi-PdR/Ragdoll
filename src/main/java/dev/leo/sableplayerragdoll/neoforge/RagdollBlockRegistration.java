@@ -15,11 +15,11 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredBlock;
-import net.minecraftforge.registries.DeferredHolder;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.DeferredRegister.Blocks;
+import net.minecraftforge.bus.api.IEventBus;
+import net.minecraftforge.neoforge.registries.DeferredBlock;
+import net.minecraftforge.neoforge.registries.DeferredHolder;
+import net.minecraftforge.neoforge.registries.DeferredRegister;
+import net.minecraftforge.neoforge.registries.DeferredRegister.Blocks;
 
 public final class RagdollBlockRegistration {
    public static final Blocks BLOCKS = DeferredRegister.createBlocks("sable_player_ragdoll");

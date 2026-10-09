@@ -11,7 +11,6 @@ import io.wispforest.accessories.api.client.AccessoryRenderer;
 import io.wispforest.accessories.api.slot.SlotReference;
 import io.wispforest.accessories.api.slot.SlotTypeReference;
 import io.wispforest.accessories.menu.ArmorSlotTypes;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -99,11 +98,9 @@ final class AccessoriesRenderHelper {
     static ItemStack storedCosmeticArmorOverride(RagdollPartBlockEntity blockEntity, EquipmentSlot slot) {
         SlotTypeReference reference = ArmorSlotTypes.getReferenceFromSlot(slot);
         if (reference == null) return null;
-        String slotName = reference.slotName();
-        if (!storedShouldRender(blockEntity, slotName, 0)) return ItemStack.EMPTY;
-        List<ItemStack> cosmeticItems = blockEntity.getAccessoriesCosmeticItems().get(slotName);
-        if (cosmeticItems == null || cosmeticItems.isEmpty()) return null;
-        ItemStack item = cosmeticItems.get(0);
+        List<ItemStack> items = blockEntity.getAccessoriesItems().get(reference.slotName());
+        if (items == null || items.isEmpty()) return null;
+        ItemStack item = items.get(0);
         return item.isEmpty() ? null : item;
     }
 
@@ -154,7 +151,7 @@ final class AccessoriesRenderHelper {
 
     static void renderFromStored(
         BodyPart bodyPart,
-        RagdollPartBlockEntity blockEntity,
+        Map<String, List<ItemStack>> accessoriesItems,
         LivingEntity entity,
         RenderLayerParent<RagdollDollEntity, PlayerModel<RagdollDollEntity>> parent,
         PoseStack poseStack,
@@ -165,80 +162,33 @@ final class AccessoriesRenderHelper {
         PlayerModel<RagdollDollEntity> model = parent.getModel();
         ModelPart offLimb = oppositeLimb(bodyPart, model);
 
-        for (String slotName : storedSlotNames(blockEntity)) {
+        for (Map.Entry<String, List<ItemStack>> entry : accessoriesItems.entrySet()) {
+            String slotName = entry.getKey();
             if (ArmorSlotTypes.isArmorType(slotName)) continue;
-            List<ItemStack> stacks = blockEntity.getAccessoriesItems().getOrDefault(slotName, List.of());
-            List<ItemStack> cosmetics = blockEntity.getAccessoriesCosmeticItems().getOrDefault(slotName, List.of());
-            int slots = Math.max(stacks.size(), cosmetics.size());
-            for (int i = 0; i < slots; i++) {
+            List<ItemStack> stacks = entry.getValue();
+            for (int i = 0; i < stacks.size(); i++) {
                 if (!slotIndexBelongsToPart(slotName, i, bodyPart)) continue;
-                if (!storedShouldRender(blockEntity, slotName, i)) continue;
-                ItemStack stack = storedEffectiveStack(cosmetics, i, storedStack(stacks, i));
+                ItemStack stack = stacks.get(i);
                 if (stack.isEmpty()) continue;
                 AccessoryRenderer renderer = AccessoriesRendererRegistry.getRenderer(stack);
-                if (renderer.isEmpty() || !renderer.shouldRender(true)) continue;
+                if (renderer.isEmpty()) continue;
 
                 float offLimbY = 0.0f;
                 if (offLimb != null) {
                     offLimbY = offLimb.y;
                     offLimb.y += 10000.0f;
                 }
-                StoredSlotState slotState = mirrorStoredStack(entity, slotName, i, stack);
-                SlotReference ref = slotState != null ? slotState.container().createReference(i) : SlotReference.of(entity, slotName, i);
+                SlotReference ref = SlotReference.of(entity, slotName, i);
                 try {
                     renderer.render(stack, ref, poseStack, model, buffer, packedLight,
                         0.0f, 0.0f, partialTick, 0.0f, 0.0f, 0.0f);
                 } catch (Exception e) {
                     // Swallow rendering errors for individual accessories.
                 } finally {
-                    if (slotState != null) slotState.restore();
                     if (offLimb != null) offLimb.y = offLimbY;
                 }
             }
         }
-    }
-
-    private static Set<String> storedSlotNames(RagdollPartBlockEntity blockEntity) {
-        Set<String> slotNames = new LinkedHashSet<>();
-        slotNames.addAll(blockEntity.getAccessoriesItems().keySet());
-        slotNames.addAll(blockEntity.getAccessoriesCosmeticItems().keySet());
-        return slotNames;
-    }
-
-    @Nullable
-    private static StoredSlotState mirrorStoredStack(LivingEntity entity, String slotName, int index, ItemStack stack) {
-        AccessoriesCapability cap = AccessoriesCapability.get(entity);
-        if (cap == null) return null;
-
-        AccessoriesContainer container = cap.getContainers().get(slotName);
-        if (container == null || index < 0 || index >= container.getSize()) return null;
-
-        ItemStack previous = container.getAccessories().getItem(index).copy();
-        container.getAccessories().setItem(index, stack.copy());
-        return new StoredSlotState(container, index, previous);
-    }
-
-    private record StoredSlotState(AccessoriesContainer container, int index, ItemStack previous) {
-        void restore() {
-            container.getAccessories().setItem(index, previous);
-        }
-    }
-
-    private static ItemStack storedEffectiveStack(List<ItemStack> cosmetics, int index, ItemStack actual) {
-        if (index < cosmetics.size()) {
-            ItemStack cosmetic = cosmetics.get(index);
-            if (!cosmetic.isEmpty()) return cosmetic;
-        }
-        return actual;
-    }
-
-    private static ItemStack storedStack(List<ItemStack> stacks, int index) {
-        return index < stacks.size() ? stacks.get(index) : ItemStack.EMPTY;
-    }
-
-    private static boolean storedShouldRender(RagdollPartBlockEntity blockEntity, String slotName, int index) {
-        List<Boolean> options = blockEntity.getAccessoriesRenderOptions().get(slotName);
-        return options == null || index >= options.size() || Boolean.TRUE.equals(options.get(index));
     }
 
     static void render(

@@ -14,10 +14,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.client.event.ClientTickEvent.Post;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.neoforge.client.event.ClientTickEvent.Post;
+import net.minecraftforge.neoforge.client.event.InputEvent;
+import net.minecraftforge.neoforge.common.NeoForge;
+import net.minecraftforge.neoforge.network.PacketDistributor;
 
 public final class RagdollGrabClient {
    private static final int COLLISION_GRACE_TICKS = 20;
@@ -29,8 +29,8 @@ public final class RagdollGrabClient {
    }
 
    public static void init() {
-      MinecraftForge.EVENT_BUS.addListener(RagdollGrabClient::onClientTick);
-      MinecraftForge.EVENT_BUS.addListener(RagdollGrabClient::onScroll);
+      NeoForge.EVENT_BUS.addListener(RagdollGrabClient::onClientTick);
+      NeoForge.EVENT_BUS.addListener(RagdollGrabClient::onScroll);
       RagdollCollisionRules.setLocalGrabActive(RagdollGrabClient::isGrabbing);
    }
 

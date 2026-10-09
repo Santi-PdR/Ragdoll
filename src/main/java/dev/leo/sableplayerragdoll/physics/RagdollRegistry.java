@@ -1,7 +1,5 @@
 package dev.leo.sableplayerragdoll.physics;
 
-import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity;
-
 import com.mojang.authlib.GameProfile;
 import dev.leo.sableplayerragdoll.SablePlayerRagdoll;
 import dev.leo.sableplayerragdoll.api.RagdollStartEvent;
@@ -21,28 +19,31 @@ import dev.ryanhcode.sable.companion.math.BoundingBox3i;
 import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.ryanhcode.sable.sublevel.system.SubLevelPhysicsSystem;
+import dev.ryanhcode.sable.api.physics.constraint.PhysicsConstraintHandle;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 
 public final class RagdollRegistry {
    private static final double BLOCKS_PER_TICK_TO_METERS_PER_SECOND = 20.0;
+   private static final Set<UUID> RAGDOLL_BODY_IDS = new HashSet<>();
    private static final Map<UUID, Long> PLAYER_COOLDOWNS = new HashMap<>();
    private static final Map<UUID, Long> LAUNCH_RESERVATIONS = new HashMap<>();
    private static final long LAUNCH_RESERVATION_TICKS = 10L;
+   private static final Map<UUID, PhysicsConstraintHandle> RESTORED_HANDLES = new ConcurrentHashMap<>();
    private static boolean loggedFirstTick;
 
    private RagdollRegistry() {
@@ -69,7 +70,6 @@ public final class RagdollRegistry {
       RagdollPoseSnapshot initialPose
    ) {
       if (!RagdollSettings.enabled()) return null;
-      if (player.isSpectator()) return null;
       SubLevelPhysicsSystem physicsSystem = SubLevelPhysicsSystem.get(level);
       if (physicsSystem == null) return null;
 
@@ -84,7 +84,7 @@ public final class RagdollRegistry {
       }
 
       RagdollStartEvent event = new RagdollStartEvent(player, new Vec3(linear.x, linear.y, linear.z));
-      if (MinecraftForge.EVENT_BUS.post(event).isCanceled()) {
+      if (NeoForge.EVENT_BUS.post(event).isCanceled()) {
          return null;
       }
       linear = new Vector3d(event.velocity().x, event.velocity().y, event.velocity().z);
@@ -104,10 +104,13 @@ public final class RagdollRegistry {
          return null;
       }
 
+      RAGDOLL_BODY_IDS.add(ragdollBody.getUniqueId());
       UUID seatPlayerId = autoSeat ? playerId : null;
+      RagdollDeferredSync.queueLaunch(ragdollBody, linear, angular, seatPlayerId, true);
       PLAYER_COOLDOWNS.put(playerId, gameTime + (long) RagdollSettings.cooldownTicks());
       LAUNCH_RESERVATIONS.put(playerId, gameTime + LAUNCH_RESERVATION_TICKS);
-      RagdollDeferredSync.launchNow(physicsSystem, ragdollBody, linear, angular, seatPlayerId, true);
+      SablePlayerRagdoll.LOGGER.info("[sable_player_ragdoll] queued ragdoll {} for {} (launch + sitDown next tick)",
+         shortId(ragdollBody.getUniqueId()), player.getGameProfile().getName());
       return ragdollBody;
    }
 
@@ -157,6 +160,8 @@ public final class RagdollRegistry {
          return null;
       }
 
+      RAGDOLL_BODY_IDS.add(ragdollBody.getUniqueId());
+      RagdollSavedData.get(level).saveRagdoll(ragdollBody.getUniqueId(), doll.partSubLevelIds(), limbs);
       RagdollDeferredSync.queuePlayerlessLaunch(ragdollBody, linear, angular, false, despawnRule);
       SablePlayerRagdoll.LOGGER.info(
          "[sable_player_ragdoll] queued playerless ragdoll {} at {} heading={} ({} parts, {} constraints)",
@@ -173,20 +178,10 @@ public final class RagdollRegistry {
    public static ServerSubLevel detachActiveToPlayerless(ServerLevel level, UUID playerId, PlayerlessDespawnRule rule) {
       ServerSubLevel body = RagdollSessionManager.activeRagdollForPlayer(level, playerId);
       if (body == null) return null;
-
-      UUID owner = RagdollBlockOwnership.ownerForPlayer(level, playerId);
-      if (owner == null) return null;
-      var torso = RagdollBlockOwnership.findLimb(level, owner);
-      Vec3 releasePosition = torso == null ? null : Sable.HELPER.projectOutOfSubLevel(level, Vec3.atCenterOf(torso.getBlockPos()));
-      RagdollBlockOwnership.withOwner(owner, () -> {
-         // Change the policy first so the dismount callback cannot expire this body.
-         RagdollSessionManager.detachPlayer(body, rule, level.getGameTime());
-         RagdollExpireHelper.unseatPlayerSilently(level, playerId);
-         ServerPlayer player = level.getServer().getPlayerList().getPlayer(playerId);
-         if (player != null && releasePosition != null) {
-            player.teleportTo(level, releasePosition.x, releasePosition.y, releasePosition.z, player.getYRot(), player.getXRot());
-         }
-      });
+      RagdollSessionManager.detachPlayer(body, rule, level.getGameTime());
+      RagdollExpireHelper.unseatPlayerSilently(level, playerId);
+      Map<BodyPart, UUID> partMap = RagdollAssemblyHelper.linkedPartsAsMap(body.getUniqueId());
+      RagdollSavedData.get(level).saveRagdoll(body.getUniqueId(), partMap, RagdollLimbOptions.defaults());
       return body;
    }
 
@@ -253,17 +248,22 @@ public final class RagdollRegistry {
       }
    }
 
+   static void untrack(UUID subLevelId) {
+      RAGDOLL_BODY_IDS.remove(subLevelId);
+   }
+
    public static void tryRestoreOnLoad(ServerLevel level, ServerSubLevel rootSubLevel) {
-      UUID rootId = RagdollBlockOwnership.sessionId(rootSubLevel);
-      var rootBlock = RagdollBlockOwnership.findLimb(level, rootId);
-      if (!(rootBlock instanceof RagdollOwnedBlock owned)) return;
-      var identity = owned.ragdollIdentity();
-      long now = level.getGameTime();
-      if (now < identity.nextJointCheck) return;
-      identity.nextJointCheck = now + 10 + level.random.nextInt(11);
-      if (rootSubLevel.isRemoved() || RagdollSessionManager.isExpiring(rootSubLevel)) return;
-      Map<BodyPart, UUID> assemblyParts = RagdollAssemblyData.parts(level, rootId);
-      if (assemblyParts.isEmpty()) return;
+      UUID rootId = rootSubLevel.getUniqueId();
+      PhysicsConstraintHandle existing = RESTORED_HANDLES.get(rootId);
+      if (existing != null && existing.isValid()) {
+         return;
+      }
+
+      RagdollSavedData savedData = RagdollSavedData.get(level);
+      Map<BodyPart, UUID> savedParts = savedData.ragdoll(rootId);
+      if (savedParts.isEmpty()) {
+         return;
+      }
 
       SubLevelContainer container = SubLevelContainer.getContainer(level);
       if (!(container instanceof ServerSubLevelContainer serverContainer)) {
@@ -271,47 +271,30 @@ public final class RagdollRegistry {
       }
 
       Map<BodyPart, ServerSubLevel> loadedParts = new java.util.EnumMap<>(BodyPart.class);
-      for (Map.Entry<BodyPart, UUID> entry : assemblyParts.entrySet()) {
-         SubLevel partSubLevel = RagdollBlockOwnership.partForLimb(level, entry.getValue());
+      for (Map.Entry<BodyPart, UUID> entry : savedParts.entrySet()) {
+         SubLevel partSubLevel = serverContainer.getSubLevel(entry.getValue());
          if (!(partSubLevel instanceof ServerSubLevel serverPart) || serverPart.isRemoved()) {
-            continue;
+            return;
          }
 
          loadedParts.put(entry.getKey(), serverPart);
       }
 
-      Map<UUID, UUID> bodies = new HashMap<>();
-      loadedParts.forEach((bodyPart, body) -> bodies.put(assemblyParts.get(bodyPart), body.getUniqueId()));
-      if (bodies.equals(identity.jointBodies) && (hasLiveJoints(rootId) || bodies.values().stream().distinct().count() <= 1)) return;
-      identity.jointBodies = Map.copyOf(bodies);
-      RagdollLimbOptions limbs = RagdollAssemblyData.limbs(level, rootId);
-      RagdollAssemblyHelper.clearJoints(rootId);
-      RagdollAssemblyHelper.restoreConstraints(level, loadedParts, limbs);
+      RagdollLimbOptions limbs = savedData.ragdollLimbs(rootId);
+      PhysicsConstraintHandle representative = RagdollAssemblyHelper.restoreConstraints(level, loadedParts, limbs);
+      if (representative != null) {
+         RESTORED_HANDLES.put(rootId, representative);
+      }
       SablePlayerRagdoll.LOGGER.info("[sable_player_ragdoll] restored playerless ragdoll {} ({} parts)",
          shortId(rootId), loadedParts.size());
    }
 
-   private static boolean hasLiveJoints(UUID rootId) {
-      Map<BodyPart, RagdollAssemblyHelper.RagdollJoint> joints = RagdollAssemblyHelper.joints(rootId);
-      if (joints.isEmpty()) return false;
-      for (RagdollAssemblyHelper.RagdollJoint joint : joints.values()) {
-         if (joint.handle() == null || !joint.handle().isValid()) return false;
-      }
-      return true;
-   }
-
    static void dropFailed(SubLevelPhysicsSystem physicsSystem, ServerSubLevel subLevel) {
-      dropFailed(physicsSystem, subLevel, null);
-   }
-
-   static void dropFailed(SubLevelPhysicsSystem physicsSystem, ServerSubLevel subLevel, @Nullable UUID seatEntityId) {
       if (subLevel != null && !subLevel.isRemoved()) {
-         RagdollExpireHelper.releaseFailedLaunch(physicsSystem.getLevel(), subLevel, seatEntityId);
          RagdollSessionManager.unregister(subLevel);
+         untrack(subLevel.getUniqueId());
          RagdollDeferredSync.cancel(subLevel.getUniqueId());
-         UUID rootId = RagdollBlockOwnership.sessionId(subLevel);
-         RagdollAssemblyHelper.clearRuntime(rootId);
-         RagdollCleanup.removeLimb(physicsSystem.getLevel(), rootId);
+         RagdollRemovalHelper.removeRagdollSubLevel(physicsSystem, subLevel);
       }
    }
 
@@ -339,77 +322,11 @@ public final class RagdollRegistry {
       return reservedUntil != null && gameTime <= reservedUntil;
    }
 
-   public static boolean removeById(ServerLevel level, UUID subLevelId) {
-      return removeById(level, subLevelId, false);
-   }
-
-   public static boolean removeById(ServerLevel level, UUID subLevelId, boolean smokePuff) {
-      UUID rootId = RagdollAssemblyHelper.linkedRoot(level, subLevelId);
-      if (rootId == null) rootId = RagdollAssemblyData.ownerForLimb(level, subLevelId);
-      UUID targetId = rootId != null ? rootId : subLevelId;
-      SubLevelContainer container = SubLevelContainer.getContainer(level);
-      if (container == null) return false;
-      SubLevel subLevel = RagdollBlockOwnership.root(level, targetId);
-      if (subLevel == null && rootId != null) subLevel = container.getSubLevel(targetId);
-      if (!(subLevel instanceof ServerSubLevel ssl)) {
-         if (rootId == null) {
-            if (!RagdollBlockOwnership.hasLimb(level, subLevelId)) return false;
-            if (smokePuff && container.getSubLevel(subLevelId) instanceof ServerSubLevel limb) emitRemovalPuff(level, limb);
-            RagdollCleanup.removeLimb(level, subLevelId);
-            return true;
-         }
-         RagdollAssemblyHelper.clearRuntime(rootId);
-         RagdollCleanup.removeLimb(level, rootId);
-         return true;
-      }
-      if (!RagdollCleanup.isOwned(ssl)) return false;
-      if (smokePuff) emitRemovalPuff(level, ssl);
-      RagdollBlockOwnership.withOwner(rootId == null ? targetId : rootId, () ->
-            RagdollExpireHelper.expire(level, ssl, "api remove by id"));
-      return true;
-   }
-
-   public static void emitRemovalPuff(ServerLevel level, ServerSubLevel subLevel) {
-      if (subLevel == null || subLevel.isRemoved()) return;
-      Vec3 pos;
-      if (subLevel.getPlot() == null) {
-         Vector3dc p = subLevel.logicalPose().position();
-         pos = new Vec3(p.x(), p.y(), p.z());
-      } else {
-         pos = Sable.HELPER.projectOutOfSubLevel(level, Vec3.atCenterOf(subLevel.getPlot().getCenterBlock()));
-      }
-      if (pos == null) return;
-      level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, pos.x, pos.y, pos.z, 20, 0.45, 0.25, 0.45, 0.04);
-      level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.BREEZE_JUMP, SoundSource.BLOCKS, 0.8F, 1.15F);
-   }
-
-   @Nullable
-   public static UUID dismember(ServerLevel level, UUID rootId, BodyPart limb) {
-      UUID limbId = RagdollAssemblyHelper.dismember(level, rootId, limb);
-      if (limbId != null) {
-         RagdollBlockOwnership.sever(level, limbId);
-      }
-      return limbId;
-   }
-
-   @Nullable
-   public static UUID dismemberPart(ServerLevel level, UUID partSubLevelId) {
-      UUID rootId = RagdollAssemblyHelper.linkedRoot(level, partSubLevelId);
-      BodyPart limb = RagdollAssemblyHelper.bodyPartOf(level, partSubLevelId);
-      if (rootId == null || limb == null) return null;
-      return dismember(level, rootId, limb);
-   }
-
    public static void setGrabDisabled(ServerLevel level, UUID subLevelId, boolean disabled) {
       SubLevel subLevel = SubLevelContainer.getContainer(level).getSubLevel(subLevelId);
       if (subLevel instanceof ServerSubLevel ssl) {
          RagdollSessionManager.setGrabDisabled(ssl, disabled);
       }
-   }
-
-   public static void setCorpse(ServerLevel level, UUID rootId, boolean corpse) {
-      RagdollEquipmentHelper.applyToAllParts(level, rootId, part -> part.setCorpse(corpse));
-      RagdollEquipmentHelper.sendPartUpdates(level, rootId);
    }
 
    public static boolean isGrabDisabledAt(ServerLevel level, BlockPos pos) {
@@ -434,11 +351,9 @@ public final class RagdollRegistry {
    }
 
    public static void resetState() {
-      RagdollRelationships.reset();
+      RAGDOLL_BODY_IDS.clear();
       PLAYER_COOLDOWNS.clear();
-      LAUNCH_RESERVATIONS.clear();
-      RagdollSessionManager.resetState();
-      RagdollDeferredSync.resetState();
+      RESTORED_HANDLES.clear();
       RagdollAssemblyHelper.resetState();
    }
 

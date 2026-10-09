@@ -5,11 +5,11 @@ import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.event.config.ModConfigEvent.Loading;
 import net.minecraftforge.fml.event.config.ModConfigEvent.Reloading;
-import net.minecraftforge.common.ModConfigSpec;
-import net.minecraftforge.common.ModConfigSpec.BooleanValue;
-import net.minecraftforge.common.ModConfigSpec.Builder;
-import net.minecraftforge.common.ModConfigSpec.DoubleValue;
-import net.minecraftforge.common.ModConfigSpec.IntValue;
+import net.minecraftforge.neoforge.common.ModConfigSpec;
+import net.minecraftforge.neoforge.common.ModConfigSpec.BooleanValue;
+import net.minecraftforge.neoforge.common.ModConfigSpec.Builder;
+import net.minecraftforge.neoforge.common.ModConfigSpec.DoubleValue;
+import net.minecraftforge.neoforge.common.ModConfigSpec.IntValue;
 
 public final class RagdollConfig {
    private static final Builder BUILDER = new Builder();
@@ -58,12 +58,6 @@ public final class RagdollConfig {
    public static final BooleanValue PART_SELF_COLLISION = BUILDER.translation("sable_player_ragdoll.configuration.part_self_collision")
       .comment("When true, the body parts of a ragdoll collide with each other.")
       .define("partSelfCollision", true);
-   public static final BooleanValue GRAB_BREAK_ENABLED = BUILDER.translation("sable_player_ragdoll.configuration.grab_break_enabled")
-      .comment("When true, a hand grip slips loose once it is stretched past the break distance under load.")
-      .define("grabBreakEnabled", true);
-   public static final DoubleValue GRAB_BREAK_DISTANCE = BUILDER.translation("sable_player_ragdoll.configuration.grab_break_distance")
-      .comment("How far (blocks) the hand can be pulled from the spot it grabbed before the grip slips.")
-      .defineInRange("grabBreakDistance", 0.275, 0.05, 5.0);
 
    static {
       BUILDER.pop();
@@ -115,6 +109,15 @@ public final class RagdollConfig {
 
    static {
       BUILDER.pop();
+      BUILDER.translation("sable_player_ragdoll.configuration.body_mass").comment("Ragdoll mass density. Individual parts scale by collision volume.").push("body_mass");
+   }
+
+   public static final DoubleValue MOB_MASS_DENSITY = BUILDER.translation("sable_player_ragdoll.configuration.mob_mass_density")
+      .comment("Ragdoll mass per full 16x16x16 collision block. Player and mob parts scale by volume.")
+      .defineInRange("mobMassDensity", 1.4, 0.01, 100.0);
+
+   static {
+      BUILDER.pop();
       BUILDER.translation("sable_player_ragdoll.configuration.debug").comment("Developer options.").push("debug");
    }
 
@@ -152,8 +155,6 @@ public final class RagdollConfig {
       RagdollSettings.setMaxFlingSpeed((Double) MAX_FLING_SPEED.get());
       RagdollSettings.setRagdollMaxLaunchSpeed((Double) RAGDOLL_MAX_LAUNCH_SPEED.get());
       RagdollSettings.setPartSelfCollision((Boolean) PART_SELF_COLLISION.get());
-      RagdollSettings.setGrabBreakEnabled((Boolean) GRAB_BREAK_ENABLED.get());
-      RagdollSettings.setGrabBreakDistance((Double) GRAB_BREAK_DISTANCE.get());
       RagdollSettings.setImpactDamageEnabled((Boolean) IMPACT_DAMAGE_ENABLED.get());
       RagdollSettings.setImpactFeedbackThreshold((Double) IMPACT_FEEDBACK_THRESHOLD.get());
       RagdollSettings.setImpactDamageThreshold((Double) IMPACT_DAMAGE_THRESHOLD.get());
@@ -170,5 +171,9 @@ public final class RagdollConfig {
       RagdollSettings.setExpireAfterSafetyTimeout((Boolean) EXPIRE_AFTER_SAFETY_TIMEOUT.get());
       RagdollSettings.setReleaseSpeedThreshold((Double) RELEASE_SPEED_THRESHOLD.get());
       RagdollSettings.setDebugLogging((Boolean) DEBUG_LOGGING.get());
+      RagdollSettings.setMobMassDensity((Double) MOB_MASS_DENSITY.get());
+   }
+
+   public static void applyBodyMasses() {
    }
 }

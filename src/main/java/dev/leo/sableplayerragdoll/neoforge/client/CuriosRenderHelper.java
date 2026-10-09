@@ -1,10 +1,8 @@
 package dev.leo.sableplayerragdoll.neoforge.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity;
 import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity.BodyPart;
 import dev.leo.sableplayerragdoll.entity.RagdollDollEntity;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +43,7 @@ final class CuriosRenderHelper {
     @SuppressWarnings({"unchecked", "rawtypes"})
     static void renderFromStored(
         BodyPart bodyPart,
-        RagdollPartBlockEntity blockEntity,
+        Map<String, List<ItemStack>> curioItems,
         LivingEntity entity,
         RenderLayerParent<RagdollDollEntity, PlayerModel<RagdollDollEntity>> parent,
         PoseStack poseStack,
@@ -53,15 +51,13 @@ final class CuriosRenderHelper {
         int packedLight,
         float partialTick
     ) {
-        for (String slotId : storedSlotIds(blockEntity)) {
+        for (Map.Entry<String, List<ItemStack>> entry : curioItems.entrySet()) {
+            String slotId = entry.getKey();
             if (!slotBelongsToPart(slotId, bodyPart)) continue;
 
-            List<ItemStack> stacks = blockEntity.getCurioItems().getOrDefault(slotId, List.of());
-            List<ItemStack> cosmetics = blockEntity.getCurioCosmeticItems().getOrDefault(slotId, List.of());
-            int slots = Math.max(stacks.size(), cosmetics.size());
-            for (int i = 0; i < slots; i++) {
-                if (!storedShouldRender(blockEntity, slotId, i)) continue;
-                ItemStack stack = storedEffectiveStack(cosmetics, i, storedStack(stacks, i));
+            List<ItemStack> stacks = entry.getValue();
+            for (int i = 0; i < stacks.size(); i++) {
+                ItemStack stack = stacks.get(i);
                 if (stack.isEmpty()) continue;
 
                 SlotContext slotContext = new SlotContext(slotId, entity, i, false, true);
@@ -87,30 +83,6 @@ final class CuriosRenderHelper {
         }
     }
 
-    private static Set<String> storedSlotIds(RagdollPartBlockEntity blockEntity) {
-        Set<String> slotIds = new LinkedHashSet<>();
-        slotIds.addAll(blockEntity.getCurioItems().keySet());
-        slotIds.addAll(blockEntity.getCurioCosmeticItems().keySet());
-        return slotIds;
-    }
-
-    private static ItemStack storedEffectiveStack(List<ItemStack> cosmetics, int index, ItemStack actual) {
-        if (index < cosmetics.size()) {
-            ItemStack cosmetic = cosmetics.get(index);
-            if (!cosmetic.isEmpty()) return cosmetic;
-        }
-        return actual;
-    }
-
-    private static ItemStack storedStack(List<ItemStack> stacks, int index) {
-        return index < stacks.size() ? stacks.get(index) : ItemStack.EMPTY;
-    }
-
-    private static boolean storedShouldRender(RagdollPartBlockEntity blockEntity, String slotId, int index) {
-        List<Boolean> options = blockEntity.getCurioRenderOptions().get(slotId);
-        return options == null || index >= options.size() || Boolean.TRUE.equals(options.get(index));
-    }
-
     @SuppressWarnings("unchecked")
     static void render(
         BodyPart bodyPart,
@@ -130,14 +102,12 @@ final class CuriosRenderHelper {
 
             ICurioStacksHandler stacksHandler = entry.getValue();
             var stacks = stacksHandler.getStacks();
-            var cosmetics = stacksHandler.getCosmeticStacks();
             var renders = stacksHandler.getRenders();
 
             for (int i = 0; i < stacks.getSlots(); i++) {
                 if (!renders.get(i)) continue; // rendering disabled for this slot index
 
-                ItemStack cosmetic = i < cosmetics.getSlots() ? cosmetics.getStackInSlot(i) : ItemStack.EMPTY;
-                ItemStack stack = !cosmetic.isEmpty() ? cosmetic : stacks.getStackInSlot(i);
+                ItemStack stack = stacks.getStackInSlot(i);
                 if (stack.isEmpty()) continue;
 
                 SlotContext slotContext = new SlotContext(slotId, entity, i, false, true);

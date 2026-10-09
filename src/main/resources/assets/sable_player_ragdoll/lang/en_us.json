@@ -1,11 +1,6 @@
 {
   "key.categories.sable_player_ragdoll": "Sable Ragdolls",
   "key.sable_player_ragdoll.ragdoll": "Ragdoll",
-  "sable_player_ragdoll.ragdoll.controls.line1": "Shift: Get Up · WASD: Roll",
-  "sable_player_ragdoll.ragdoll.controls.line2": "Mouse %s/%s Point · %s/%s Grab",
-  "sable_player_ragdoll.configuration.use_first_person_camera": "First-Person Camera",
-  "sable_player_ragdoll.configuration.sub_level_camera_distance": "Camera Distance",
-  "sable_player_ragdoll.configuration.show_controls_hint": "Show Controls Hint",
   "sable_player_ragdoll.configuration.title": "%s Config",
   "sable_player_ragdoll.configuration.section.sable.player.ragdoll.server": "Server Config",
   "sable_player_ragdoll.configuration.enabled": "Enable Ragdolls",
@@ -21,8 +16,6 @@
   "sable_player_ragdoll.configuration.max_fling_speed": "Max Fling Speed",
   "sable_player_ragdoll.configuration.ragdoll_max_launch_speed": "Max Launch Speed",
   "sable_player_ragdoll.configuration.part_self_collision": "Ragdoll Parts Collide",
-  "sable_player_ragdoll.configuration.grab_break_enabled": "Grips Can Break",
-  "sable_player_ragdoll.configuration.grab_break_distance": "Grip Break Distance",
   "sable_player_ragdoll.configuration.impact_damage": "Impact Damage",
   "sable_player_ragdoll.configuration.impact_damage_enabled": "Enable Impact Damage",
   "sable_player_ragdoll.configuration.impact_feedback_threshold": "Impact Feedback Threshold",
@@ -37,7 +30,10 @@
   "sable_player_ragdoll.configuration.release_speed_threshold": "Release Speed Threshold",
   "sable_player_ragdoll.configuration.expire_after_safety_timeout": "Expire After Safety Timeout",
   "sable_player_ragdoll.configuration.safety_timeout": "Safety Timeout",
+  "sable_player_ragdoll.configuration.body_mass": "Body Mass",
+  "sable_player_ragdoll.configuration.mob_mass_density": "Ragdoll Mass Density",
   "sable_player_ragdoll.configuration.debug": "Debug",
   "sable_player_ragdoll.configuration.debug_logging": "Debug Logging",
-  "block.sable_player_ragdoll.mob_ragdoll_part": "Mob Ragdoll Part"
+  "block.sable_player_ragdoll.mob_ragdoll_part": "Mob Ragdoll Part",
+  "item.sable_player_ragdoll.mob_ragdoll_debug_stick": "Mob Ragdoll Debug Stick"
 }

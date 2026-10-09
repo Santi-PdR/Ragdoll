@@ -16,71 +16,48 @@ final class RagdollCuriosEquipmentHelper {
     private RagdollCuriosEquipmentHelper() {}
 
     static void applyToPart(RagdollPartBlockEntity part, Player player) {
-        CurioSnapshot snapshot = captureSnapshot(player, true);
-        snapshot.items().forEach(part::setCurioItems);
-        snapshot.cosmeticItems().forEach(part::setCurioCosmeticItems);
-        snapshot.renderOptions().forEach(part::setCurioRenderOptions);
+        var handler = player.getCapability(CuriosCapability.INVENTORY);
+        if (handler == null) return;
+        for (Map.Entry<String, ICurioStacksHandler> entry : handler.getCurios().entrySet()) {
+            var stacks = entry.getValue().getStacks();
+            List<ItemStack> items = new ArrayList<>(stacks.getSlots());
+            boolean hasItem = false;
+            for (int i = 0; i < stacks.getSlots(); i++) {
+                ItemStack stack = stacks.getStackInSlot(i).copy();
+                items.add(stack);
+                if (!stack.isEmpty()) hasItem = true;
+            }
+            if (hasItem) part.setCurioItems(entry.getKey(), items);
+        }
     }
 
     static void applyFrom(ServerLevel level, UUID rootId, Player player) {
-        CurioSnapshot snapshot = captureSnapshot(player, true);
-        if (snapshot.isEmpty()) return;
+        Map<String, List<ItemStack>> curioItems = capture(player);
+        if (curioItems.isEmpty()) return;
 
-        RagdollEquipmentHelper.applyToAllParts(level, rootId, be -> {
-            snapshot.items().forEach(be::setCurioItems);
-            snapshot.cosmeticItems().forEach(be::setCurioCosmeticItems);
-            snapshot.renderOptions().forEach(be::setCurioRenderOptions);
-        });
+        for (Map.Entry<String, List<ItemStack>> entry : curioItems.entrySet()) {
+            String slotId = entry.getKey();
+            List<ItemStack> items = entry.getValue();
+            RagdollEquipmentHelper.applyToAllParts(level, rootId, be -> be.setCurioItems(slotId, items));
+        }
     }
 
     static Map<String, List<ItemStack>> capture(Player player) {
-        return captureSnapshot(player, false).items();
-    }
-
-    static CurioSnapshot captureSnapshot(Player player) {
-        return captureSnapshot(player, false);
-    }
-
-    private static CurioSnapshot captureSnapshot(Player player, boolean includeEmptySlots) {
         var handler = player.getCapability(CuriosCapability.INVENTORY);
-        if (handler == null) return CurioSnapshot.empty();
+        if (handler == null) return Map.of();
 
         Map<String, List<ItemStack>> curioItems = new LinkedHashMap<>();
-        Map<String, List<ItemStack>> curioCosmeticItems = new LinkedHashMap<>();
-        Map<String, List<Boolean>> curioRenderOptions = new LinkedHashMap<>();
         for (Map.Entry<String, ICurioStacksHandler> entry : handler.getCurios().entrySet()) {
-            ICurioStacksHandler stacksHandler = entry.getValue();
-            List<ItemStack> items = items(stacksHandler.getStacks());
-            List<ItemStack> cosmeticItems = items(stacksHandler.getCosmeticStacks());
-            List<Boolean> renderOptions = List.copyOf(stacksHandler.getRenders());
-            if (includeEmptySlots || hasAnyStack(items) || hasAnyStack(cosmeticItems)) {
-                curioItems.put(entry.getKey(), items);
-                curioCosmeticItems.put(entry.getKey(), cosmeticItems);
-                curioRenderOptions.put(entry.getKey(), renderOptions);
+            var stacks = entry.getValue().getStacks();
+            List<ItemStack> items = new ArrayList<>(stacks.getSlots());
+            boolean hasItem = false;
+            for (int i = 0; i < stacks.getSlots(); i++) {
+                ItemStack stack = stacks.getStackInSlot(i).copy();
+                items.add(stack);
+                if (!stack.isEmpty()) hasItem = true;
             }
+            if (hasItem) curioItems.put(entry.getKey(), items);
         }
-        return new CurioSnapshot(curioItems, curioCosmeticItems, curioRenderOptions);
-    }
-
-    private static List<ItemStack> items(top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler stacks) {
-        List<ItemStack> items = new ArrayList<>(stacks.getSlots());
-        for (int i = 0; i < stacks.getSlots(); i++) {
-            items.add(stacks.getStackInSlot(i).copy());
-        }
-        return items;
-    }
-
-    private static boolean hasAnyStack(List<ItemStack> items) {
-        return items.stream().anyMatch(stack -> !stack.isEmpty());
-    }
-
-    record CurioSnapshot(Map<String, List<ItemStack>> items, Map<String, List<ItemStack>> cosmeticItems, Map<String, List<Boolean>> renderOptions) {
-        static CurioSnapshot empty() {
-            return new CurioSnapshot(Map.of(), Map.of(), Map.of());
-        }
-
-        boolean isEmpty() {
-            return items.isEmpty() && cosmeticItems.isEmpty() && renderOptions.isEmpty();
-        }
+        return curioItems;
     }
 }

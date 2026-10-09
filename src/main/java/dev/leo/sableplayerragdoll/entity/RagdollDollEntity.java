@@ -18,7 +18,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.entity.IEntityWithComplexSpawn;
+import net.minecraftforge.neoforge.entity.IEntityWithComplexSpawn;
 
 public final class RagdollDollEntity extends LivingEntity implements IEntityWithComplexSpawn {
    private static final EntityDataAccessor<Optional<UUID>> DATA_SKIN_UUID = SynchedEntityData.defineId(
@@ -42,7 +42,7 @@ public final class RagdollDollEntity extends LivingEntity implements IEntityWith
 
    public static AttributeSupplier.Builder createAttributes() {
       return LivingEntity.createLivingAttributes()
-         .add(Attributes.MAX_HEALTH, 0.0)
+         .add(Attributes.MAX_HEALTH, 20.0)
          .add(Attributes.MOVEMENT_SPEED, 0.0)
          .add(Attributes.STEP_HEIGHT, 0.0);
    }

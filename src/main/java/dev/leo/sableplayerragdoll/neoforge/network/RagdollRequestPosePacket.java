@@ -7,8 +7,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.handling.IPayloadContext;
+import net.minecraftforge.neoforge.network.PacketDistributor;
+import net.minecraftforge.neoforge.network.handling.IPayloadContext;
 
 public record RagdollRequestPosePacket(long requestId) implements CustomPacketPayload {
    public static final Type<RagdollRequestPosePacket> TYPE = new Type<>(

@@ -1,7 +1,5 @@
 package dev.leo.sableplayerragdoll.physics;
 
-import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity;
-
 import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity.BodyPart;
 import dev.ryanhcode.sable.api.physics.constraint.ConstraintJointAxis;
 import dev.ryanhcode.sable.api.physics.constraint.PhysicsConstraintHandle;
@@ -32,7 +30,7 @@ public final class RagdollMotorEffects {
       long startTick = level.getGameTime() + Math.max(0, startDelayTicks);
       long endTick = startTick + Math.max(1, durationTicks);
       long seed = level.random.nextLong();
-      CompoundTag tag = RagdollBlockOwnership.session(rootSubLevel);
+      CompoundTag tag = writableUserData(rootSubLevel);
       CompoundTag wailing = new CompoundTag();
       wailing.putLong(START_TICK_KEY, startTick);
       wailing.putLong(END_TICK_KEY, endTick);
@@ -40,12 +38,12 @@ public final class RagdollMotorEffects {
       wailing.putInt(INTERVAL_TICKS_KEY, Math.max(1, intervalTicks));
       wailing.putLong(SEED_KEY, seed);
       tag.put(WAILING_KEY, wailing);
-      RagdollBlockOwnership.session(rootSubLevel, tag);
-      RUNTIME_WAILING.put(RagdollBlockOwnership.sessionId(rootSubLevel), new RuntimeWailing(RandomSource.create(seed), startTick));
+      rootSubLevel.setUserDataTag(tag);
+      RUNTIME_WAILING.put(rootSubLevel.getUniqueId(), new RuntimeWailing(RandomSource.create(seed), startTick));
    }
 
    public static void tick(ServerLevel level, ServerSubLevel rootSubLevel) {
-      CompoundTag tag = RagdollBlockOwnership.session(rootSubLevel);
+      CompoundTag tag = rootSubLevel.getUserDataTag();
       if (tag == null || !tag.contains(WAILING_KEY)) {
          return;
       }
@@ -53,15 +51,15 @@ public final class RagdollMotorEffects {
       CompoundTag wailing = tag.getCompound(WAILING_KEY);
       long gameTime = level.getGameTime();
       if (gameTime >= wailing.getLong(END_TICK_KEY)) {
-         restoreBaseMotors(RagdollBlockOwnership.sessionId(rootSubLevel));
+         restoreBaseMotors(rootSubLevel.getUniqueId());
          tag.remove(WAILING_KEY);
-         RagdollBlockOwnership.session(rootSubLevel, tag);
-         RUNTIME_WAILING.remove(RagdollBlockOwnership.sessionId(rootSubLevel));
+         rootSubLevel.setUserDataTag(tag);
+         RUNTIME_WAILING.remove(rootSubLevel.getUniqueId());
          return;
       }
 
       RuntimeWailing runtime = RUNTIME_WAILING.computeIfAbsent(
-         RagdollBlockOwnership.sessionId(rootSubLevel),
+         rootSubLevel.getUniqueId(),
          unused -> new RuntimeWailing(RandomSource.create(wailing.getLong(SEED_KEY)), startTick(wailing, gameTime))
       );
       if (gameTime >= runtime.nextRetargetTick()) {
@@ -74,17 +72,17 @@ public final class RagdollMotorEffects {
    }
 
    public static void stopWailing(ServerSubLevel rootSubLevel) {
-      restoreBaseMotors(RagdollBlockOwnership.sessionId(rootSubLevel));
-      CompoundTag tag = RagdollBlockOwnership.session(rootSubLevel);
+      restoreBaseMotors(rootSubLevel.getUniqueId());
+      CompoundTag tag = rootSubLevel.getUserDataTag();
       if (tag != null && tag.contains(WAILING_KEY)) {
          tag.remove(WAILING_KEY);
-         RagdollBlockOwnership.session(rootSubLevel, tag);
+         rootSubLevel.setUserDataTag(tag);
       }
-      RUNTIME_WAILING.remove(RagdollBlockOwnership.sessionId(rootSubLevel));
+      RUNTIME_WAILING.remove(rootSubLevel.getUniqueId());
    }
 
    private static void retargetWailing(ServerLevel level, ServerSubLevel rootSubLevel, CompoundTag wailing, RuntimeWailing runtime) {
-      Map<BodyPart, RagdollAssemblyHelper.RagdollJoint> joints = RagdollAssemblyHelper.joints(RagdollBlockOwnership.sessionId(rootSubLevel));
+      Map<BodyPart, RagdollAssemblyHelper.RagdollJoint> joints = RagdollAssemblyHelper.joints(rootSubLevel.getUniqueId());
       double stiffness = wailing.getDouble(STIFFNESS_KEY);
       for (Map.Entry<BodyPart, RagdollAssemblyHelper.RagdollJoint> entry : joints.entrySet()) {
          if (entry.getKey() == BodyPart.TORSO) {
@@ -164,7 +162,10 @@ public final class RagdollMotorEffects {
       }
    }
 
-
+   private static CompoundTag writableUserData(ServerSubLevel subLevel) {
+      CompoundTag tag = subLevel.getUserDataTag();
+      return tag == null ? new CompoundTag() : tag;
+   }
 
    private static final class RuntimeWailing {
       private final RandomSource random;

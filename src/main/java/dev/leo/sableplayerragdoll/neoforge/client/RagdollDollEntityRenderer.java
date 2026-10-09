@@ -2,7 +2,6 @@ package dev.leo.sableplayerragdoll.neoforge.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.leo.sableplayerragdoll.entity.RagdollDollEntity;
-import dev.leo.sableplayerragdoll.mob.client.EmfVanillaModelCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -26,11 +25,9 @@ public final class RagdollDollEntityRenderer extends LivingEntityRenderer<Ragdol
    @Override
    public void render(RagdollDollEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
       this.model = this.skin(entity).model() == PlayerSkin.Model.SLIM ? this.slimModel : this.defaultModel;
-      try (EmfVanillaModelCompat.Session ignored = EmfVanillaModelCompat.enter(this.model)) {
-         this.showOnly(entity.getBodyPart());
-         this.model.crouching = false;
-         super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
-      }
+      this.showOnly(entity.getBodyPart());
+      this.model.crouching = false;
+      super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
    }
 
    private void showOnly(RagdollDollEntity.BodyPart bodyPart) {

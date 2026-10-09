@@ -6,9 +6,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.ClientTickEvent.Post;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.neoforge.client.event.ClientTickEvent.Post;
+import net.minecraftforge.neoforge.common.NeoForge;
+import net.minecraftforge.neoforge.network.PacketDistributor;
 
 public final class ClientMotionSampler {
    private static final double BLOCKS_PER_TICK_TO_METERS_PER_SECOND = 20.0;
@@ -23,7 +23,7 @@ public final class ClientMotionSampler {
    }
 
    public static void init() {
-      MinecraftForge.EVENT_BUS.addListener(ClientMotionSampler::onClientTick);
+      NeoForge.EVENT_BUS.addListener(ClientMotionSampler::onClientTick);
    }
 
    private static void onClientTick(Post event) {

@@ -1,15 +1,12 @@
 package dev.leo.sableplayerragdoll.neoforge.mixin;
 
 import dev.leo.sableplayerragdoll.entity.RagdollSeatEntity;
-import dev.leo.sableplayerragdoll.mob.MobRagdollAssembly;
-import dev.leo.sableplayerragdoll.mob.client.MobRagdollClientState;
 import dev.leo.sableplayerragdoll.physics.RagdollSessionManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,16 +19,11 @@ public abstract class PlayerRagdollHiddenMixin {
     private boolean isHiddenRagdollSource() {
         LivingEntity self = (LivingEntity) (Object) this;
         if (self.level().isClientSide()) {
-            if (self instanceof Player && self.isInvisible() && self.getVehicle() instanceof RagdollSeatEntity) {
-                return true;
-            }
-            return MobRagdollClientState.isHidden(self);
+            // Client can't check session state; infer from the invisible+seated condition
+            return self.isInvisible() && self.getVehicle() instanceof RagdollSeatEntity;
         }
-        if (self instanceof ServerPlayer serverPlayer
-                && RagdollSessionManager.isPlayerCurrentlyRagdolled(serverPlayer)) {
-            return true;
-        }
-        return MobRagdollAssembly.isConverted(self);
+        if (!(self instanceof ServerPlayer serverPlayer)) return false;
+        return RagdollSessionManager.isPlayerCurrentlyRagdolled(serverPlayer);
     }
 
     @Inject(method = "isPickable", at = @At("HEAD"), cancellable = true)

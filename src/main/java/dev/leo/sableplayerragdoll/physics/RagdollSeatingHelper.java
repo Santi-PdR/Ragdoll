@@ -3,15 +3,17 @@ package dev.leo.sableplayerragdoll.physics;
 import dev.leo.sableplayerragdoll.SablePlayerRagdoll;
 import dev.leo.sableplayerragdoll.block.RagdollSeatBlock;
 import dev.leo.sableplayerragdoll.config.RagdollSettings;
-import dev.leo.sableplayerragdoll.entity.RagdollSeatEntity;
 import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class RagdollSeatingHelper {
-   private static final ThreadLocal<ServerPlayer> UNSEATING = new ThreadLocal<>();
+   private static final Map<UUID, Boolean> PLAYER_PREVIOUS_INVISIBILITY = new ConcurrentHashMap<>();
 
    private RagdollSeatingHelper() {
    }
@@ -20,16 +22,15 @@ public final class RagdollSeatingHelper {
       if (!isInvalidPassenger(entity) && ragdollSubLevel != null && !ragdollSubLevel.isRemoved()) {
          BlockPos plotSeatPos = ragdollSubLevel.getPlot().getCenterBlock();
          RagdollSeatBlock.sitDown(level, plotSeatPos, entity);
-         if (!(entity.getVehicle() instanceof RagdollSeatEntity seat)) {
+         if (!entity.isPassenger()) {
             SablePlayerRagdoll.LOGGER.warn(
                "[sable_player_ragdoll] sitDown did not mount {} on ragdoll {} at {}",
                targetName(entity), RagdollRegistry.shortId(ragdollSubLevel.getUniqueId()), plotSeatPos.toShortString()
             );
          } else {
-            entity.getVehicle().getPersistentData().putUUID(RagdollBlockLifetime.SOURCE_SESSION,
-                  RagdollBlockOwnership.sessionId(ragdollSubLevel));
             if (entity instanceof ServerPlayer player) {
-               seat.hideRider(player);
+               PLAYER_PREVIOUS_INVISIBILITY.putIfAbsent(player.getUUID(), player.isInvisible());
+               player.setInvisible(true);
             }
             if (RagdollSettings.debugLogging()) {
                SablePlayerRagdoll.LOGGER.info(
@@ -42,22 +43,12 @@ public final class RagdollSeatingHelper {
    }
 
    public static void restoreVisibility(LivingEntity entity) {
-      if (entity instanceof ServerPlayer player && player.getVehicle() instanceof RagdollSeatEntity seat) {
-         seat.restoreRiderVisibility(player);
+      if (entity instanceof ServerPlayer player) {
+         Boolean wasInvisible = PLAYER_PREVIOUS_INVISIBILITY.remove(player.getUUID());
+         if (wasInvisible != null) {
+            player.setInvisible(wasInvisible);
+         }
       }
-   }
-
-   public static void unseatOnLogout(ServerPlayer player) {
-      if (player.getVehicle() instanceof RagdollSeatEntity) {
-         UNSEATING.set(player);
-         try { player.stopRiding(); }
-         finally { UNSEATING.remove(); }
-      }
-      restoreVisibility(player);
-   }
-
-   public static boolean isUnseating(ServerPlayer player) {
-      return UNSEATING.get() == player;
    }
 
    private static boolean isInvalidPassenger(LivingEntity entity) {
