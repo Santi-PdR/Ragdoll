@@ -29,15 +29,13 @@ minecraft {
 
 repositories {
     mavenCentral()
-    maven { url = 'https://maven.ryanhcode.dev/releases' }
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
 
-    // This pinned Forge build keeps the same Rapier-backed Sable sub-level physics.
-    implementation fg.deobf('dev.ryanhcode.sable:sable-forge-1.20.1:2.0.5-port.1')
-    compileOnly 'dev.ryanhcode.sable-companion:sable-companion-common-1.20.1:1.6.0'
+    // Built from the pinned Sable Forge source in CI; contains the companion API.
+    implementation fg.deobf(files('libs/sable-forge-1.20.1-2.0.5-port.1.jar'))
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     compileOnly 'org.spongepowered:mixin:0.8.5'
