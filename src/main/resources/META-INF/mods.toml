@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[47,)"
+loaderVersion="[47.4.0,)"
 license="Apache-2.0"
 
 [[mods]]
@@ -7,12 +7,12 @@ modId="ragdoll"
 version="1.0.0"
 displayName="Ragdoll Physics"
 authors="Santi-PdR"
-description='''Forge-native player and mob ragdoll reactions for Minecraft 1.20.1.'''
+description='''Forge 1.20.1 combined player and mob ragdoll port powered by Sable.'''
 
 [[dependencies.ragdoll]]
 modId="forge"
 mandatory=true
-versionRange="[47.3.0,)"
+versionRange="[47.4.0,)"
 ordering="NONE"
 side="BOTH"
 
@@ -21,4 +21,18 @@ modId="minecraft"
 mandatory=true
 versionRange="[1.20.1,1.20.2)"
 ordering="NONE"
+side="BOTH"
+
+[[dependencies.ragdoll]]
+modId="sable"
+mandatory=true
+versionRange="[2.0.5-port.1,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.ragdoll]]
+modId="veil"
+mandatory=true
+versionRange="[1.0.0,1.1.0)"
+ordering="AFTER"
 side="BOTH"

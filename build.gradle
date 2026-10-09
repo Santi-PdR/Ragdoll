@@ -24,12 +24,20 @@ minecraft {
     }
 }
 
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.ryanhcode.dev/releases' }
+}
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
+    minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
+
+    // The pinned Forge port supplies the exact Rapier-backed sub-level physics API.
+    modImplementation fg.deobf(files('libs/sable-forge-1.20.1-2.0.5-port.1.jar'))
+    compileOnly 'dev.ryanhcode.sable-companion:sable-companion-common-1.20.1:1.6.0'
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.release = 17
 }

@@ -11,40 +11,6 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.8"
-      - run: gradle build --no-daemon
-      - name: Verify JAR contents
-        shell: bash
-        run: |
-          mapfile -t jars < <(find build/libs -maxdepth 1 -name '*.jar')
-          test "${#jars[@]}" -eq 1
-          python3 - "${jars[0]}" <<'PY'
-          import sys, zipfile
-          jar = sys.argv[1]
-          with zipfile.ZipFile(jar) as archive:
-              names = archive.namelist()
-              assert "META-INF/mods.toml" in names, "mods.toml missing"
-              assert "ragdoll" in archive.read("META-INF/mods.toml").decode(), "wrong mod id"
-              classes = [name for name in names if name.endswith(".class")]
-              assert classes, "no compiled classes in JAR"
-              print(f"Verified {jar}: {len(classes)} classes and Forge metadata")
-          PY
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ragdoll-forge-1.20.1
-          path: build/libs/*.jar
-          if-no-files-found: error
-
   sable-dependency:
     runs-on: windows-latest
     steps:
@@ -66,4 +32,44 @@ jobs:
         with:
           name: sable-forge-1.20.1-2.0.5-port.1
           path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.1.jar
+          if-no-files-found: error
+
+  build:
+    needs: sable-dependency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.8"
+      - uses: actions/download-artifact@v4
+        with:
+          name: sable-forge-1.20.1-2.0.5-port.1
+          path: libs
+      - run: gradle build --no-daemon
+      - name: Verify JAR contents
+        shell: bash
+        run: |
+          mapfile -t jars < <(find build/libs -maxdepth 1 -name '*.jar')
+          test "${#jars[@]}" -eq 1
+          python3 - "${jars[0]}" <<'PY'
+          import sys, zipfile
+          jar = sys.argv[1]
+          with zipfile.ZipFile(jar) as archive:
+              names = archive.namelist()
+              mod_text = archive.read("META-INF/mods.toml").decode()
+              assert "META-INF/mods.toml" in names, "mods.toml missing"
+              assert 'modId="ragdoll"' in mod_text, "ragdoll mod id missing"
+              classes = [name for name in names if name.endswith(".class")]
+              assert classes, "no compiled classes in JAR"
+              print(f"Verified {jar}: {len(classes)} classes and Forge metadata")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ragdoll-forge-1.20.1
+          path: build/libs/*.jar
           if-no-files-found: error
