@@ -10,7 +10,9 @@ import net.minecraft.server.level.ServerPlayer;
 
 public record RagdollTriggerPacket(RagdollLimbOptions pose, float bodyYaw) {
    public RagdollTriggerPacket() {
-      this(RagdollLimbOptions.defaults(), Float.NaN);\n   }\n
+      this(RagdollLimbOptions.defaults(), Float.NaN);
+   }
+
    public static void handle(RagdollTriggerPacket packet, java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> context) {
       net.minecraftforge.network.NetworkEvent.Context networkContext = context.get();
       networkContext.enqueueWork(() -> {
