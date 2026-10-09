@@ -20,6 +20,22 @@ jobs:
         with:
           gradle-version: "8.8"
       - run: gradle build --no-daemon
+      - name: Verify JAR contents
+        shell: bash
+        run: |
+          mapfile -t jars < <(find build/libs -maxdepth 1 -name '*.jar')
+          test "${#jars[@]}" -eq 1
+          python3 - "${jars[0]}" <<'PY'
+          import sys, zipfile
+          jar = sys.argv[1]
+          with zipfile.ZipFile(jar) as archive:
+              names = archive.namelist()
+              assert "META-INF/mods.toml" in names, "mods.toml missing"
+              assert "ragdoll" in archive.read("META-INF/mods.toml").decode(), "wrong mod id"
+              classes = [name for name in names if name.endswith(".class")]
+              assert classes, "no compiled classes in JAR"
+              print(f"Verified {jar}: {len(classes)} classes and Forge metadata")
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: ragdoll-forge-1.20.1
