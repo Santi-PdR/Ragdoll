@@ -21,6 +21,14 @@ if text.count(old_range) != 1:
     raise SystemExit("Pinned Create version range changed; refusing an unreviewed patch")
 build.write_text(text.replace(old_range, new_range), encoding="utf-8")
 
+tools_build = root / "tools/build.ps1"
+text = tools_build.read_text(encoding="utf-8")
+old_tools_setting = "$includeTestTools = $Mode -in @('test', 'quick')"
+new_tools_setting = "$includeTestTools = $Mode -eq 'test'"
+if text.count(old_tools_setting) != 1:
+    raise SystemExit("Pinned Sable quick-mode test-tools marker changed; refusing an unreviewed patch")
+tools_build.write_text(text.replace(old_tools_setting, new_tools_setting), encoding="utf-8")
+
 config = root / "forge/src/port/resources/sable-create.mixins.json"
 data = json.loads(config.read_text(encoding="utf-8"))
 if not data.get("mixins") or not data.get("client"):
@@ -28,4 +36,4 @@ if not data.get("mixins") or not data.get("client"):
 data["mixins"] = []
 data["client"] = []
 config.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-print("Patched Sable to accept Create versions and skip Create/Flywheel 1.0 compatibility mixins.")
+print("Patched Sable to accept Create versions, skip Create/Flywheel 1.0 mixins, and keep quick mode out of test-tools packaging.")
