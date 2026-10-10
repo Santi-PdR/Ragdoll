@@ -8,7 +8,7 @@ root = Path(sys.argv[1])
 props = root / "gradle.properties"
 text = props.read_text(encoding="utf-8")
 old_version = "version=2.0.5-port.1"
-new_version = "version=2.0.5-port.10"
+new_version = "version=2.0.5-port.11"
 if text.count(old_version) != 1:
     raise SystemExit("Pinned Sable version marker changed; refusing an unreviewed patch")
 props.write_text(text.replace(old_version, new_version), encoding="utf-8")
@@ -209,6 +209,35 @@ if text.count(old_wrapped_level_check) != 1:
 text = text.replace(old_wrapped_level_check, new_wrapped_level_check)
 platform.write_text(text, encoding="utf-8")
 
+sublevel_renderer = root / "forge/src/port/java/dev/ryanhcode/sable/forge/platform/SableSubLevelRenderPlatformImpl.java"
+text = sublevel_renderer.read_text(encoding="utf-8")
+flywheel_import = "import dev.engine_room.flywheel.lib.visualization.VisualizationHelper;\n"
+if text.count(flywheel_import) != 1:
+    raise SystemExit("Pinned Sable Flywheel helper import changed; refusing an unreviewed compatibility patch")
+text = text.replace(flywheel_import, "")
+old_flywheel_call = """    @Override
+    public void tryAddFlywheelVisual(final BlockEntity blockEntity) {
+        VisualizationHelper.tryAddBlockEntity(blockEntity);
+    }"""
+new_flywheel_call = """    @Override
+    public void tryAddFlywheelVisual(final BlockEntity blockEntity) {
+        try {
+            Class<?> helper = Class.forName(
+                    "dev.engine_room.flywheel.lib.visualization.VisualizationHelper", false,
+                    SableSubLevelRenderPlatformImpl.class.getClassLoader());
+            helper.getMethod("tryAddBlockEntity", BlockEntity.class).invoke(null, blockEntity);
+        } catch (ClassNotFoundException | NoSuchMethodException | LinkageError ignored) {
+            // Create 0.5.x uses Flywheel 0.6, which has no modern visualization helper.
+            // Sable's vanilla sub-level renderer remains active without this optional fast path.
+        } catch (ReflectiveOperationException exception) {
+            throw new IllegalStateException("Failed to register the optional Flywheel visual", exception);
+        }
+    }"""
+if text.count(old_flywheel_call) != 1:
+    raise SystemExit("Pinned Sable Flywheel helper call changed; refusing an unreviewed compatibility patch")
+text = text.replace(old_flywheel_call, new_flywheel_call)
+sublevel_renderer.write_text(text, encoding="utf-8")
+
 config = root / "forge/src/port/resources/sable-create.mixins.json"
 data = json.loads(config.read_text(encoding="utf-8"))
 if not data.get("mixins") or not data.get("client"):
@@ -216,4 +245,4 @@ if not data.get("mixins") or not data.get("client"):
 data["mixins"] = []
 data["client"] = []
 config.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-print("Patched Sable for Create 0.5.x: optional wrapper detection, compatible sublevel physics hooks, Linux ImGui natives, and Ghouls packaging.")
+print("Patched Sable for Create 0.5.x: optional Create/Flywheel API detection, compatible sublevel physics hooks, Linux ImGui natives, and Ghouls packaging.")

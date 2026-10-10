@@ -55,7 +55,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
 
     // Built from the pinned Sable Forge source in CI; contains the companion API.
-    implementation fg.deobf(files('libs/sable-forge-1.20.1-2.0.5-port.10.jar'))
+    implementation fg.deobf(files('libs/sable-forge-1.20.1-2.0.5-port.11.jar'))
     // Veil is a required Sable runtime dependency; compile against it for the Jar-in-Jar resource shim.
     compileOnly fg.deobf(files('dependencies/veil/Veil-forge-1.20.1-1.0.0.296-slim.jar'))
 
