@@ -8,7 +8,7 @@ root = Path(sys.argv[1])
 props = root / "gradle.properties"
 text = props.read_text(encoding="utf-8")
 old_version = "version=2.0.5-port.1"
-new_version = "version=2.0.5-port.6"
+new_version = "version=2.0.5-port.7"
 if text.count(old_version) != 1:
     raise SystemExit("Pinned Sable version marker changed; refusing an unreviewed patch")
 props.write_text(text.replace(old_version, new_version), encoding="utf-8")
@@ -150,11 +150,11 @@ old_redirect = """    @Redirect(
     private boolean sable$shouldTickPlotBlockEntity(final Level instance, final BlockPos pos) {
         return PlotBlockActivityPolicy.shouldProcess(instance, pos, instance.shouldTickBlocksAt(pos));
     }"""
-new_wrap = """    @WrapOperation(
-            method = "tickBlockEntities()V",
+new_wrap = """    @WrapOperation(remap = false,
+            method = "m_46463_()V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/Level;shouldTickBlocksAt(Lnet/minecraft/core/BlockPos;)Z"
+                    target = "Lnet/minecraft/world/level/Level;m_220393_(Lnet/minecraft/core/BlockPos;)Z",\n                    remap = false
             )
     )
     private boolean sable$shouldTickPlotBlockEntity(final Level instance, final BlockPos pos, final Operation<Boolean> original) {
