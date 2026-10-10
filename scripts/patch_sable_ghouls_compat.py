@@ -132,7 +132,7 @@ fluid.write_text(text, encoding="utf-8")
 
 level_policy = root / "forge/src/port/java/dev/ryanhcode/sable/mixin/plot/LevelBlockEntityTickPolicyMixin.java"
 text = level_policy.read_text(encoding="utf-8")
-imports_marker = "import dev.ryanhcode.sable.sublevel.plot.PlotBlockActivityPolicy;\\n"
+imports_marker = "import dev.ryanhcode.sable.sublevel.plot.PlotBlockActivityPolicy;\n"
 imports_replacement = """import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.ryanhcode.sable.sublevel.plot.PlotBlockActivityPolicy;
