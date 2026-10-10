@@ -1,0 +1,31 @@
+package dev.leo.sableplayerragdoll.api;
+
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.Cancelable;
+
+// Fired on the NeoForge game event bus before a player ragdoll is assembled.
+// Cancel to prevent the launch. Modify velocity to redirect or rescale the launch.
+@Cancelable
+public class RagdollStartEvent extends Event {
+   private final ServerPlayer player;
+   private Vec3 velocity;
+
+   public RagdollStartEvent(ServerPlayer player, Vec3 velocity) {
+      this.player = player;
+      this.velocity = velocity;
+   }
+
+   public ServerPlayer player() {
+      return this.player;
+   }
+
+   public Vec3 velocity() {
+      return this.velocity;
+   }
+
+   public void setVelocity(Vec3 velocity) {
+      this.velocity = velocity;
+   }
+}

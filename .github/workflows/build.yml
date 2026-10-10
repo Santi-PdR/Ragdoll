@@ -1,0 +1,149 @@
+name: Forge 1.20.1 build
+
+on:
+  push:
+    branches: [main, "codex/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  sable-dependency:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ragdoll-port
+      - uses: actions/checkout@v4
+        with:
+          repository: NotAsher999/sable-1.20.1
+          ref: e4d2ab3724a9f5820e758646447d3a571761db11
+          path: sable-source
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: "17"
+      - uses: actions/cache@v4
+        id: sable-cache
+        with:
+          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.9.jar
+          key: sable-forge-1.20.1-ghouls-compat-port.9-e4d2ab3724a9f5820e758646447d3a571761db11
+      - name: Adapt Sable for the Ghouls Create 0.5.1 stack
+        if: steps.sable-cache.outputs.cache-hit != 'true'
+        run: python ragdoll-port/scripts/patch_sable_ghouls_compat.py sable-source
+      - name: Build Ghouls-compatible Sable Forge dependency
+        if: steps.sable-cache.outputs.cache-hit != 'true'
+        shell: cmd
+        working-directory: sable-source
+        run: build.cmd quick
+      - name: Verify Sable compatibility patch
+        shell: pwsh
+        working-directory: sable-source
+        run: |
+          $jar = 'dist/sable-forge-1.20.1-2.0.5-port.9.jar'
+          if (!(Test-Path $jar)) { throw "Missing $jar" }
+          $out = 'sable-verify'
+          New-Item -ItemType Directory -Force $out | Out-Null
+          Push-Location $out
+          & jar xf "../$jar" META-INF/mods.toml META-INF/jarjar/metadata.json sable-create.mixins.json
+          if ($LASTEXITCODE -ne 0) { throw "Could not inspect built Sable jar" }
+          $toml = Get-Content 'META-INF/mods.toml' -Raw
+          if ($toml -notmatch 'versionRange = "\[0,\)"') { throw 'Sable does not accept the installed Create version range' }
+          $mixins = Get-Content 'sable-create.mixins.json' -Raw | ConvertFrom-Json
+          if ($mixins.mixins.Count -ne 0 -or $mixins.client.Count -ne 0) { throw 'Create/Flywheel integration mixins are still active' }
+          $jarjar = Get-Content 'META-INF/jarjar/metadata.json' -Raw | ConvertFrom-Json
+          $linuxImgui = @($jarjar.jars | Where-Object { $_.identifier.group -eq 'io.github.spair' -and $_.identifier.artifact -eq 'imgui-java-natives-linux' -and $_.version.artifactVersion -eq '1.86.11' })
+          if ($linuxImgui.Count -ne 1) { throw 'Sable Linux ImGui native dependency is missing from JarJar' }
+          Pop-Location
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sable-forge-1.20.1-2.0.5-port.9
+          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.9.jar
+          if-no-files-found: error
+
+      - name: Download and verify Veil Forge slim dependency
+        shell: pwsh
+        run: |
+          $base = 'https://maven.blamejared.com/foundry/veil/Veil-forge-1.20.1/1.0.0.296/Veil-forge-1.20.1-1.0.0.296-slim.jar'
+          New-Item -ItemType Directory -Force veil | Out-Null
+          Invoke-WebRequest -Uri $base -OutFile 'veil/Veil-forge-1.20.1-1.0.0.296-slim.jar'
+          Invoke-WebRequest -Uri "$base.sha256" -OutFile 'veil/veil.sha256'
+          $expected = (Get-Content 'veil/veil.sha256' -Raw).Trim().ToLowerInvariant()
+          $actual = (Get-FileHash 'veil/Veil-forge-1.20.1-1.0.0.296-slim.jar' -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw 'Veil slim JAR SHA-256 verification failed' }
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $archive = [System.IO.Compression.ZipFile]::OpenRead('veil/Veil-forge-1.20.1-1.0.0.296-slim.jar')
+          try {
+            $duplicateLwjgl = @($archive.Entries | Where-Object { $_.FullName -match '^org/lwjgl/.+\.class$' })
+            if ($duplicateLwjgl.Count -gt 0) { throw "Veil slim still bundles $($duplicateLwjgl.Count) LWJGL classes" }
+            if (-not ($archive.Entries | Where-Object { $_.FullName -eq 'META-INF/mods.toml' })) { throw 'Veil mod metadata missing' }
+          } finally { $archive.Dispose() }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: veil-forge-1.20.1-1.0.0.296-slim
+          path: veil/Veil-forge-1.20.1-1.0.0.296-slim.jar
+          if-no-files-found: error
+
+  build:
+    needs: sable-dependency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.8"
+      - uses: actions/download-artifact@v4
+        with:
+          name: sable-forge-1.20.1-2.0.5-port.9
+          path: libs
+      - uses: actions/download-artifact@v4
+        with:
+          name: veil-forge-1.20.1-1.0.0.296-slim
+          path: dependencies/veil
+      - name: Verify Sable dependency contains its companion API
+        run: |
+          jar tf libs/sable-forge-1.20.1-2.0.5-port.9.jar | grep -q 'dev/ryanhcode/sable/companion/math/BoundingBox3i.class'
+      - run: gradle jar --no-daemon
+      - name: Verify combined JAR contents
+        shell: bash
+        run: |
+          mapfile -t jars < <(find build/libs -maxdepth 1 -name '*.jar' ! -name '*-sources.jar')
+          test "${#jars[@]}" -eq 1
+          python3 - "${jars[0]}" <<'PY'
+          import sys, zipfile
+          jar = sys.argv[1]
+          with zipfile.ZipFile(jar) as archive:
+              names = set(archive.namelist())
+              mod_text = archive.read("META-INF/mods.toml").decode()
+              for mod_id in ("sable_player_ragdoll", "ragdoll_reactions"):
+                  assert f'modId="{mod_id}"' in mod_text, f"{mod_id} metadata missing"
+              assert "[2.0.5-port.9,)" in mod_text, "Ghouls-compatible Sable dependency missing"
+              classes = [name for name in names if name.endswith(".class")]
+              assert len(classes) >= 120, f"expected both original ragdoll systems, found {len(classes)} classes"
+              for resource in (
+                  "sable_player_ragdoll.mixins.json",
+                  "sable_player_ragdoll.neoforge.mixins.json",
+                  "assets/ragdoll_reactions/sounds/punch.ogg",
+                  "assets/sable_player_ragdoll/sounds/impact.ogg",
+              ):
+                  assert resource in names, f"{resource} missing"
+              manifest = archive.read("META-INF/MANIFEST.MF").decode().lower()
+              assert "mixinconfigs:" in manifest, "mixin configurations missing from manifest"
+              print(f"Verified {jar}: {len(classes)} classes, both mod IDs, mixins, and sounds")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ragdoll-forge-1.20.1
+          path: build/libs/*.jar
+          if-no-files-found: error

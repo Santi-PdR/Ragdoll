@@ -1,0 +1,3 @@
+package dev.leo.sableplayerragdoll.physics;
+import dev.leo.sableplayerragdoll.block.entity.RagdollPartBlockEntity; import java.util.List; import java.util.Map; import java.util.UUID; import net.minecraft.server.level.ServerLevel; import net.minecraft.world.entity.player.Player; import net.minecraft.world.item.ItemStack;
+final class RagdollAccessoriesEquipmentHelper { private RagdollAccessoriesEquipmentHelper(){} static void applyToPart(RagdollPartBlockEntity p,Player x){} static void applyFrom(ServerLevel l,UUID u,Player p){} static Map<String,List<ItemStack>> capture(Player p){return Map.of();} static long accessoriesSignature(Player p){return 0L;} }

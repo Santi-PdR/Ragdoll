@@ -1,0 +1,78 @@
+buildscript {
+    repositories {
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+    dependencies {
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+apply plugin: 'org.spongepowered.mixin'
+
+group = 'dev.santi.ragdoll'
+version = '1.0.0'
+base { archivesName = 'ragdoll-forge-1.20.1' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    copyIdeResources = true
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'info'
+            mods {
+                sable_player_ragdoll { source sourceSets.main }
+                ragdoll_reactions { source sourceSets.main }
+            }
+        }
+        client {}
+        server { args '--nogui' }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    maven { url = 'https://maven.theillusivec4.top/' }
+    maven { url = 'https://api.modrinth.com/maven' }
+}
+
+mixin {
+    add sourceSets.main, 'sable_player_ragdoll.refmap.json'
+    config 'sable_player_ragdoll.mixins.json'
+    config 'sable_player_ragdoll.neoforge.mixins.json'
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
+
+    // Built from the pinned Sable Forge source in CI; contains the companion API.
+    implementation fg.deobf(files('libs/sable-forge-1.20.1-2.0.5-port.9.jar'))
+
+    compileOnly fg.deobf('top.theillusivec4.curios:curios-forge:5.9.1+1.20.1:api')
+    compileOnly fg.deobf('maven.modrinth:jade:11.12.2+forge')
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    compileOnly 'org.spongepowered:mixin:0.8.5'
+    compileOnly 'io.github.llamalad7:mixinextras-common:0.4.1'
+    annotationProcessor 'io.github.llamalad7:mixinextras-common:0.4.1'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
+
+
+tasks.named('jar') {
+    manifest { attributes(['MixinConfigs': 'sable_player_ragdoll.mixins.json,sable_player_ragdoll.neoforge.mixins.json']) }
+    finalizedBy 'reobfJar'
+}
