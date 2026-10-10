@@ -8,7 +8,7 @@ root = Path(sys.argv[1])
 props = root / "gradle.properties"
 text = props.read_text(encoding="utf-8")
 old_version = "version=2.0.5-port.1"
-new_version = "version=2.0.5-port.7"
+new_version = "version=2.0.5-port.8"
 if text.count(old_version) != 1:
     raise SystemExit("Pinned Sable version marker changed; refusing an unreviewed patch")
 props.write_text(text.replace(old_version, new_version), encoding="utf-8")
@@ -28,6 +28,13 @@ new_tools_setting = "$includeTestTools = $Mode -eq 'test'"
 if text.count(old_tools_setting) != 1:
     raise SystemExit("Pinned Sable quick-mode test-tools marker changed; refusing an unreviewed patch")
 tools_build.write_text(text.replace(old_tools_setting, new_tools_setting), encoding="utf-8")
+
+text = tools_build.read_text(encoding="utf-8")
+old_plot_abi_check = "Required = @('tickBlockEntities', 'PlotBlockActivityPolicy', 'shouldProcess')"
+new_plot_abi_check = "Required = @('m_46463_', 'PlotBlockActivityPolicy', 'shouldProcess')"
+if text.count(old_plot_abi_check) != 1:
+    raise SystemExit("Pinned Sable block-tick ABI check changed; refusing an unreviewed patch")
+tools_build.write_text(text.replace(old_plot_abi_check, new_plot_abi_check), encoding="utf-8")
 
 movement = root / "forge/src/port/java/dev/ryanhcode/sable/admitted/EntityMovementStateMixin.java"
 text = movement.read_text(encoding="utf-8")
