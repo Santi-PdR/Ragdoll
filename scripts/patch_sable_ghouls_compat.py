@@ -8,7 +8,7 @@ root = Path(sys.argv[1])
 props = root / "gradle.properties"
 text = props.read_text(encoding="utf-8")
 old_version = "version=2.0.5-port.1"
-new_version = "version=2.0.5-port.5"
+new_version = "version=2.0.5-port.6"
 if text.count(old_version) != 1:
     raise SystemExit("Pinned Sable version marker changed; refusing an unreviewed patch")
 props.write_text(text.replace(old_version, new_version), encoding="utf-8")
@@ -141,7 +141,7 @@ if text.count(imports_marker) != 1:
     raise SystemExit("Pinned Sable block-tick policy import marker changed; refusing an unreviewed patch")
 text = text.replace(imports_marker, imports_replacement)
 old_redirect = """    @Redirect(
-            method = "tickBlockEntities",
+            method = "tickBlockEntities()V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/Level;shouldTickBlocksAt(Lnet/minecraft/core/BlockPos;)Z"
