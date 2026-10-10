@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import foundry.veil.ext.PackResourcesExtension;
 import foundry.veil.ext.PackResourcesExtension.PackResourceConsumer;
+import foundry.veil.impl.resource.VeilResourceManagerImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -12,13 +13,15 @@ import org.spongepowered.asm.mixin.injection.At;
  * while Veil recursively enumerates a pack. Catch only that known traversal failure
  * so Veil does not fall back to Forge's invalid empty-prefix resource scan.
  */
-@Mixin(targets = "foundry.veil.impl.resource.VeilResourceManagerImpl")
+@Mixin(value = VeilResourceManagerImpl.class, remap = false)
 public abstract class VeilJarJarResourceMixin {
     @WrapOperation(
             method = "loadPack",
+            remap = false,
             at = @At(
                     value = "INVOKE",
-                    target = "Lfoundry/veil/ext/PackResourcesExtension;veil$listResources(Lfoundry/veil/ext/PackResourcesExtension$PackResourceConsumer;)V"
+                    target = "Lfoundry/veil/ext/PackResourcesExtension;veil$listResources(Lfoundry/veil/ext/PackResourcesExtension$PackResourceConsumer;)V",
+                    remap = false
             )
     )
     private void ragdoll$handleJarJarFilesystem(
