@@ -55,7 +55,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.0'
 
     // Built from the pinned Sable Forge source in CI; contains the companion API.
-    implementation fg.deobf(files('libs/sable-forge-1.20.1-2.0.5-port.4.jar'))
+    implementation fg.deobf(files('libs/sable-forge-1.20.1-2.0.5-port.5.jar'))
 
     compileOnly fg.deobf('top.theillusivec4.curios:curios-forge:5.9.1+1.20.1:api')
     compileOnly fg.deobf('maven.modrinth:jade:11.12.2+forge')

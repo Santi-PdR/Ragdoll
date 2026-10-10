@@ -8,7 +8,7 @@ root = Path(sys.argv[1])
 props = root / "gradle.properties"
 text = props.read_text(encoding="utf-8")
 old_version = "version=2.0.5-port.1"
-new_version = "version=2.0.5-port.4"
+new_version = "version=2.0.5-port.5"
 if text.count(old_version) != 1:
     raise SystemExit("Pinned Sable version marker changed; refusing an unreviewed patch")
 props.write_text(text.replace(old_version, new_version), encoding="utf-8")
@@ -129,6 +129,42 @@ if text.count(fluid_end) != 1:
     raise SystemExit("Pinned Sable fluid calculation end marker changed; refusing an unreviewed patch")
 text = text.replace(fluid_end, fluid_end_compat)
 fluid.write_text(text, encoding="utf-8")
+
+level_policy = root / "forge/src/port/java/dev/ryanhcode/sable/mixin/plot/LevelBlockEntityTickPolicyMixin.java"
+text = level_policy.read_text(encoding="utf-8")
+imports_marker = "import dev.ryanhcode.sable.sublevel.plot.PlotBlockActivityPolicy;\\n"
+imports_replacement = """import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.ryanhcode.sable.sublevel.plot.PlotBlockActivityPolicy;
+"""
+if text.count(imports_marker) != 1:
+    raise SystemExit("Pinned Sable block-tick policy import marker changed; refusing an unreviewed patch")
+text = text.replace(imports_marker, imports_replacement)
+old_redirect = """    @Redirect(
+            method = "tickBlockEntities",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/Level;shouldTickBlocksAt(Lnet/minecraft/core/BlockPos;)Z"
+            )
+    )
+    private boolean sable$shouldTickPlotBlockEntity(final Level instance, final BlockPos pos) {
+        return PlotBlockActivityPolicy.shouldProcess(instance, pos, instance.shouldTickBlocksAt(pos));
+    }"""
+new_wrap = """    @WrapOperation(
+            method = "tickBlockEntities",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/Level;shouldTickBlocksAt(Lnet/minecraft/core/BlockPos;)Z"
+            )
+    )
+    private boolean sable$shouldTickPlotBlockEntity(final Level instance, final BlockPos pos, final Operation<Boolean> original) {
+        return PlotBlockActivityPolicy.shouldProcess(instance, pos, original.call(instance, pos));
+    }"""
+if text.count(old_redirect) != 1:
+    raise SystemExit("Pinned Sable block-tick redirect marker changed; refusing an unreviewed patch")
+text = text.replace(old_redirect, new_wrap)
+text = text.replace("import org.spongepowered.asm.mixin.injection.Redirect;\\n", "")
+level_policy.write_text(text, encoding="utf-8")
 
 config = root / "forge/src/port/resources/sable-create.mixins.json"
 data = json.loads(config.read_text(encoding="utf-8"))
