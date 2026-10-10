@@ -39,7 +39,7 @@ tools_build.write_text(text.replace(old_plot_abi_check, new_plot_abi_check), enc
 sable_build = root / "forge/build.gradle"
 text = sable_build.read_text(encoding="utf-8")
 old_imgui_native = "implementation(jarJar('io.github.spair:imgui-java-natives-windows:1.86.11'))"
-new_imgui_native = old_imgui_native + "\\n    implementation(jarJar('io.github.spair:imgui-java-natives-linux:1.86.11'))"
+new_imgui_native = old_imgui_native + chr(10) + "    implementation(jarJar('io.github.spair:imgui-java-natives-linux:1.86.11'))"
 if text.count(old_imgui_native) != 1 or "imgui-java-natives-linux" in text:
     raise SystemExit("Pinned Sable ImGui native dependency marker changed; refusing an unreviewed patch")
 sable_build.write_text(text.replace(old_imgui_native, new_imgui_native), encoding="utf-8")
