@@ -22,6 +22,7 @@ import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -292,13 +293,7 @@ public final class RenderedModelExtractor {
     }
 
     private static Field field(Class<?> type, String name) {
-        try {
-            Field field = type.getDeclaredField(name);
-            field.setAccessible(true);
-            return field;
-        } catch (NoSuchFieldException error) {
-            throw new IllegalStateException("Missing field " + type.getName() + "." + name, error);
-        }
+        return ObfuscationReflectionHelper.findField(type, name);
     }
 
     private static PartRole inferRole(String partName) {

@@ -26,6 +26,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -424,13 +425,7 @@ public final class MobRagdollPartBlockEntityRenderer implements BlockEntityRende
     }
 
     private static Field field(Class<?> type, String name) {
-        try {
-            Field field = type.getDeclaredField(name);
-            field.setAccessible(true);
-            return field;
-        } catch (NoSuchFieldException error) {
-            throw new IllegalStateException("Missing field " + type.getName() + "." + name, error);
-        }
+        return ObfuscationReflectionHelper.findField(type, name);
     }
 
     private static Method method(Class<?> type, String name, Class<?>... parameterTypes) {

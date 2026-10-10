@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 final class ModelPartMask {
     private static final Field MODEL_PART_CUBES = field(ModelPart.class, "cubes");
@@ -46,13 +47,7 @@ final class ModelPartMask {
     }
 
     private static Field field(Class<?> type, String name) {
-        try {
-            Field field = type.getDeclaredField(name);
-            field.setAccessible(true);
-            return field;
-        } catch (NoSuchFieldException error) {
-            throw new IllegalStateException("Missing field " + type.getName() + "." + name, error);
-        }
+        return ObfuscationReflectionHelper.findField(type, name);
     }
 
     record SavedPart(ModelPart part, float x, float y, float z,

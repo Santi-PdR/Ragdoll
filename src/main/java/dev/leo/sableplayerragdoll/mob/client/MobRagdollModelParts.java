@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 final class MobRagdollModelParts {
     private static final Field MODEL_PART_CUBES = field(ModelPart.class, "cubes");
@@ -99,13 +100,7 @@ final class MobRagdollModelParts {
     }
 
     private static Field field(Class<?> type, String name) {
-        try {
-            Field field = type.getDeclaredField(name);
-            field.setAccessible(true);
-            return field;
-        } catch (NoSuchFieldException error) {
-            throw new IllegalStateException("Missing field " + type.getName() + "." + name, error);
-        }
+        return ObfuscationReflectionHelper.findField(type, name);
     }
 
     record NamedModelPart(ModelPart part, Set<String> names, boolean hasCubes) {
