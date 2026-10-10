@@ -107,7 +107,7 @@ unloaded_guard = """        if (this.touchingUnloadedChunk()) {
         }
 """
 sublevel_guard = unloaded_guard + """        final AABB intersectionBounds = this.getBoundingBox().deflate(0.001D);
-        if (Sable.HELPER.getAllIntersecting(this.level, new BoundingBox3d(intersectionBounds)).isEmpty()) {
+        if (!Sable.HELPER.getAllIntersecting(this.level, new BoundingBox3d(intersectionBounds)).iterator().hasNext()) {
             return;
         }
 """
