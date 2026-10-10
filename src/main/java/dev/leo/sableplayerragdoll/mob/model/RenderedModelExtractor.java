@@ -447,10 +447,8 @@ public final class RenderedModelExtractor {
     private static Method method(Class<?> type, String name, Class<?>... parameterTypes) {
         for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
             try {
-                Method method = current.getDeclaredMethod(name, parameterTypes);
-                method.setAccessible(true);
-                return method;
-            } catch (NoSuchMethodException ignored) {
+                return ObfuscationReflectionHelper.findMethod(current, name, parameterTypes);
+            } catch (IllegalStateException ignored) {
             }
         }
         throw new IllegalStateException("Missing method " + type.getName() + "." + name);

@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
@@ -224,13 +225,12 @@ final class MobRagdollLayerRenderer {
     private static void setModelYoung(EntityModel<?> model, boolean young) {
         for (Class<?> type = model.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
             try {
-                Field field = type.getDeclaredField("young");
+                Field field = ObfuscationReflectionHelper.findField(type, "young");
                 if (field.getType() == boolean.class) {
-                    field.setAccessible(true);
                     field.setBoolean(model, young);
                     return;
                 }
-            } catch (NoSuchFieldException ignored) {
+            } catch (IllegalStateException ignored) {
             } catch (IllegalAccessException ignored) {
                 return;
             }

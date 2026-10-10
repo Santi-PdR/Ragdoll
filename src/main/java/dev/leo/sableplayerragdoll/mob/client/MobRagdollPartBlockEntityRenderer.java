@@ -411,13 +411,12 @@ public final class MobRagdollPartBlockEntityRenderer implements BlockEntityRende
     private static void setModelYoung(EntityModel<?> model, boolean young) {
         for (Class<?> type = model.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
             try {
-                Field field = type.getDeclaredField("young");
+                Field field = ObfuscationReflectionHelper.findField(type, "young");
                 if (field.getType() == boolean.class) {
-                    field.setAccessible(true);
                     field.setBoolean(model, young);
                     return;
                 }
-            } catch (NoSuchFieldException ignored) {
+            } catch (IllegalStateException ignored) {
             } catch (IllegalAccessException ignored) {
                 return;
             }
@@ -431,10 +430,8 @@ public final class MobRagdollPartBlockEntityRenderer implements BlockEntityRende
     private static Method method(Class<?> type, String name, Class<?>... parameterTypes) {
         for (Class<?> current = type; current != null && current != Object.class; current = current.getSuperclass()) {
             try {
-                Method method = current.getDeclaredMethod(name, parameterTypes);
-                method.setAccessible(true);
-                return method;
-            } catch (NoSuchMethodException ignored) {
+                return ObfuscationReflectionHelper.findMethod(current, name, parameterTypes);
+            } catch (IllegalStateException ignored) {
             }
         }
         throw new IllegalStateException("Missing method " + type.getName() + "." + name);

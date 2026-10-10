@@ -16,6 +16,7 @@ import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -218,11 +219,9 @@ public final class MobRagdollClientExtractor {
 
     private static java.lang.reflect.Method resolveScaleMethod() {
         try {
-            java.lang.reflect.Method method = LivingEntityRenderer.class.getDeclaredMethod(
-                    "scale", LivingEntity.class, PoseStack.class, float.class);
-            method.setAccessible(true);
-            return method;
-        } catch (NoSuchMethodException ignored) {
+            return ObfuscationReflectionHelper.findMethod(
+                    LivingEntityRenderer.class, "scale", LivingEntity.class, PoseStack.class, float.class);
+        } catch (IllegalStateException ignored) {
             return null;
         }
     }
@@ -285,10 +284,9 @@ public final class MobRagdollClientExtractor {
     private static float getRendererScale(LivingEntityRenderer<?, ?> renderer) {
         for (Class<?> c = renderer.getClass(); c != Object.class; c = c.getSuperclass()) {
             try {
-                java.lang.reflect.Field field = c.getDeclaredField("SCALE");
-                field.setAccessible(true);
+                java.lang.reflect.Field field = ObfuscationReflectionHelper.findField(c, "SCALE");
                 return field.getFloat(renderer);
-            } catch (NoSuchFieldException | IllegalAccessException ignored) {
+            } catch (IllegalStateException | IllegalAccessException ignored) {
             }
         }
         return 1.0F;
