@@ -140,6 +140,7 @@ jobs:
               for resource in (
                   "sable_player_ragdoll.mixins.json",
                   "sable_player_ragdoll.neoforge.mixins.json",
+                  "dev/leo/sableplayerragdoll/mixin/client/VeilJarJarResourceMixin.class",
                   "assets/ragdoll_reactions/sounds/punch.ogg",
                   "assets/sable_player_ragdoll/sounds/impact.ogg",
               ):
