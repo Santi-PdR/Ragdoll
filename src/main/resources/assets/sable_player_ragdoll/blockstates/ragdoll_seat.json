@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "sable_player_ragdoll:block/ragdoll_part"
+    }
+  }
+}

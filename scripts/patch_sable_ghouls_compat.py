@@ -8,7 +8,7 @@ root = Path(sys.argv[1])
 props = root / "gradle.properties"
 text = props.read_text(encoding="utf-8")
 old_version = "version=2.0.5-port.1"
-new_version = "version=2.0.5-port.9"
+new_version = "version=2.0.5-port.10"
 if text.count(old_version) != 1:
     raise SystemExit("Pinned Sable version marker changed; refusing an unreviewed patch")
 props.write_text(text.replace(old_version, new_version), encoding="utf-8")
@@ -181,6 +181,34 @@ text = text.replace(old_redirect, new_wrap)
 text = text.replace("import org.spongepowered.asm.mixin.injection.Redirect;\\n", "")
 level_policy.write_text(text, encoding="utf-8")
 
+platform = root / "forge/src/port/java/dev/ryanhcode/sable/forge/platform/SablePlatformImpl.java"
+text = platform.read_text(encoding="utf-8")
+old_wrapped_level_import = "import net.createmod.catnip.levelWrappers.WrappedServerLevel;\n"
+if text.count(old_wrapped_level_import) != 1:
+    raise SystemExit("Pinned Sable Create wrapper import changed; refusing an unreviewed patch")
+text = text.replace(old_wrapped_level_import, "")
+old_wrapped_level_check = """    public boolean isWrappedLevel(@Nullable final Level level) {
+        return ModList.get().isLoaded("create") && level instanceof WrappedServerLevel;
+    }"""
+new_wrapped_level_check = """    public boolean isWrappedLevel(@Nullable final Level level) {
+        if (level == null || !ModList.get().isLoaded("create")) {
+            return false;
+        }
+        try {
+            Class<?> wrappedLevel = Class.forName(
+                    "net.createmod.catnip.levelWrappers.WrappedServerLevel", false,
+                    SablePlatformImpl.class.getClassLoader());
+            return wrappedLevel.isInstance(level);
+        } catch (ClassNotFoundException | LinkageError ignored) {
+            // Create 0.5.x does not provide Create 6's wrapper type.
+            return false;
+        }
+    }"""
+if text.count(old_wrapped_level_check) != 1:
+    raise SystemExit("Pinned Sable wrapped-level check changed; refusing an unreviewed compatibility patch")
+text = text.replace(old_wrapped_level_check, new_wrapped_level_check)
+platform.write_text(text, encoding="utf-8")
+
 config = root / "forge/src/port/resources/sable-create.mixins.json"
 data = json.loads(config.read_text(encoding="utf-8"))
 if not data.get("mixins") or not data.get("client"):
@@ -188,4 +216,4 @@ if not data.get("mixins") or not data.get("client"):
 data["mixins"] = []
 data["client"] = []
 config.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-print("Patched Sable to accept Create versions, skip Create/Flywheel 1.0 mixins, keep quick mode out of test-tools packaging, preserve vanilla movement/fluid hook points for Canary and Brutality, and retain Sable sublevel physics.")
+print("Patched Sable for Create 0.5.x: optional wrapper detection, compatible sublevel physics hooks, Linux ImGui natives, and Ghouls packaging.")
