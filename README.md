@@ -5,10 +5,10 @@ Forge 1.20.1 port of **Sable Player Ragdoll 0.7.2** and **Ragdoll Reactions 0.7.
 - Minecraft 1.20.1
 - Forge 47.x for Minecraft 1.20.1
 - Java 17
-- Sable Forge 1.20.1, version 2.0.5-port.3 (the Ghouls compatibility build)
+- Sable Forge 1.20.1, version 2.0.5-port.4 (the Ghouls compatibility build)
 - Veil Forge 1.0.0.296 slim build for the Sable renderer
 
-The compatibility build keeps Sable's Rapier physics engine and disables only Sable's Create 6 / Flywheel 1.0 integration mixins, so Forge can load the Create 0.5.1 version used by Ghouls. Sable's movement-state mixin keeps the vanilla feet-block method for Canary's collision optimization, then applies Sable sublevel checks at method return. Sable's moving-contraption integration with Create is unavailable in this build.
+The compatibility build keeps Sable's Rapier physics engine and disables only Sable's Create 6 / Flywheel 1.0 integration mixins, so Forge can load the Create 0.5.1 version used by Ghouls. Sable keeps vanilla Entity methods available to Canary and Brutality. Its movement-state mixin applies sublevel block checks at method return; its fluid mixin uses Sable's original full calculation only while an entity intersects a Sable sublevel. Sable's moving-contraption integration with Create is unavailable in this build.
 
 When EntityCulling is installed, this mod registers ragdoll dolls, seats, and player/mob ragdoll parts with EntityCulling's dynamic whitelist. EntityCulling remains optional. Other Sable sublevel entities may still need their own compatibility handling.
 

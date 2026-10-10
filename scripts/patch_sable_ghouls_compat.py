@@ -8,7 +8,7 @@ root = Path(sys.argv[1])
 props = root / "gradle.properties"
 text = props.read_text(encoding="utf-8")
 old_version = "version=2.0.5-port.1"
-new_version = "version=2.0.5-port.3"
+new_version = "version=2.0.5-port.4"
 if text.count(old_version) != 1:
     raise SystemExit("Pinned Sable version marker changed; refusing an unreviewed patch")
 props.write_text(text.replace(old_version, new_version), encoding="utf-8")
@@ -93,6 +93,43 @@ if text.count(field_marker) != 1:
 text = text.replace(field_marker, new_fields)
 movement.write_text(text, encoding="utf-8")
 
+fluid = root / "forge/src/port/java/dev/ryanhcode/sable/admitted/ForgeEntitySwimmingMixin.java"
+text = fluid.read_text(encoding="utf-8")
+old_fluid_entry = """    @Overwrite(remap = false)
+    public void updateFluidHeightAndDoFluidPushing(final Predicate<FluidState> shouldUpdate) {"""
+new_fluid_entry = """    @Inject(remap = false, method = "updateFluidHeightAndDoFluidPushing(Ljava/util/function/Predicate;)V", at = @At("HEAD"), cancellable = true)
+    private void sable$updateFluidHeightAndDoFluidPushing(final Predicate<FluidState> shouldUpdate, final CallbackInfo ci) {"""
+if text.count(old_fluid_entry) != 1:
+    raise SystemExit("Pinned Sable fluid overwrite marker changed; refusing an unreviewed patch")
+text = text.replace(old_fluid_entry, new_fluid_entry)
+unloaded_guard = """        if (this.touchingUnloadedChunk()) {
+            return;
+        }
+"""
+sublevel_guard = unloaded_guard + """        final AABB intersectionBounds = this.getBoundingBox().deflate(0.001D);
+        if (Sable.HELPER.getAllIntersecting(this.level, new BoundingBox3d(intersectionBounds)).isEmpty()) {
+            return;
+        }
+"""
+if text.count(unloaded_guard) != 1:
+    raise SystemExit("Pinned Sable fluid unloaded-chunk guard changed; refusing an unreviewed patch")
+text = text.replace(unloaded_guard, sublevel_guard)
+fluid_end = """        if (calculations != null) {
+            calculations.forEach((type, calculation) -> sable$applyFluidCalculation(forgeSelf, type, calculation));
+        }
+    }
+"""
+fluid_end_compat = """        if (calculations != null) {
+            calculations.forEach((type, calculation) -> sable$applyFluidCalculation(forgeSelf, type, calculation));
+        }
+        ci.cancel();
+    }
+"""
+if text.count(fluid_end) != 1:
+    raise SystemExit("Pinned Sable fluid calculation end marker changed; refusing an unreviewed patch")
+text = text.replace(fluid_end, fluid_end_compat)
+fluid.write_text(text, encoding="utf-8")
+
 config = root / "forge/src/port/resources/sable-create.mixins.json"
 data = json.loads(config.read_text(encoding="utf-8"))
 if not data.get("mixins") or not data.get("client"):
@@ -100,4 +137,4 @@ if not data.get("mixins") or not data.get("client"):
 data["mixins"] = []
 data["client"] = []
 config.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-print("Patched Sable to accept Create versions, skip Create/Flywheel 1.0 mixins, keep quick mode out of test-tools packaging, and keep Canary's vanilla method injection point intact.")
+print("Patched Sable to accept Create versions, skip Create/Flywheel 1.0 mixins, keep quick mode out of test-tools packaging, preserve vanilla movement/fluid hook points for Canary and Brutality, and retain Sable sublevel physics.")
