@@ -141,7 +141,7 @@ if text.count(imports_marker) != 1:
     raise SystemExit("Pinned Sable block-tick policy import marker changed; refusing an unreviewed patch")
 text = text.replace(imports_marker, imports_replacement)
 old_redirect = """    @Redirect(
-            method = "tickBlockEntities()V",
+            method = "tickBlockEntities",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/Level;shouldTickBlocksAt(Lnet/minecraft/core/BlockPos;)Z"
@@ -151,7 +151,7 @@ old_redirect = """    @Redirect(
         return PlotBlockActivityPolicy.shouldProcess(instance, pos, instance.shouldTickBlocksAt(pos));
     }"""
 new_wrap = """    @WrapOperation(
-            method = "tickBlockEntities",
+            method = "tickBlockEntities()V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/Level;shouldTickBlocksAt(Lnet/minecraft/core/BlockPos;)Z"
