@@ -97,7 +97,7 @@ public final class MobImpactReactionHandler {
 
       try {
          Method getHurtSound = ObfuscationReflectionHelper.findMethod(
-            LivingEntity.class, "getHurtSound", DamageSource.class);
+            LivingEntity.class, "m_7975_", DamageSource.class);
          mob.playSound((net.minecraft.sounds.SoundEvent) getHurtSound.invoke(mob, level.damageSources().generic()), volume, pitch);
       } catch (IllegalStateException | ReflectiveOperationException ignored) {
       }

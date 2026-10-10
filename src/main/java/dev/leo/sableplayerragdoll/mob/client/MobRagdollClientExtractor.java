@@ -220,7 +220,7 @@ public final class MobRagdollClientExtractor {
     private static java.lang.reflect.Method resolveScaleMethod() {
         try {
             return ObfuscationReflectionHelper.findMethod(
-                    LivingEntityRenderer.class, "scale", LivingEntity.class, PoseStack.class, float.class);
+                    LivingEntityRenderer.class, "m_7546_", LivingEntity.class, PoseStack.class, float.class);
         } catch (IllegalStateException ignored) {
             return null;
         }

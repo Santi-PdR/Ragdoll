@@ -42,8 +42,8 @@ public final class MobRagdollPartBlockEntityRenderer implements BlockEntityRende
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final float RAGDOLL_ANIMATION_TIME = 0.0F;
     private static final Set<ResourceLocation> UNLOADABLE_ENTITY_TYPES = ConcurrentHashMap.newKeySet();
-    private static final Field MODEL_PART_CHILDREN = field(ModelPart.class, "children");
-    private static final Field LIVING_RENDERER_LAYERS = field(LivingEntityRenderer.class, "layers");
+    private static final Field MODEL_PART_CHILDREN = field(ModelPart.class, "f_104213_");
+    private static final Field LIVING_RENDERER_LAYERS = field(LivingEntityRenderer.class, "f_115291_");
 
     public MobRagdollPartBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -281,7 +281,7 @@ public final class MobRagdollPartBlockEntityRenderer implements BlockEntityRende
 
     private static float whiteOverlayProgress(LivingEntityRenderer<?, ?> renderer, LivingEntity entity, float partialTick) {
         try {
-            Method method = method(renderer.getClass(), "getWhiteOverlayProgress", LivingEntity.class, float.class);
+            Method method = method(renderer.getClass(), "m_6931_", LivingEntity.class, float.class);
             Object result = method.invoke(renderer, entity, partialTick);
             return result instanceof Float value ? value : 0.0F;
         } catch (ReflectiveOperationException ignored) {
@@ -411,7 +411,7 @@ public final class MobRagdollPartBlockEntityRenderer implements BlockEntityRende
     private static void setModelYoung(EntityModel<?> model, boolean young) {
         for (Class<?> type = model.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
             try {
-                Field field = ObfuscationReflectionHelper.findField(type, "young");
+                Field field = ObfuscationReflectionHelper.findField(type, "f_102610_");
                 if (field.getType() == boolean.class) {
                     field.setBoolean(model, young);
                     return;

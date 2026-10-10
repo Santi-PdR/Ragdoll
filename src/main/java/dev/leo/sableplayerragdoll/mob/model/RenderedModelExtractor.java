@@ -27,14 +27,14 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public final class RenderedModelExtractor {
-    private static final Field MODEL_PART_CUBES = field(ModelPart.class, "cubes");
-    private static final Field MODEL_PART_CHILDREN = field(ModelPart.class, "children");
-    private static final Field AGEABLE_SCALE_HEAD = field(AgeableListModel.class, "scaleHead");
-    private static final Field AGEABLE_BABY_Y_HEAD_OFFSET = field(AgeableListModel.class, "babyYHeadOffset");
-    private static final Field AGEABLE_BABY_Z_HEAD_OFFSET = field(AgeableListModel.class, "babyZHeadOffset");
-    private static final Field AGEABLE_BABY_HEAD_SCALE = field(AgeableListModel.class, "babyHeadScale");
-    private static final Field AGEABLE_BABY_BODY_SCALE = field(AgeableListModel.class, "babyBodyScale");
-    private static final Field AGEABLE_BODY_Y_OFFSET = field(AgeableListModel.class, "bodyYOffset");
+    private static final Field MODEL_PART_CUBES = field(ModelPart.class, "f_104212_");
+    private static final Field MODEL_PART_CHILDREN = field(ModelPart.class, "f_104213_");
+    private static final Field AGEABLE_SCALE_HEAD = field(AgeableListModel.class, "f_102007_");
+    private static final Field AGEABLE_BABY_Y_HEAD_OFFSET = field(AgeableListModel.class, "f_170338_");
+    private static final Field AGEABLE_BABY_Z_HEAD_OFFSET = field(AgeableListModel.class, "f_170339_");
+    private static final Field AGEABLE_BABY_HEAD_SCALE = field(AgeableListModel.class, "f_102010_");
+    private static final Field AGEABLE_BABY_BODY_SCALE = field(AgeableListModel.class, "f_102011_");
+    private static final Field AGEABLE_BODY_Y_OFFSET = field(AgeableListModel.class, "f_102012_");
 
     private RenderedModelExtractor() {
     }
@@ -386,10 +386,10 @@ public final class RenderedModelExtractor {
 
             try {
                 Map<ModelPart, AgeableGroup> groups = new IdentityHashMap<>();
-                for (ModelPart part : invokeModelParts(ageableModel, "headParts")) {
+                for (ModelPart part : invokeModelParts(ageableModel, "m_5607_")) {
                     groups.put(part, AgeableGroup.HEAD);
                 }
-                for (ModelPart part : invokeModelParts(ageableModel, "bodyParts")) {
+                for (ModelPart part : invokeModelParts(ageableModel, "m_5608_")) {
                     groups.put(part, AgeableGroup.BODY);
                 }
                 if (groups.isEmpty()) {

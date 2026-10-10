@@ -151,7 +151,7 @@ public final class RagdollReactionsNeoForge {
 
    public static double explosionPower(Explosion explosion) {
       try {
-         java.lang.reflect.Field field = ObfuscationReflectionHelper.findField(Explosion.class, "radius");
+         java.lang.reflect.Field field = ObfuscationReflectionHelper.findField(Explosion.class, "f_46017_");
          return ((Number) field.get(explosion)).doubleValue();
       } catch (IllegalStateException | ReflectiveOperationException ignored) {
          return 4.0;

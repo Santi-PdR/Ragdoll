@@ -13,8 +13,8 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 final class MobRagdollModelParts {
-    private static final Field MODEL_PART_CUBES = field(ModelPart.class, "cubes");
-    private static final Field MODEL_PART_CHILDREN = field(ModelPart.class, "children");
+    private static final Field MODEL_PART_CUBES = field(ModelPart.class, "f_104212_");
+    private static final Field MODEL_PART_CHILDREN = field(ModelPart.class, "f_104213_");
 
     private MobRagdollModelParts() {
     }
