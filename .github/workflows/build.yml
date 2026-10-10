@@ -33,7 +33,7 @@ jobs:
       - uses: actions/cache@v4
         id: sable-cache
         with:
-          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.5.jar
+          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.6.jar
           key: sable-forge-1.20.1-ghouls-compat-port.5-e4d2ab3724a9f5820e758646447d3a571761db11
       - name: Adapt Sable for the Ghouls Create 0.5.1 stack
         if: steps.sable-cache.outputs.cache-hit != 'true'
@@ -47,7 +47,7 @@ jobs:
         shell: pwsh
         working-directory: sable-source
         run: |
-          $jar = 'dist/sable-forge-1.20.1-2.0.5-port.5.jar'
+          $jar = 'dist/sable-forge-1.20.1-2.0.5-port.6.jar'
           if (!(Test-Path $jar)) { throw "Missing $jar" }
           $out = 'sable-verify'
           New-Item -ItemType Directory -Force $out | Out-Null
@@ -61,8 +61,8 @@ jobs:
           Pop-Location
       - uses: actions/upload-artifact@v4
         with:
-          name: sable-forge-1.20.1-2.0.5-port.5
-          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.5.jar
+          name: sable-forge-1.20.1-2.0.5-port.6
+          path: sable-source/dist/sable-forge-1.20.1-2.0.5-port.6.jar
           if-no-files-found: error
 
       - name: Download and verify Veil Forge slim dependency
@@ -102,7 +102,7 @@ jobs:
           gradle-version: "8.8"
       - uses: actions/download-artifact@v4
         with:
-          name: sable-forge-1.20.1-2.0.5-port.5
+          name: sable-forge-1.20.1-2.0.5-port.6
           path: libs
       - uses: actions/download-artifact@v4
         with:
@@ -110,7 +110,7 @@ jobs:
           path: dependencies/veil
       - name: Verify Sable dependency contains its companion API
         run: |
-          jar tf libs/sable-forge-1.20.1-2.0.5-port.5.jar | grep -q 'dev/ryanhcode/sable/companion/math/BoundingBox3i.class'
+          jar tf libs/sable-forge-1.20.1-2.0.5-port.6.jar | grep -q 'dev/ryanhcode/sable/companion/math/BoundingBox3i.class'
       - run: gradle jar --no-daemon
       - name: Verify combined JAR contents
         shell: bash
@@ -125,7 +125,7 @@ jobs:
               mod_text = archive.read("META-INF/mods.toml").decode()
               for mod_id in ("sable_player_ragdoll", "ragdoll_reactions"):
                   assert f'modId="{mod_id}"' in mod_text, f"{mod_id} metadata missing"
-              assert "[2.0.5-port.5,)" in mod_text, "Ghouls-compatible Sable dependency missing"
+              assert "[2.0.5-port.6,)" in mod_text, "Ghouls-compatible Sable dependency missing"
               classes = [name for name in names if name.endswith(".class")]
               assert len(classes) >= 120, f"expected both original ragdoll systems, found {len(classes)} classes"
               for resource in (
