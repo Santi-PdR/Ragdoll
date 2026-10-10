@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import org.joml.Vector3d;
 
 public final class MobImpactReactionHandler {
@@ -95,10 +96,10 @@ public final class MobImpactReactionHandler {
       float pitch = 0.9f + level.getRandom().nextFloat() * 0.2f;
 
       try {
-         Method getHurtSound = LivingEntity.class.getDeclaredMethod("getHurtSound", DamageSource.class);
-         getHurtSound.setAccessible(true);
+         Method getHurtSound = ObfuscationReflectionHelper.findMethod(
+            LivingEntity.class, "getHurtSound", DamageSource.class);
          mob.playSound((net.minecraft.sounds.SoundEvent) getHurtSound.invoke(mob, level.damageSources().generic()), volume, pitch);
-      } catch (ReflectiveOperationException ignored) {
+      } catch (IllegalStateException | ReflectiveOperationException ignored) {
       }
 
       level.playSound(null, mob.getX(), mob.getY(), mob.getZ(),

@@ -23,6 +23,7 @@ import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.api.distmarker.Dist;
@@ -150,10 +151,9 @@ public final class RagdollReactionsNeoForge {
 
    public static double explosionPower(Explosion explosion) {
       try {
-         java.lang.reflect.Field field = Explosion.class.getDeclaredField("radius");
-         field.setAccessible(true);
+         java.lang.reflect.Field field = ObfuscationReflectionHelper.findField(Explosion.class, "radius");
          return ((Number) field.get(explosion)).doubleValue();
-      } catch (ReflectiveOperationException ignored) {
+      } catch (IllegalStateException | ReflectiveOperationException ignored) {
          return 4.0;
       }
    }
