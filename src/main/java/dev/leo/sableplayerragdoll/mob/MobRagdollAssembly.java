@@ -528,8 +528,12 @@ public final class MobRagdollAssembly {
                 livingEntity.refreshDimensions();
             }
             CONVERTED_ENTITIES.add(uuid);
+            boolean corpse = saved.entityData().contains("Health") && saved.entityData().getFloat("Health") <= 0.0F;
+            if (livingEntity != null && !livingEntity.isAlive()) {
+                corpse = true;
+            }
             RAGDOLL_STATES.put(uuid, new RagdollState(List.copyOf(spawnedParts),
-                    saved.spawnedAtTick(), saved.preRagdollPos(), RAGDOLL_DURATION_TICKS));
+                    saved.spawnedAtTick(), saved.preRagdollPos(), RAGDOLL_DURATION_TICKS, corpse));
             SablePlayerRagdoll.LOGGER.info("[mob-ragdoll] restored {} parts with {} joints for entity {} (source entity loaded={})",
                     spawnedParts.size(), joints.count(), uuid, livingEntity != null);
             if (joints.representative() != null) {
@@ -582,6 +586,17 @@ public final class MobRagdollAssembly {
             }
             Entity entity = level.getEntity(entry.getKey());
             if (!(entity instanceof LivingEntity livingEntity) || entity.isRemoved() || !livingEntity.isAlive()) {
+                if (entity instanceof LivingEntity deadLiving && !deadLiving.isAlive()) {
+                    state = state.asCorpse();
+                    RAGDOLL_STATES.put(entry.getKey(), state);
+                    MobRagdollSavedData.get(level).markCorpse(entry.getKey());
+                }
+                if (state.corpse()) {
+                    if (now - state.spawnedAtTick() >= state.durationTicks()) {
+                        expired.add(entry.getKey());
+                    }
+                    continue;
+                }
                 deadSources.add(entry.getKey());
                 continue;
             }
@@ -605,7 +620,10 @@ public final class MobRagdollAssembly {
             if (deferRestoreIfProtected(level, uuid, MobRagdollEndEvent.Reason.EXPIRED)) {
                 continue;
             }
-            if (level.getEntity(uuid) instanceof LivingEntity livingEntity) {
+            RagdollState state = RAGDOLL_STATES.get(uuid);
+            if (state != null && state.corpse()) {
+                discardRagdoll(level, uuid);
+            } else if (level.getEntity(uuid) instanceof LivingEntity livingEntity) {
                 despawn(level, livingEntity, MobRagdollEndEvent.Reason.EXPIRED);
             } else {
                 discardRagdoll(level, uuid);
@@ -678,7 +696,7 @@ public final class MobRagdollAssembly {
             entity.noPhysics = true;
             entity.refreshDimensions();
         }
-        RAGDOLL_STATES.put(entity.getUUID(), new RagdollState(List.copyOf(spawnedParts), level.getGameTime(), entity.position(), pending.durationTicks));
+        RAGDOLL_STATES.put(entity.getUUID(), new RagdollState(List.copyOf(spawnedParts), level.getGameTime(), entity.position(), pending.durationTicks, !entity.isAlive()));
 
         Map<String, UUID> partIds = new LinkedHashMap<>();
         Map<String, MobRagdollSavedData.PartInfo> partInfos = new LinkedHashMap<>();
@@ -690,7 +708,8 @@ public final class MobRagdollAssembly {
                     (float) ps.xOffset(), (float) ps.yOffset(), (float) ps.zOffset(),
                     ps.rotQx(), ps.rotQy(), ps.rotQz(), ps.rotQw()));
         }
-        MobRagdollSavedData.get(level).addEntry(
+        MobRagdollSavedData savedData = MobRagdollSavedData.get(level);
+        savedData.addEntry(
                 entity.getUUID(),
                 level.getGameTime(),
                 entity.position(),
@@ -698,6 +717,9 @@ public final class MobRagdollAssembly {
                 pending.entitySnapshot,
                 partInfos,
                 partIds);
+        if (!entity.isAlive()) {
+            savedData.markCorpse(entity.getUUID());
+        }
 
         if (pending.linearVelocity.lengthSqr() > 0.0 || pending.angularVelocity.lengthSqr() > 0.0) {
             SubLevelPhysicsSystem physicsSystem = SubLevelPhysicsSystem.get(level);
@@ -765,7 +787,9 @@ public final class MobRagdollAssembly {
         }
         MobRagdollSavedData savedData = MobRagdollSavedData.get(level);
         MobRagdollSavedData.Entry saved = savedData.getEntry(uuid);
-        LivingEntity restoredEntity = saved == null ? null : recreateEntity(level, uuid, saved);
+        boolean corpse = saved != null && saved.entityData().contains("Health")
+                && saved.entityData().getFloat("Health") <= 0.0F;
+        LivingEntity restoredEntity = saved == null || corpse ? null : recreateEntity(level, uuid, saved);
         RagdollState state = RAGDOLL_STATES.remove(uuid);
         SubLevelContainer container = SubLevelContainer.getContainer(level);
         CONVERTED_ENTITIES.remove(uuid);
@@ -1331,7 +1355,11 @@ public final class MobRagdollAssembly {
     private record PendingLaunch(Vec3 linear, Vec3 angular, MobRagdollLaunchOptions options, long requestedTick) {
     }
 
-    private record RagdollState(List<SpawnedPart> parts, long spawnedAtTick, Vec3 preRagdollPos, int durationTicks) {
+    private record RagdollState(List<SpawnedPart> parts, long spawnedAtTick, Vec3 preRagdollPos,
+                                int durationTicks, boolean corpse) {
+        private RagdollState asCorpse() {
+            return corpse ? this : new RagdollState(parts, spawnedAtTick, preRagdollPos, durationTicks, true);
+        }
     }
 
     private record JointResult(int count, PhysicsConstraintHandle representative) {

@@ -46,6 +46,18 @@ public class MobRagdollSavedData extends SavedData {
         return entries.get(entityId);
     }
 
+    public void markCorpse(UUID entityId) {
+        Entry entry = entries.get(entityId);
+        if (entry == null || entry.entityData().getFloat("Health") <= 0.0F) {
+            return;
+        }
+        CompoundTag corpseData = entry.entityData().copy();
+        corpseData.putFloat("Health", 0.0F);
+        entries.put(entityId, new Entry(entry.spawnedAtTick(), entry.preRagdollPos(), entry.entityType(),
+                corpseData, entry.partInfos(), entry.partIds()));
+        setDirty();
+    }
+
     public Map<UUID, Entry> entries() {
         return Map.copyOf(entries);
     }
