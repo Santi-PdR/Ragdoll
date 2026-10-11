@@ -133,7 +133,7 @@ jobs:
           mapfile -t jars < <(find build/libs -maxdepth 1 -name '*.jar' ! -name '*-sources.jar')
           test "${#jars[@]}" -eq 1
           python3 - "${jars[0]}" <<'PY'
-          import sys, zipfile
+          import subprocess, sys, zipfile
           jar = sys.argv[1]
           with zipfile.ZipFile(jar) as archive:
               names = set(archive.namelist())
@@ -154,6 +154,17 @@ jobs:
               manifest = archive.read("META-INF/MANIFEST.MF").decode().lower()
               assert "mixinconfigs:" in manifest, "mixin configurations missing from manifest"
               print(f"Verified {jar}: {len(classes)} classes, both mod IDs, mixins, and sounds")
+          bytecode = subprocess.check_output([
+              "javap", "-classpath", jar, "-c", "-p",
+              "dev.leo.sableplayerragdoll.mob.client.MobRagdollPartBlockEntityRenderer",
+          ], text=True)
+          start = bytecode.index("private static void setModelYoung(")
+          end = bytecode.index("\n  private static java.lang.reflect.Field field(", start)
+          young_method = bytecode[start:end]
+          assert "putfield" in young_method and "EntityModel.f_102610_:Z" in young_method, \
+              "setModelYoung must directly assign the Forge 1.20.1 EntityModel.young field"
+          assert "ObfuscationReflectionHelper.findField" not in young_method, \
+              "setModelYoung must not regress to fragile reflective SRG lookup"
           PY
       - uses: actions/upload-artifact@v4
         with:
