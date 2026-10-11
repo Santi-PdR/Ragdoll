@@ -409,18 +409,7 @@ public final class MobRagdollPartBlockEntityRenderer implements BlockEntityRende
     }
 
     private static void setModelYoung(EntityModel<?> model, boolean young) {
-        for (Class<?> type = model.getClass(); type != null && type != Object.class; type = type.getSuperclass()) {
-            try {
-                Field field = ObfuscationReflectionHelper.findField(type, "f_102610_");
-                if (field.getType() == boolean.class) {
-                    field.setBoolean(model, young);
-                    return;
-                }
-            } catch (IllegalStateException ignored) {
-            } catch (IllegalAccessException ignored) {
-                return;
-            }
-        }
+        model.young = young;
     }
 
     private static Field field(Class<?> type, String name) {
