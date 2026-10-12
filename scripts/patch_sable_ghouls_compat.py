@@ -8,7 +8,7 @@ root = Path(sys.argv[1])
 props = root / "gradle.properties"
 text = props.read_text(encoding="utf-8")
 old_version = "version=2.0.5-port.1"
-new_version = "version=2.0.5-port.11"
+new_version = "version=2.0.5-port.12"
 if text.count(old_version) != 1:
     raise SystemExit("Pinned Sable version marker changed; refusing an unreviewed patch")
 props.write_text(text.replace(old_version, new_version), encoding="utf-8")
@@ -245,4 +245,20 @@ if not data.get("mixins") or not data.get("client"):
 data["mixins"] = []
 data["client"] = []
 config.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-print("Patched Sable for Create 0.5.x: optional Create/Flywheel API detection, compatible sublevel physics hooks, Linux ImGui natives, and Ghouls packaging.")
+
+snapshot_packet = root / "common/src/main/java/dev/ryanhcode/sable/network/packets/ClientboundSableSnapshotDualPacket.java"
+text = snapshot_packet.read_text(encoding="utf-8")
+old_missing_sublevel = '''            if (!(subLevel instanceof final ClientSubLevel clientSubLevel)) {
+                Sable.LOGGER.error("Received a sub-level movement packet for a non-existent sub-level");
+                continue;
+            }'''
+new_missing_sublevel = '''            if (!(subLevel instanceof final ClientSubLevel clientSubLevel)) {
+                // UDP snapshots can overtake the TCP start-tracking packet for a new sub-level.
+                // That TCP packet carries the last two poses and seeds the client's interpolator.
+                continue;
+            }'''
+if text.count(old_missing_sublevel) != 1:
+    raise SystemExit("Pinned Sable snapshot handler changed; refusing an unreviewed packet-order patch")
+snapshot_packet.write_text(text.replace(old_missing_sublevel, new_missing_sublevel), encoding="utf-8")
+
+print("Patched Sable for Create 0.5.x and Ghouls: optional Create/Flywheel APIs, compatible sublevel physics hooks, Linux ImGui natives, and expected UDP/TCP snapshot reordering.")
