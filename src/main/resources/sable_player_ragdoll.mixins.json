@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.leo.sableplayerragdoll.mixin",
+  "refmap": "sable_player_ragdoll.refmap.json",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [],
+  "client": [
+    "client.GuiOverlayRagdollMixin",
+    "client.VeilJarJarResourceMixin"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
