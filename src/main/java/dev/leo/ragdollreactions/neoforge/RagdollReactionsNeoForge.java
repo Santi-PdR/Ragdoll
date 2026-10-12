@@ -58,7 +58,7 @@ public final class RagdollReactionsNeoForge {
       MinecraftForge.EVENT_BUS.addListener(RagdollReactionsNeoForge::onMobRagdollEnd);
       MinecraftForge.EVENT_BUS.addListener(RagdollReactionsNeoForge::onExplosionDetonate);
       MinecraftForge.EVENT_BUS.addListener(RagdollReactionsNeoForge::onLivingDamagePre);
-      MinecraftForge.EVENT_BUS.addListener(RagdollReactionsNeoForge::onLivingDamagePost);
+      MinecraftForge.EVENT_BUS.addListener(RagdollReactionsNeoForge::onLivingDamage);
       MinecraftForge.EVENT_BUS.addListener(RagdollReactionsNeoForge::onEntityStruckByLightning);
       MinecraftForge.EVENT_BUS.addListener(RagdollReactionsNeoForge::onEntityTeleport);
       MinecraftForge.EVENT_BUS.addListener(RagdollReactionsNeoForge::onPlayerChangedDimension);
@@ -106,7 +106,7 @@ public final class RagdollReactionsNeoForge {
       }
    }
 
-   private static void onLivingDamagePost(LivingDamageEvent event) {
+   private static void onLivingDamage(LivingDamageEvent event) {
       if (event.getEntity() instanceof ServerPlayer player) {
          HitReactionHandler.onPlayerDamaged(player, event.getSource(), event.getAmount());
       } else if (event.getEntity() instanceof Mob mob) {

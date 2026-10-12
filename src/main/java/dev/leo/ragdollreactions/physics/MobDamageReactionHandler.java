@@ -22,7 +22,7 @@ public final class MobDamageReactionHandler {
          return;
       }
       ReactionSettings.MobDamage damageTrigger = ReactionSettings.mobs().damage();
-      if (!damageTrigger.enabled() || damage < requiredDamageForRemainingHealth(mob, damage)) {
+      if (!damageTrigger.enabled() || damage < requiredDamageForStartingHealth(mob)) {
          return;
       }
       if (mob.getRandom().nextDouble() >= RAGDOLL_CHANCE) {
@@ -72,7 +72,10 @@ public final class MobDamageReactionHandler {
       }
    }
 
-   private static double requiredDamageForRemainingHealth(LivingEntity mob, float damage) {
-      return (mob.getHealth() + damage) * ReactionSettings.mobs().damage().healthFraction();
+   private static double requiredDamageForStartingHealth(LivingEntity mob) {
+      // Forge 1.20.1 fires LivingDamageEvent before reducing health. The original
+      // NeoForge Post handler added damage back to the already-reduced health; here
+      // getHealth() is already the pre-hit value, so adding damage would raise the threshold.
+      return mob.getHealth() * ReactionSettings.mobs().damage().healthFraction();
    }
 }

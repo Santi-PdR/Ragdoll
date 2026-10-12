@@ -207,6 +207,17 @@ jobs:
               and "superbwarfare" in camera_helper_bytecode \
               and "Using" in camera_helper_bytecode and "Linked" in camera_helper_bytecode, \
               "ragdoll camera must not override SuperbWarfare's active drone camera"
+          mob_damage_bytecode = subprocess.check_output([
+              "javap", "-classpath", jar, "-c", "-p",
+              "dev.leo.ragdollreactions.physics.MobDamageReactionHandler",
+          ], text=True)
+          start = mob_damage_bytecode.index("private static double requiredDamageForStartingHealth(")
+          end = mob_damage_bytecode.find("\n  private static ", start)
+          threshold = mob_damage_bytecode[start:end]
+          assert "LivingEntity.m_21223_" in threshold and "dmul" in threshold, \
+              "mob damage threshold must use Forge's pre-hit health value"
+          assert "fadd" not in threshold, \
+              "do not add damage to health in Forge's pre-damage event"
           PY
       - uses: actions/upload-artifact@v4
         with:
