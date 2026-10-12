@@ -7,10 +7,12 @@ import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.mixinhelpers.camera.new_camera_types.SableCameraTypes;
 import dev.ryanhcode.sable.sublevel.ClientSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
@@ -26,8 +28,10 @@ public final class RagdollCameraHelper {
    private static final int MAX_CAMERA_RETRY_TICKS = 40;
    private static final double RAGDOLL_EYE_LOCAL_UP = 0.57;
    private static final double RAGDOLL_EYE_LOCAL_FORWARD = 0.25;
+   private static final ResourceLocation SUPERB_WARFARE_MONITOR = ResourceLocation.tryParse("superbwarfare:monitor");
    // ShoulderSurfing crashes on unknown CameraType values in Perspective.of(), fall back to vanilla 3rd person cam.
    private static final boolean SHOULDER_SURFING = ModList.get().isLoaded("shouldersurfing");
+   private static final boolean SUPERB_WARFARE = ModList.get().isLoaded("superbwarfare");
 
    private static int pendingCameraTicks;
    private static boolean suppressLocalPlayerRender;
@@ -126,6 +130,7 @@ public final class RagdollCameraHelper {
          || player == null
          || !(player.getVehicle() instanceof RagdollSeatEntity)
          || minecraft.options.getCameraType() != CameraType.FIRST_PERSON
+         || isSuperbWarfareDroneCameraActive(player)
          || !(Sable.HELPER.getVehicleSubLevel(player) instanceof ClientSubLevel torso)) {
          return fallback;
       }
@@ -136,6 +141,14 @@ public final class RagdollCameraHelper {
          plot.getZ() + 0.5 + RAGDOLL_EYE_LOCAL_FORWARD
       );
       return torso.renderPose(partialTick).transformPosition(localEye);
+   }
+
+   private static boolean isSuperbWarfareDroneCameraActive(LocalPlayer player) {
+      if (!SUPERB_WARFARE) return false;
+      var monitor = player.getMainHandItem();
+      if (!SUPERB_WARFARE_MONITOR.equals(BuiltInRegistries.ITEM.getKey(monitor.getItem()))) return false;
+      var tag = monitor.getTag();
+      return tag != null && tag.getBoolean("Using") && tag.getBoolean("Linked");
    }
 
    private static void alignFirstPersonRotationToPlayerView(LocalPlayer player, SubLevel subLevel) {

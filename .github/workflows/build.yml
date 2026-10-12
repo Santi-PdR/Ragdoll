@@ -199,6 +199,14 @@ jobs:
           ], text=True)
           assert "firstPersonHeadAnchor" in camera_bytecode and "Vec3;FZ)" in camera_bytecode, \
               "first-person ragdoll camera must preserve detached camera modes"
+          camera_helper_bytecode = subprocess.check_output([
+              "javap", "-classpath", jar, "-c", "-p",
+              "dev.leo.sableplayerragdoll.neoforge.client.RagdollCameraHelper",
+          ], text=True)
+          assert "isSuperbWarfareDroneCameraActive" in camera_helper_bytecode \
+              and "superbwarfare" in camera_helper_bytecode \
+              and "Using" in camera_helper_bytecode and "Linked" in camera_helper_bytecode, \
+              "ragdoll camera must not override SuperbWarfare's active drone camera"
           PY
       - uses: actions/upload-artifact@v4
         with:
