@@ -146,7 +146,7 @@ jobs:
               mod_text = archive.read("META-INF/mods.toml").decode()
               for mod_id in ("sable_player_ragdoll", "ragdoll_reactions"):
                   assert f'modId="{mod_id}"' in mod_text, f"{mod_id} metadata missing"
-              assert "[2.0.5-port.11,)" in mod_text, "Ghouls-compatible Sable dependency missing"
+              assert "[2.0.5-port.12,)" in mod_text, "Ghouls-compatible Sable dependency missing"
               assembly = archive.read("dev/leo/sableplayerragdoll/mob/MobRagdollAssembly.class")
               saved_data = archive.read("dev/leo/sableplayerragdoll/mob/MobRagdollSavedData.class")
               assert b"asCorpse" in assembly and b"markCorpse" in assembly, "dead mob ragdolls are not retained and marked"
@@ -175,6 +175,15 @@ jobs:
               "setModelYoung must directly assign the Forge 1.20.1 EntityModel.young field"
           assert "ObfuscationReflectionHelper.findField" not in young_method, \
               "setModelYoung must not regress to fragile reflective SRG lookup"
+          reaction_bytecode = subprocess.check_output([
+              "javap", "-classpath", jar, "-c", "-p",
+              "dev.leo.ragdollreactions.physics.ReactionMobLauncher",
+          ], text=True)
+          start = reaction_bytecode.index("public static void onPostPhysicsTick(")
+          end = reaction_bytecode.find("\n  private static ", start)
+          post_physics = reaction_bytecode[start:end]
+          assert "LivingEntity.m_6084_" in post_physics and "Iterator.remove" in post_physics, \
+              "settled dead mob launches must leave corpse ragdolls to the assembly lifetime"
           PY
       - uses: actions/upload-artifact@v4
         with:

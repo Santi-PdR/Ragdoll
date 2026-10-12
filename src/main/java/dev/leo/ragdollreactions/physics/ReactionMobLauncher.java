@@ -85,6 +85,14 @@ public final class ReactionMobLauncher {
             continue;
          }
 
+         // A lethal impact turns the source entity into a corpse while its Sable parts
+         // are still active. Stop managing its launch, but leave corpse cleanup to the
+         // ragdoll assembly's corpse lifetime instead of releasing it back to vanilla.
+         if (!session.entity().isAlive()) {
+            iterator.remove();
+            continue;
+         }
+
          if (session.elapsedTicks() < MIN_MOB_RAGDOLL_TICKS) {
             if (launch.settledTicks() != 0) {
                entry.setValue(new ActiveMobLaunch(session, 0));
