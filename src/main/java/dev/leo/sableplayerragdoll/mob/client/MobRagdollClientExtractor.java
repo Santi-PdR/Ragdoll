@@ -34,6 +34,9 @@ public final class MobRagdollClientExtractor {
         }
         Entity entity = minecraft.level.getEntity(entityId);
         if (entity instanceof LivingEntity livingEntity) {
+            if (livingEntity instanceof net.minecraft.world.entity.Mob mob) {
+                MobRagdollClientState.markLaunch(mob);
+            }
             extractAndSend(livingEntity);
         }
     }

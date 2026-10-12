@@ -15,6 +15,7 @@ import dev.leo.sableplayerragdoll.neoforge.client.RagdollGrabClient;
 import dev.leo.sableplayerragdoll.neoforge.client.RagdollBlockInteractClient;
 import dev.leo.sableplayerragdoll.neoforge.config.RagdollClientConfig;
 import dev.leo.sableplayerragdoll.mob.MobRagdollBlocks;
+import dev.leo.sableplayerragdoll.mob.client.MobRagdollClientState;
 import dev.leo.sableplayerragdoll.mob.block.MobRagdollPartBlock;
 import dev.leo.sableplayerragdoll.mob.client.MobRagdollPartBlockEntityRenderer;
 import net.minecraft.client.Minecraft;
@@ -40,6 +41,7 @@ public final class SablePlayerRagdollNeoForgeClient {
       EntityCullingRagdollCompat.init();
       modBus.addListener(SablePlayerRagdollNeoForgeClient::registerEntityRenderers);
       MinecraftForge.EVENT_BUS.addListener(SablePlayerRagdollNeoForgeClient::onRenderHighlight);
+      MinecraftForge.EVENT_BUS.addListener(MobRagdollClientState::onClientTick);
    }
 
    private static void onRenderHighlight(RenderHighlightEvent.Block event) {

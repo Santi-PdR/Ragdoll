@@ -1,6 +1,8 @@
 package dev.leo.sableplayerragdoll.neoforge.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.leo.sableplayerragdoll.mob.MobRagdollAssembly;
+import dev.leo.sableplayerragdoll.mob.client.MobRagdollClientState;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,7 +21,8 @@ public abstract class LivingEntityRendererRagdollMixin {
             PoseStack poseStack, MultiBufferSource bufferSource, int packedLight,
             CallbackInfo ci
     ) {
-        if (entity instanceof Mob mob && mob.isInvisible() && mob.isNoAi()) {
+        if (entity instanceof Mob mob && (MobRagdollAssembly.isConverted(mob.getUUID())
+                || MobRagdollClientState.isRagdollSource(mob))) {
             ci.cancel();
         }
     }

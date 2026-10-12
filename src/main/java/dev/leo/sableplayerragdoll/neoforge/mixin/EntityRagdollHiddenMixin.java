@@ -2,6 +2,7 @@ package dev.leo.sableplayerragdoll.neoforge.mixin;
 
 import dev.leo.sableplayerragdoll.entity.RagdollSeatEntity;
 import dev.leo.sableplayerragdoll.mob.MobRagdollAssembly;
+import dev.leo.sableplayerragdoll.mob.client.MobRagdollClientState;
 import dev.leo.sableplayerragdoll.physics.RagdollSessionManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -12,6 +13,8 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,7 +35,8 @@ public abstract class EntityRagdollHiddenMixin {
             if (self.isInvisible() && self.getVehicle() instanceof RagdollSeatEntity) {
                 return true;
             }
-            return self instanceof Mob mob && mob.isInvisible() && mob.isNoAi();
+            return self instanceof Mob mob && mob.isInvisible() && mob.isNoAi()
+                    && isClientRagdollSource(mob);
         }
         if (self instanceof ServerPlayer serverPlayer && RagdollSessionManager.isPlayerCurrentlyRagdolled(serverPlayer)) {
             return true;
@@ -42,6 +46,13 @@ public abstract class EntityRagdollHiddenMixin {
 
     private static boolean ragdollPipeActive() {
         return RagdollSessionManager.RAGDOLL_PIPE_ACTIVE.get() || MobRagdollAssembly.RAGDOLL_PIPE_ACTIVE.get();
+    }
+
+    private static boolean isClientRagdollSource(Mob mob) {
+        java.util.concurrent.atomic.AtomicBoolean result = new java.util.concurrent.atomic.AtomicBoolean();
+        DistExecutor.safeRunWhenOn(Dist.CLIENT,
+                () -> () -> result.set(MobRagdollClientState.isRagdollSource(mob)));
+        return result.get();
     }
 
     @Inject(method = "isPickable", at = @At("HEAD"), cancellable = true)

@@ -157,6 +157,7 @@ jobs:
                   "sable_player_ragdoll.mixins.json",
                   "sable_player_ragdoll.neoforge.mixins.json",
                   "dev/leo/sableplayerragdoll/mixin/client/VeilJarJarResourceMixin.class",
+                  "dev/leo/sableplayerragdoll/mob/client/MobRagdollClientState.class",
                   "assets/ragdoll_reactions/sounds/punch.ogg",
                   "assets/sable_player_ragdoll/sounds/impact.ogg",
               ):
@@ -184,6 +185,14 @@ jobs:
           post_physics = reaction_bytecode[start:end]
           assert "LivingEntity.m_6084_" in post_physics and "Iterator.remove" in post_physics, \
               "settled dead mob launches must leave corpse ragdolls to the assembly lifetime"
+          renderer_bytecode = subprocess.check_output([
+              "javap", "-classpath", jar, "-c", "-p",
+              "dev.leo.sableplayerragdoll.neoforge.mixin.LivingEntityRendererRagdollMixin",
+          ], text=True)
+          assert "MobRagdollClientState.isRagdollSource" in renderer_bytecode, \
+              "mob rendering must be hidden only for server-announced ragdolls"
+          assert "Mob.isNoAi" not in renderer_bytecode and "Mob.isInvisible" not in renderer_bytecode, \
+              "mob rendering must not hide unrelated invisible no-AI mobs"
           PY
       - uses: actions/upload-artifact@v4
         with:

@@ -1,6 +1,7 @@
 package dev.leo.sableplayerragdoll.neoforge.mixin;
 
 import dev.leo.sableplayerragdoll.mob.MobRagdollAssembly;
+import dev.leo.sableplayerragdoll.mob.client.MobRagdollClientState;
 import dev.leo.sableplayerragdoll.physics.RagdollSessionManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -9,6 +10,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -56,10 +59,20 @@ public abstract class LivingEntityRagdollDamageMixin {
 
     private static boolean sablePlayerRagdoll$isHiddenRagdollSource(Entity entity) {
         if (!(entity instanceof LivingEntity)) return false;
+        if (entity.level().isClientSide()) {
+            return entity instanceof Mob mob && mob.isInvisible() && mob.isNoAi()
+                    && isClientRagdollSource(mob);
+        }
         if (entity instanceof ServerPlayer serverPlayer && RagdollSessionManager.isPlayerCurrentlyRagdolled(serverPlayer)) {
             return true;
         }
-        if (MobRagdollAssembly.isConverted(entity.getUUID())) return true;
-        return entity instanceof Mob mob && mob.isInvisible() && mob.isNoAi();
+        return MobRagdollAssembly.isConverted(entity.getUUID());
+    }
+
+    private static boolean isClientRagdollSource(Mob mob) {
+        java.util.concurrent.atomic.AtomicBoolean result = new java.util.concurrent.atomic.AtomicBoolean();
+        DistExecutor.safeRunWhenOn(Dist.CLIENT,
+                () -> () -> result.set(MobRagdollClientState.isRagdollSource(mob)));
+        return result.get();
     }
 }
