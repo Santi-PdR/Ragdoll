@@ -147,6 +147,10 @@ jobs:
               for mod_id in ("sable_player_ragdoll", "ragdoll_reactions"):
                   assert f'modId="{mod_id}"' in mod_text, f"{mod_id} metadata missing"
               assert "[2.0.5-port.11,)" in mod_text, "Ghouls-compatible Sable dependency missing"
+              assembly = archive.read("dev/leo/sableplayerragdoll/mob/MobRagdollAssembly.class")
+              saved_data = archive.read("dev/leo/sableplayerragdoll/mob/MobRagdollSavedData.class")
+              assert b"asCorpse" in assembly and b"markCorpse" in assembly, "dead mob ragdolls are not retained and marked"
+              assert b"markCorpse" in saved_data and b"Health" in saved_data, "dead mob state is not persisted across world reloads"
               classes = [name for name in names if name.endswith(".class")]
               assert len(classes) >= 120, f"expected both original ragdoll systems, found {len(classes)} classes"
               for resource in (
