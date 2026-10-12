@@ -22,7 +22,7 @@ public abstract class RagdollFirstPersonEyeMixin {
    private void sablePlayerRagdoll$anchorRagdollEye(
       BlockGetter area, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTick, CallbackInfo ci
    ) {
-      Vec3 target = RagdollCameraHelper.firstPersonHeadAnchor(this.position, partialTick);
+      Vec3 target = RagdollCameraHelper.firstPersonHeadAnchor(this.position, partialTick, detached);
       if (target != this.position) {
          this.setPosition(target.x, target.y, target.z);
       }

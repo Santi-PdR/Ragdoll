@@ -193,6 +193,12 @@ jobs:
               "mob rendering must be hidden only for server-announced ragdolls"
           assert "Mob.isNoAi" not in renderer_bytecode and "Mob.isInvisible" not in renderer_bytecode, \
               "mob rendering must not hide unrelated invisible no-AI mobs"
+          camera_bytecode = subprocess.check_output([
+              "javap", "-classpath", jar, "-c", "-p",
+              "dev.leo.sableplayerragdoll.neoforge.mixin.RagdollFirstPersonEyeMixin",
+          ], text=True)
+          assert "firstPersonHeadAnchor" in camera_bytecode and "Vec3;FZ)" in camera_bytecode, \
+              "first-person ragdoll camera must preserve detached camera modes"
           PY
       - uses: actions/upload-artifact@v4
         with:

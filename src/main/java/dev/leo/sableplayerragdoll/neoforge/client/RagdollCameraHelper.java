@@ -118,10 +118,11 @@ public final class RagdollCameraHelper {
       return true;
    }
 
-   public static Vec3 firstPersonHeadAnchor(Vec3 fallback, float partialTick) {
+   public static Vec3 firstPersonHeadAnchor(Vec3 fallback, float partialTick, boolean detached) {
       Minecraft minecraft = Minecraft.getInstance();
       LocalPlayer player = minecraft.player;
-      if (!RagdollClientConfig.useFirstPersonCamera()
+      if (detached
+         || !RagdollClientConfig.useFirstPersonCamera()
          || player == null
          || !(player.getVehicle() instanceof RagdollSeatEntity)
          || minecraft.options.getCameraType() != CameraType.FIRST_PERSON
